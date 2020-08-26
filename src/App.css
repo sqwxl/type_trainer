@@ -1,0 +1,53 @@
+.App {
+  text-align: center;
+  padding: 2rem;
+}
+
+.keyboard {
+  /* display: flex; */
+  background: #ddd;
+  border: 1px solid black;
+  border-radius: 1rem;
+  /* float:left; */
+  overflow: auto;
+}
+
+.keyboard > ul {
+  list-style-type: none;
+}
+
+.key {
+  background: #eee;
+  float: left;
+  border-radius: 10%;
+  margin: 0.1rem;
+  padding-left: 0.4rem;
+  text-align: left;
+  width: 3rem; /* default width */
+}
+
+.row-0 {
+  height: 1.8rem;
+  border-radius: 5%;
+  font-size: 0.7rem;
+}
+
+.row-1, .row-2, .row-3, .row-4, .row-5, .row-6 {
+  height: 3rem;
+}
+
+.w-1 {
+  width: 3rem;
+}
+
+.w-1-5 {
+  width: 4.5rem;
+}
+
+.w-2 {
+  width: 6rem;
+}
+
+#red {
+  background-color: red;
+}
