@@ -1,0 +1,112 @@
+.keyboard {
+  width: 55rem;
+  margin: 1rem auto;
+  background: #ddd;
+  border-radius: 1rem;
+  padding: 0.5rem 0rem;
+  font-family: monospace;
+}
+
+.keyboard-flex-row {
+  display: flex;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
+  list-style-type: none;
+  margin: 0;
+}
+
+.key-btn {
+  position: relative;
+  top: 0;
+  left: -1.2rem;
+  background: #eee;
+  border-radius: 0.3rem;
+  margin: 0.15rem;
+  padding: 0.2rem 0.4rem;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  flex-basis: 3rem; /* default width */
+  flex-grow: 0;
+}
+
+#Delete, #Escape {
+  flex-grow: 1;
+}
+
+#Backspace {
+  padding-top: 0.4rem;
+  flex-grow: 1;
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+#Tab {
+  padding-top: 0.4rem;
+  flex-grow: 0.8;
+  font-size: 0.8rem;
+}
+#Backslash {
+  padding-top: 0.4rem;
+  flex-grow: 1;
+  font-size: 0.8rem;
+}
+
+#CapsLock {
+  padding-top: 0.4rem;
+  flex-grow: 3;
+  font-size: 0.8rem;
+}
+
+#Enter {
+  padding-top: 0.4rem;
+  flex-grow: 5;
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+#ShiftLeft {
+  padding-top: 0.4rem;
+  flex-grow: 3;
+  font-size: 0.8rem;
+}
+
+#ShiftRight {
+  padding-top: 0.4rem;
+  flex-grow: 4;
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+#ArrowUp, #ArrowDown, #ArrowLeft, #ArrowRight {
+  line-height: 2.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+#Space {
+  flex-grow: 8;
+}
+
+.row-6 {
+  justify-content: flex-end;
+}
+
+.row-6 > .key-btn {
+  flex-grow: 0;
+}
+
+.row-item-0 {
+  height: 1.8rem;
+  border-radius: 5%;
+  font-size: 0.7rem;
+}
+
+.row-item-5 {
+  font-size: 0.8rem;
+}
+
+.row-item-1, .row-item-2, .row-item-3, .row-item-4, .row-item-5, .row-item-6 {
+  height: 3rem;
+}
