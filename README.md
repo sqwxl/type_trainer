@@ -1,3 +1,43 @@
+# Type trainer
+
+## Description
+
+This project intends to emulate the functionality of touch typing training software (i.e. [keybr.com](https://www.keybr.com/)) with added focus on the special characters used in programming.
+
+## Training Method
+
+The training program will initially generate random combinations of words (or word-like combinations of syllables à la keybr.com) and will progressively adapt its output to match the users weaknesses.
+The end result will implement some version "[spaced repetition](https://en.wikipedia.org/wiki/Spaced_repetition)" :
+> Spaced repetition is an evidence-based learning technique that is usually performed with flashcards. Newly introduced and more difficult flashcards are shown more frequently, while older and less difficult flashcards are shown less frequently in order to exploit the psychological spacing effect. The use of spaced repetition has been proven to increase rate of learning.
+
+Essentially, more error prone characters (or character combination) will appear more frequently, while acquired skills will come up less and less as they are mastered.
+
+
+## User stories (task list)
+
+### General functionalities
+- [ ] I can train immediately from the home page
+- [ ] I can register an account
+- [ ] I can access statistics about my training progress, with or without an account
+- [ ] As a visually impaired user, I can navigate and use the app with a screen reader
+### Trainer functionalities
+- [ ] I can see a keyboard that reflects my chosen layout
+- [ ] I can see a section with the text I have to type and the character to type is highlighted
+- [ ] I can easily read the text (visually & phonetically)
+- [ ] When I type a correct character, the following character is highlighted
+- [ ] When I type an incorrect character, that character is marked in red and remains highlighted until I type it
+- [ ] When I have inputed an incorrect character, but continue on to type a string of correct characters following it, the highlighted letter jumps ahead without me having to correct my error (the error is still recorded)
+- [ ] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, numbers, etc)
+- [ ] I can provide my own text to use as a training set
+- [ ] I can choose a from a selection of fonts for the training interface (i.e. monospace, comic sans for dyslexia, etc.)
+- [ ] What I type is reflected on the on-screen keyboard
+### Stats
+- [ ] I can see a heat map of the keyboard highlighting error-prone keys
+- [ ] I can see my average and best WPM
+- [ ] I can see a graph of my progress over time
+- [ ] I can see how much time I've spent training
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
