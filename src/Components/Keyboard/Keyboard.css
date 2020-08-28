@@ -36,44 +36,44 @@
 }
 
 #Backspace {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 1;
   text-align: right;
   font-size: 0.8rem;
 }
 
 #Tab {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 0.8;
   font-size: 0.8rem;
 }
 #Backslash {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 1;
   font-size: 0.8rem;
 }
 
 #CapsLock {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 3;
   font-size: 0.8rem;
 }
 
 #Enter {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 5;
   text-align: right;
   font-size: 0.8rem;
 }
 
 #ShiftLeft {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 3;
   font-size: 0.8rem;
 }
 
 #ShiftRight {
-  padding-top: 0.4rem;
+  /* padding-top: 0.4rem; */
   flex-grow: 4;
   text-align: right;
   font-size: 0.8rem;

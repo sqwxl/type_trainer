@@ -1,7 +1,19 @@
 import React from 'react'
 import Keyboard from './Keyboard'
-import { render } from '../../utils/test-utils'
+import App from '../../App'
+import { render, fireEvent } from '../../utils/test-utils'
 
-it('renders without crashing', () => {
-  render(<Keyboard />, {})
+describe('Keyboard', () => {
+  it('renders without crashing', () => {
+    render(<Keyboard />, {})
+  })
+  it.skip('highlights key presses (z)', () => {
+    render(<App />, {})
+    fireEvent(document, new KeyboardEvent('keydown', { code: "KeyZ" }))
+    // check that keyBtn Z gets highlighted on press and reverts on release
+    expect(true).toBe(false)
+  })
+  it.todo('also highlights multiple keys')
+  it.todo('changes appearance on theme change')
+  it.todo('displays the selected key layout')
 })
