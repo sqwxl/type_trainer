@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import Keyboard from './Components/Keyboard/Keyboard';
-import { Textarea, TextareaProps } from './Components/Textarea/Textarea';
+import { TrainerDisplayArea, TrainerDisplayAreaProps } from './Components/TrainerDisplayArea/TrainerDisplayArea';
 import { ThemeContext, themes } from './Components/Providers/ThemeProvider/ThemeContext';
 import { LayoutContext, layouts } from './Components/Providers/LayoutProvider/LayoutContext';
 
@@ -33,7 +33,7 @@ class App extends React.Component<{}, AppState> {
   render() {
     return (
       <div className="App" >
-        <Textarea displayText={this.state.displayText}></Textarea>
+        <TrainerDisplayArea displayText={this.state.displayText}></TrainerDisplayArea>
         <Keyboard />
       </div>
     );
