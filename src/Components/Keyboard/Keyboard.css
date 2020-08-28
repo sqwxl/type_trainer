@@ -1,5 +1,5 @@
 .keyboard {
-  width: 55rem;
+  max-width: 55rem;
   margin: 1rem auto;
   background: #ddd;
   border-radius: 1rem;
@@ -98,9 +98,9 @@
 }
 
 .row-item-0 {
-  height: 1.8rem;
+  height: 1.5rem;
   border-radius: 5%;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
 }
 
 .row-item-5 {
