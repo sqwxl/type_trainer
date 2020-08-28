@@ -1,9 +1,11 @@
 import React from 'react';
 import './Textarea.css'
 
-interface TextareaProps { }
+export interface TextareaProps { 
+  displayText: string;
+}
 
-export default function Textarea(props: TextareaProps) {
+export function Textarea(props: TextareaProps) {
   return (
     <div>
       <textarea ></textarea>

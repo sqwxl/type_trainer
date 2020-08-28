@@ -1,9 +1,10 @@
 import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Keyboard } from './Components/Keyboard/Keyboard';
+import Keyboard from './Components/Keyboard/Keyboard';
 import layout from "./Components/Keyboard/layouts/layout_enUS_linux";
-import { Textarea } from './Components/Textarea/Textarea';
+import { Textarea, TextareaProps } from './Components/Textarea/Textarea';
+
 
 interface AppProps { }
 interface AppState {
@@ -18,6 +19,14 @@ class App extends React.Component<{}, AppState> {
     super(props)
     this.state = INITIALSTATE
   }
+
+  handleKeyPress(e) {
+    e.preventDefault()
+    let pressed = {
+      
+    }
+  }
+
   render() {
     return (
       <div className="App">
