@@ -18,12 +18,12 @@ const INITIALSTATE: AppState = {
 }
 
 class App extends React.Component<{}, AppState> {
-  keyReleaseTimer: NodeJS.Timeout;
+  // keyReleaseTimer: NodeJS.Timeout;
   constructor(props: AppProps) {
     super(props)
     this.state = INITIALSTATE
     this.handleKeyDown = this.handleKeyDown.bind(this)
-    this.keyReleaseTimer = setTimeout(() => { }, 0)
+    // this.keyReleaseTimer = setTimeout(() => { }, 0)
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
   }
@@ -36,12 +36,12 @@ class App extends React.Component<{}, AppState> {
   handleKeyDown(event: KeyboardEvent) {
     event.preventDefault()
     let pressed = this.state.pressed
-    // if (pressed.includes(event.code)) {
-    //   clearTimeout(this.keyReleaseTimer)
-    //   return
-    // }
+    if (event.repeat || pressed.includes(event.code)) {
+      // clearTimeout(this.keyReleaseTimer)
+      return
+    }
     pressed.push(event.code)
-    this.setState({ pressed: pressed }, () => this.keyReleaseTimer = this.scheduleKeyRelease(event.code))
+    this.setState({ pressed: pressed }, /* () => this.keyReleaseTimer = this.scheduleKeyRelease(event.code) */)
   }
   
   handleKeyUp(event: KeyboardEvent) {
@@ -50,10 +50,10 @@ class App extends React.Component<{}, AppState> {
     this.setState({ pressed: pressed})
   }
 
-  scheduleKeyRelease = (c: string) => setTimeout(() => {
-    let pressed = this.state.pressed.filter(code => code !== c)
-    this.setState({ pressed: pressed})
-  }, 50)
+  // scheduleKeyRelease = (c: string) => setTimeout(() => {
+  //   let pressed = this.state.pressed.filter(code => code !== c)
+  //   this.setState({ pressed: pressed})
+  // }, 50)
 
   handleBlur() {
     this.setState({ pressed: [] })
