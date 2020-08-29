@@ -20,6 +20,7 @@ Essentially, more error prone characters (or character combination) will appear 
 - [ ] I can register an account
 - [ ] I can access statistics about my training progress, with or without an account
 - [ ] As a visually impaired user, I can navigate and use the app with a screen reader
+- [ ] The website is compatible with assistive technologies
 - [ ] I can switch between light and dark global color themes
 ### Trainer functionalities
 - [ ] I can see a keyboard that reflects my chosen layout
