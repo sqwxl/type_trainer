@@ -1,17 +1,22 @@
 import React from 'react'
 import Keyboard from './Keyboard'
 import App from '../../App'
-import { render, fireEvent } from '../../utils/test-utils'
+import { render, fireEvent, screen } from '../../utils/test-utils'
 
 describe('Keyboard', () => {
   it('renders without crashing', () => {
-    render(<Keyboard />, {})
+    render(<Keyboard pressed={[]} />, {})
   })
-  it.skip('highlights key presses (z)', () => {
+  it('has default theme class (light)', () => {
+    render(<Keyboard pressed={[]}/>, {})
+    expect(screen.getByTestId('keyboard')).toHaveClass('theme-light')
+  })
+  it('reflects user input', () => {
     render(<App />, {})
     fireEvent(document, new KeyboardEvent('keydown', { code: "KeyZ" }))
-    // check that keyBtn Z gets highlighted on press and reverts on release
-    expect(true).toBe(false)
+    expect(screen.getByText('Z')).toHaveClass('pressed')
+    fireEvent(document, new KeyboardEvent('keyup', { code: 'KeyZ' }))
+    expect(screen.getByText('Z')).toHaveClass('pressed')
   })
   it.todo('also highlights multiple keys')
   it.todo('changes appearance on theme change')

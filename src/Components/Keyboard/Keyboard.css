@@ -1,7 +1,7 @@
 .keyboard {
   max-width: 55rem;
   margin: 1rem auto;
-  background: #ddd;
+  background: var(--color-secondary);
   border-radius: 1rem;
   padding: 0.5rem 0rem;
   font-family: monospace;
@@ -20,7 +20,8 @@
   position: relative;
   top: 0;
   left: -1.2rem;
-  background: #eee;
+  background-color: var(--color-tertiary);
+  color: var(--text-primary);
   border-radius: 0.3rem;
   margin: 0.15rem;
   padding: 0.2rem 0.4rem;
@@ -29,6 +30,11 @@
   line-height: 1.2rem;
   flex-basis: 3rem; /* default width */
   flex-grow: 0;
+}
+
+.pressed {
+  background-color: var(--color-accent);
+  color: var(--text-accent);
 }
 
 #Delete, #Escape {
