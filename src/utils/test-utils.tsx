@@ -1,8 +1,8 @@
 
 import React from 'react'
 import { render } from '@testing-library/react'
-import {LayoutContext, layouts} from '../Components/Providers/LayoutProvider/LayoutContext'
-import {ThemeContext, themes} from '../Components/Providers/ThemeProvider/ThemeContext'
+import {LayoutContext, layouts} from '../Components/Contexts/LayoutContext/LayoutContext'
+import {ThemeContext, themes} from '../Components/Contexts/ThemeContext/ThemeContext'
 
 const AllProviders = ({ children }: any) => {
   return (
