@@ -13,8 +13,8 @@ interface KeyBtnData {
 
 export default function Keyboard(props: any) {
   const theme = useContext(ThemeContext)
+  const layout = useContext(LayoutContext)
 
-  let layout = useContext(LayoutContext)
   let pressed = props.pressed
   let keys: JSX.Element[] = [];
   for (let [idx, keyRow] of layout.entries()) {
@@ -31,18 +31,18 @@ export default function Keyboard(props: any) {
       }
       let classes = ["key-btn"];
       classes.push("row-item-" + idx);
-      if (pressed.includes(keyBtnData.code)) classes.push("pressed")
+      if (pressed.length && pressed.includes(keyBtnData.code)) classes.push("pressed")
       if (keyBtnData.class)
         classes.push(...keyBtnData.class);
       row.push(<li id={keyBtnData.code} key={keyBtnData.code} className={classes.join(" ")} dangerouslySetInnerHTML={label}></li>);
     });
-    keys.push(<ul key={"row-" + idx} className={"keyboard-flex-row row-" + idx}>{row}<div style={{ clear: "left" }}></div></ul>);
+    keys.push(<ul key={"row-" + idx} className={"keyboard-flex-row row-" + idx}>{row}</ul>);
   }
   return (
     // <ThemeContext.Consumer>
     //   {theme =>
         <Container>
-          <div className={"keyboard " + theme} id="keyboard" data-testid="keyboard">
+      <div className={"keyboard"} style={theme} id="keyboard" data-testid="keyboard">
             {keys}
           </div>
         </Container>

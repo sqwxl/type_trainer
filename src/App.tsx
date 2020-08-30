@@ -33,6 +33,12 @@ class App extends React.Component<{}, AppState> {
     document.addEventListener('blur', this.handleBlur)
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown)
+    document.removeEventListener('keyup', this.handleKeyUp)
+    document.removeEventListener('blur', this.handleBlur)
+  }
+
   handleKeyDown(event: KeyboardEvent) {
     event.preventDefault()
     let pressed = this.state.pressed
@@ -41,13 +47,13 @@ class App extends React.Component<{}, AppState> {
       return
     }
     pressed.push(event.code)
-    this.setState({ pressed: pressed }, /* () => this.keyReleaseTimer = this.scheduleKeyRelease(event.code) */)
+    this.setState({ pressed: pressed })
   }
-  
+
   handleKeyUp(event: KeyboardEvent) {
     event.preventDefault()
     let pressed = this.state.pressed.filter(code => code !== event.code)
-    this.setState({ pressed: pressed})
+    this.setState({ pressed: pressed })
   }
 
   // scheduleKeyRelease = (c: string) => setTimeout(() => {
@@ -61,10 +67,15 @@ class App extends React.Component<{}, AppState> {
 
   render() {
     return (
-      <div className="App" >
-        <TrainerDisplayArea displayText={this.state.displayText}></TrainerDisplayArea>
-        <Keyboard pressed={this.state.pressed} />
-      </div>
+      <ThemeContext.Consumer>
+        {theme => (
+          <div className="App" style={theme}>
+            <TrainerDisplayArea displayText={this.state.displayText}></TrainerDisplayArea>
+            <Keyboard pressed={this.state.pressed} />
+          </div>
+        )}
+      </ThemeContext.Consumer>
+
     );
   }
 
