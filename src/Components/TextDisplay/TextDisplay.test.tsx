@@ -1,11 +1,11 @@
 import React from 'react'
-import { TrainerDisplayArea } from './TrainerDisplayArea'
+import { TextDisplay } from './TextDisplay'
 import { render } from '../../utils/test-utils'
 
 // 'should render'
 describe('TrainerDisplayArea', () => {
   it('renders without crashing', () => {
-    render(<TrainerDisplayArea displayText="" />, {})
+    render(<TextDisplay displayText="" />, {})
   })
   it.todo('displays a training string')
   it.todo('highlights the current character')

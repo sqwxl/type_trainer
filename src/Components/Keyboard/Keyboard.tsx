@@ -11,7 +11,6 @@ interface KeyBtnData {
 }
 
 export default function Keyboard(props: any) {
-  // const theme = useContext(ThemeContext)
   const layout = useContext(LayoutContext)
 
   let pressed = props.pressed
@@ -38,15 +37,11 @@ export default function Keyboard(props: any) {
     keys.push(<ul key={"row-" + idx} className={"keyboard-flex-row row-" + idx}>{row}</ul>);
   }
   return (
-    // <ThemeContext.Consumer>
-    //   {theme =>
         <Container>
       <div className={"keyboard"} id="keyboard" data-testid="keyboard">
             {keys}
           </div>
         </Container>
-    //   }
-    // </ThemeContext.Consumer>);
   )
 }
 

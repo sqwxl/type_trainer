@@ -1,0 +1,15 @@
+textarea {
+  width: 80%;
+  max-width: 55em;
+  height: 15vh;
+  min-height: 10rem;
+  resize: none;
+  background-color: var(--color-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--color-secondary);
+  border-radius: 1rem;
+
+  padding: 1rem;
+
+  font-size: 2rem;
+}

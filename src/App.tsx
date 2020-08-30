@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Keyboard from './Components/Keyboard/Keyboard';
-import { TrainerDisplayArea, TrainerDisplayAreaProps } from './Components/TrainerDisplayArea/TrainerDisplayArea';
+import { TextDisplay, TextDisplayProps } from './Components/TextDisplay/TextDisplay';
 import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeContext';
 import { LayoutContext, layouts } from './Components/Contexts/LayoutContext/LayoutContext';
 import Toolbar from './Components/Toolbar/Toolbar'
@@ -81,7 +81,7 @@ class App extends React.Component<{}, any> {
       <ThemeContext.Provider value={{theme: this.state.theme, toggleTheme: () => this.toggleTheme()}}>
           <div className="App" style={this.state.theme}>
             <Toolbar />
-            <TrainerDisplayArea displayText={this.state.displayText}></TrainerDisplayArea>
+            <TextDisplay displayText={this.state.displayText}></TextDisplay>
             <Keyboard pressed={this.state.pressed} />
           </div>
       </ThemeContext.Provider>
