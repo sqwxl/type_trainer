@@ -6,6 +6,7 @@ import { TrainerDisplayArea, TrainerDisplayAreaProps } from './Components/Traine
 import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeContext';
 import { LayoutContext, layouts } from './Components/Contexts/LayoutContext/LayoutContext';
 import Toolbar from './Components/Toolbar/Toolbar'
+// import { ThemeConsumer } from 'react-bootstrap/esm/ThemeProvider';
 
 
 interface AppProps { }
@@ -18,15 +19,20 @@ const INITIALSTATE: AppState = {
   pressed: []
 }
 
-class App extends React.Component<{}, AppState> {
-  // keyReleaseTimer: NodeJS.Timeout;
+class App extends React.Component<{}, any> {
+  static contextType = ThemeContext
   constructor(props: AppProps) {
     super(props)
-    this.state = INITIALSTATE
+    this.state = {
+      displayText: "",
+      pressed: [],
+      theme: themes.light
+    }
     this.handleKeyDown = this.handleKeyDown.bind(this)
     // this.keyReleaseTimer = setTimeout(() => { }, 0)
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
+    this.toggleTheme = this.toggleTheme.bind(this)
   }
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
@@ -53,7 +59,7 @@ class App extends React.Component<{}, AppState> {
 
   handleKeyUp(event: KeyboardEvent) {
     event.preventDefault()
-    let pressed = this.state.pressed.filter(code => code !== event.code)
+    let pressed = this.state.pressed.filter((code: string) => code !== event.code)
     this.setState({ pressed: pressed })
   }
 
@@ -66,18 +72,19 @@ class App extends React.Component<{}, AppState> {
     this.setState({ pressed: [] })
   }
 
+  toggleTheme() {
+    this.setState({theme: this.state.theme === themes.light ? themes.dark : themes.light })
+  }
+
   render() {
     return (
-      <ThemeContext.Consumer>
-        {theme => (
-          <div className="App" style={theme}>
+      <ThemeContext.Provider value={{theme: this.state.theme, toggleTheme: () => this.toggleTheme()}}>
+          <div className="App" style={this.state.theme}>
             <Toolbar />
             <TrainerDisplayArea displayText={this.state.displayText}></TrainerDisplayArea>
             <Keyboard pressed={this.state.pressed} />
           </div>
-        )}
-      </ThemeContext.Consumer>
-
+      </ThemeContext.Provider>
     );
   }
 

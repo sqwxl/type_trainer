@@ -28,4 +28,7 @@ export const themes: { [index: string]: CSSCustomProperties } = {
   dark: dark,
 }
 
-export const ThemeContext = React.createContext(themes.light)
+export const ThemeContext = React.createContext({
+  theme: themes.light,
+  toggleTheme: () => { }
+})

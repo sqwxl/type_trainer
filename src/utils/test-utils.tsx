@@ -6,7 +6,7 @@ import {ThemeContext, themes} from '../Components/Contexts/ThemeContext/ThemeCon
 
 const AllProviders = ({ children }: any) => {
   return (
-    <ThemeContext.Provider value={themes.light}>
+    <ThemeContext.Provider value={{ theme: themes.light, toggleTheme: () => { }}}>
       <LayoutContext.Provider value={layouts.enUS_linux}>
         {children}
       </LayoutContext.Provider>
