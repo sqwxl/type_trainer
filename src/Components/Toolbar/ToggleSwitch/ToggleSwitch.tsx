@@ -5,13 +5,13 @@ import { Form, FormCheck } from 'react-bootstrap'
 
 
 export default function ToggleSwitch() {
-  const {toggleTheme} = useContext(ThemeContext)
+  const { theme, toggleTheme } = useContext(ThemeContext)
   return (
     <Form>
       <FormCheck
         type="switch"
         id="custom-switch"
-        label="Check this switch"
+        label="Dark theme"
         role="switch"
         onClick={toggleTheme}
       />
