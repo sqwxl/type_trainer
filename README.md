@@ -19,19 +19,22 @@ Essentially, more error prone characters (or character combination) will appear 
 - [ ] I can train immediately from the home page
 - [ ] I can register an account
 - [ ] I can access statistics about my training progress, with or without an account
-- [ ] As a visually impaired user, I can navigate and use the app with a screen reader
 - [ ] The website is compatible with assistive technologies
-- [ ] I can switch between light and dark global color themes
+- [ ] I can resize the window and the page is responsive
+- [ ] I can see all components on small screens (min 1024x768)
 ### Trainer
 - [x] I can see a keyboard
 - [x] The keyboard highlights the keys I am currently pressing (linux)
 - [ ] I see a toolbar above the text area which gives me access to UI and training settings
+- [ ] I can switch between light and dark global color themes from the toolbar
+- [ ] I can switch between predefined font sizes from the toolbar
 - [ ] I can see a section with the text I have to type and the character to type is highlighted
 - [ ] When I click outside of the page (i.e. lost focus) the training session pauses and shows that it is paused 
 - [ ] I can easily read the text (visually & phonetically)
 - [ ] When I type a correct character, the following character is highlighted
 - [ ] When I type an incorrect character, that character is marked in red and remains highlighted until I type it
 - [ ] When I have inputed an incorrect character, but continue on to type a string of correct characters following it, the highlighted letter jumps ahead without me having to correct my error (the error is still recorded)
+- [ ] I see a summary of relevant stats (WPM, errors, etc) that updates as I complete sessions
 ### Settings
 - [ ] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters+numbers, etc)
 - [ ] I can provide my own text to use as a training set
