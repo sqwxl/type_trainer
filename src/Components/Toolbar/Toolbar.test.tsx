@@ -1,15 +1,14 @@
 import React from 'react'
-import { render, fireEvent } from '../../utils/test-utils'
-import { TrainerToolbar } from './Toolbar'
-import App from '../../App'
+import { render, fireEvent, screen } from '../../utils/test-utils'
+import Toolbar from './Toolbar'
 
 describe('toolbar', () => {
   it('renders without crashing', () => {
-    render(<TrainerToolbar />, {})
+    render(<Toolbar />, {})
   })
   
   it('has a button that toggles color theme', () => {
-    render(<App />, {})
-    
+    render(<Toolbar />, {})
+    expect(screen.getByRole('switch')).toBeInTheDocument()
   })
 })

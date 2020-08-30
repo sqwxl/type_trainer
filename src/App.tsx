@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Keyboard from './Components/Keyboard/Keyboard';
 import { TrainerDisplayArea, TrainerDisplayAreaProps } from './Components/TrainerDisplayArea/TrainerDisplayArea';
 import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeContext';
 import { LayoutContext, layouts } from './Components/Contexts/LayoutContext/LayoutContext';
+import Toolbar from './Components/Toolbar/Toolbar'
 
 
 interface AppProps { }
@@ -70,6 +71,7 @@ class App extends React.Component<{}, AppState> {
       <ThemeContext.Consumer>
         {theme => (
           <div className="App" style={theme}>
+            <Toolbar />
             <TrainerDisplayArea displayText={this.state.displayText}></TrainerDisplayArea>
             <Keyboard pressed={this.state.pressed} />
           </div>

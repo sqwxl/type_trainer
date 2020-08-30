@@ -1,15 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Keyboard from './Keyboard'
-import App from '../../App'
+import { themes } from '../Contexts/ThemeContext/ThemeContext'
 import { render, fireEvent, screen } from '../../utils/test-utils'
 
+
 describe('Keyboard', () => {
-  it.skip('renders without crashing', () => {
+  it('renders without crashing', () => {
     render(<Keyboard />, {})
+    expect(screen.getByText('Z')).toBeInTheDocument()
   })
-  it.skip('has default theme class (light)', () => {
+  it('changes appearance when "pressed"', () => {
     render(<Keyboard />, {})
-    expect(screen.getByTestId('keyboard')).toHaveClass('theme-light')
+    expect(screen.getByText('Z')).toHaveStyle("background-color: " + themes.light["--color-tertiary"])
   })
   it.todo('changes appearance on theme change')
   it.todo('displays the selected key layout')
