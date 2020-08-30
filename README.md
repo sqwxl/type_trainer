@@ -25,7 +25,7 @@ Essentially, more error prone characters (or character combination) will appear 
 ### Trainer
 - [x] I can see a keyboard
 - [x] The keyboard highlights the keys I am currently pressing (linux)
-- [ ] I see a toolbar above the text area which gives me access to UI and training settings
+- [x] I see a toolbar above the text area which gives me access to UI and training settings
 - [ ] I can switch between light and dark global color themes from the toolbar
 - [ ] I can switch between predefined font sizes from the toolbar
 - [ ] I can see a section with the text I have to type and the character to type is highlighted
