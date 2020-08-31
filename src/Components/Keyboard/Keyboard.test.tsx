@@ -9,10 +9,4 @@ describe('Keyboard', () => {
     render(<Keyboard />, {})
     expect(screen.getByText('Z')).toBeInTheDocument()
   })
-  it('changes appearance when "pressed"', () => {
-    render(<Keyboard />, {})
-    expect(screen.getByText('Z')).toHaveStyle("background-color: " + themes.light["--color-tertiary"])
-  })
-  it.todo('changes appearance on theme change')
-  it.todo('displays the selected key layout')
 })

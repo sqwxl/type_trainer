@@ -26,16 +26,17 @@ Essentially, more error prone characters (or character combination) will appear 
 - [x] I can see a keyboard
 - [x] The keyboard highlights the keys I am currently pressing (linux)
 - [x] I see a toolbar above the text area which gives me access to UI and training settings
-- [x] I can switch between light and dark global color themes from the toolbar
-- [ ] I can switch between predefined font sizes from the toolbar
-- [ ] I can see a section with the text I have to type and the character to type is highlighted
-- [ ] When I click outside of the page (i.e. lost focus) the training session pauses and shows that it is paused 
+- [x] I can see a section with the text I have to type and the character to type is highlighted
+- [ ] I see a prompt in the text area asking me to click to begin the session
+- [x] When I click outside of the page (i.e. lost focus) the training session pauses and I can see that is is paused
 - [ ] I can easily read the text (visually & phonetically)
-- [ ] When I type a correct character, the following character is highlighted
-- [ ] When I type an incorrect character, that character is marked in red and remains highlighted until I type it
+- [x] When I type a correct character, the following character is highlighted
+- [x] When I type an incorrect character, that character is marked in red and remains highlighted until I type it
 - [ ] When I have inputed an incorrect character, but continue on to type a string of correct characters following it, the highlighted letter jumps ahead without me having to correct my error (the error is still recorded)
 - [ ] I see a summary of relevant stats (WPM, errors, etc) that updates as I complete sessions
 ### Settings
+- [x] I can switch between light and dark global color themes from the toolbar
+- [ ] I can switch between predefined font sizes from the toolbar
 - [ ] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters+numbers, etc)
 - [ ] I can provide my own text to use as a training set
 - [ ] I can choose a from a selection of fonts for the training interface (i.e. monospace, comic sans for dyslexia, etc.)

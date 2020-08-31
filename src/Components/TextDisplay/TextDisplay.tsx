@@ -1,6 +1,5 @@
 import React from 'react';
-import Container from 'react-bootstrap/Container'
-import './TrainerDisplayArea.css'
+import './TextDisplay.css'
 
 export interface TextDisplayProps { 
   displayText: string;
@@ -8,8 +7,9 @@ export interface TextDisplayProps {
 
 export function TextDisplay(props: TextDisplayProps) {
   return (
-    <Container>
-      <textarea autoFocus readOnly value={"test string"}></textarea>
-    </Container>
+    <div className="textDisplay" role="textbox">
+        <p dangerouslySetInnerHTML={{ __html: props.displayText }}></p>
+      </div>
   )
 }
+// {/* <textarea autoFocus readOnly value={props.displayText}></textarea> */}

@@ -10,7 +10,9 @@ const light: CSSCustomProperties = {
 
   "--color-accent": "#5e5e5e",
   "--text-accent": "#eee",
-  color: "#0e0e0e"
+  "--text-background-highlight": "#ffff99",
+  "--text-color-highlight": "#668cff",
+  color: "var(--text-primary)"
 }
 
 const dark: CSSCustomProperties = {
@@ -22,7 +24,9 @@ const dark: CSSCustomProperties = {
   
   "--color-accent": "#eee",
   "--text-accent": "#111",
-  color: "#eee"
+  "--text-background-highlight": "#ffff99",
+  "--text-color-highlight": "#668cff",
+  color: "var(--text-primary)"
 }
 
 export const themes: { [index: string]: CSSCustomProperties } = {

@@ -37,11 +37,9 @@ export default function Keyboard(props: any) {
     keys.push(<ul key={"row-" + idx} className={"keyboard-flex-row row-" + idx}>{row}</ul>);
   }
   return (
-        <Container>
       <div className={"keyboard"} id="keyboard" data-testid="keyboard">
             {keys}
           </div>
-        </Container>
   )
 }
 
