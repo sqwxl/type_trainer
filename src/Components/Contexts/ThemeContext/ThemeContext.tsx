@@ -10,8 +10,8 @@ const light: CSSCustomProperties = {
 
   "--color-accent": "#5e5e5e",
   "--text-accent": "#eee",
-  "--text-background-highlight": "#ffff99",
-  "--text-color-highlight": "#668cff",
+  "--text-background-highlight": "#66ffff",
+  "--text-color-highlight": "#ffffff",
   color: "var(--text-primary)"
 }
 
@@ -24,8 +24,8 @@ const dark: CSSCustomProperties = {
   
   "--color-accent": "#eee",
   "--text-accent": "#111",
-  "--text-background-highlight": "#ffff99",
-  "--text-color-highlight": "#668cff",
+  "--text-background-highlight": "#66ffff",
+  "--text-color-highlight": "#ffffff",
   color: "var(--text-primary)"
 }
 

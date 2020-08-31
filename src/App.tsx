@@ -43,7 +43,9 @@ function isChar(code: string) {
 }
 
 function replaceSpaces(str: string): string {
-  return str.replaceAll(" ", "␣")
+  // let replacement = `&blank;<span style="font-family: sans-serif;">&NegativeVeryThinSpace;</span>`
+  let replacement = `&blank;&NegativeVeryThinSpace;`
+  return str.replaceAll(" ", replacement)//"␣")
 }
 
 class App extends React.Component<{}, any> {
@@ -55,7 +57,7 @@ class App extends React.Component<{}, any> {
       currentChar: 0,
       errorIndices: new Set(),
       pressed: [],
-      paused: true,
+      paused: false,
       theme: themes.light
     }
     this.handleKeyDown = this.handleKeyDown.bind(this)
@@ -140,22 +142,22 @@ class App extends React.Component<{}, any> {
 
   getStrMarkup() {
     let { currentChar, trainingString, errorIndices } = this.state
-    trainingString = replaceSpaces(trainingString)
+    // trainingString = replaceSpaces(trainingString)
     let tagged = ""
     let start = 0
     // Tag errors, up to but not including currentChar
     for (let e of errorIndices) {
       if (e === currentChar) break
       if (e < start) continue
-      tagged = tagged.concat(trainingString.slice(start, e), tag(trainingString[e], `<span class="errorChar">`, `</span>`))
+      tagged = tagged.concat(replaceSpaces(trainingString.slice(start, e)), tag(trainingString[e], `<span class="errorChar">`, `</span>`))
       start = e + 1
     }
     // Tag currentChar
-    tagged = tagged.concat(trainingString.slice(start, currentChar), tag(trainingString[currentChar], `<span class="currentChar">`, `</span>`), trainingString.slice(currentChar + 1))
+    tagged = tagged.concat(replaceSpaces(trainingString.slice(start, currentChar)), tag(trainingString[currentChar], `<span class="currentChar">`, `</span>`), replaceSpaces(trainingString.slice(currentChar + 1)))
     return tagged
     
     function tag(content: string, open: string, close: string) {
-      return open + content + close
+      return open + replaceSpaces(content) + close
     }
   }
 
