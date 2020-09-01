@@ -8,13 +8,6 @@ import Toolbar from './Components/Toolbar/Toolbar'
 import { Container } from 'react-bootstrap';
 import FormattedText from './Components/FormattedText/FormattedText';
 
-
-interface AppProps { }
-interface AppState {
-  displayText: string;
-  pressed: string[];
-}
-
 function isChar(code: string) {
   if (code.slice(0, 3) === 'Key') return true
   if (code.slice(0, 5) === 'Digit') return true
