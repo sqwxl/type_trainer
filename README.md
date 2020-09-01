@@ -27,7 +27,7 @@ Essentially, more error prone characters (or character combination) will appear 
 - [x] The keyboard highlights the keys I am currently pressing (linux)
 - [x] I see a toolbar above the text area which gives me access to UI and training settings
 - [x] I can see a section with the text I have to type and the character to type is highlighted
-- [ ] I see a prompt in the text area asking me to click to begin the session
+- [x] I see a prompt in the text area asking me to click to begin the session
 - [x] When I click outside of the page (i.e. lost focus) the training session pauses and I can see that is is paused
 - [ ] I can easily read the text (visually & phonetically)
 - [x] When I type a correct character, the following character is highlighted
