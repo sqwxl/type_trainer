@@ -7,6 +7,26 @@ import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeCo
 import Toolbar from './Components/Toolbar/Toolbar'
 import { Container } from 'react-bootstrap';
 import FormattedText from './Components/FormattedText/FormattedText';
+import ThemeToggleSwitch from './Components/ThemeToggleSwitch/ThemeToggleSwitch'
+
+import Foswig from 'foswig'
+
+import dict from './english_words_array.json'
+
+// let dict
+// let loadDict = async function() { await fetch("./english_words_array.json").then(res => res.json()).then(data => {console.log(data);dict = data}).catch(err => console.log(err)) }
+// loadDict()
+// console.log(dict)
+const chain = new Foswig(3, dict.dict)
+const options = { minLength: 3, maxLength: 12 }
+
+function generateStr() {
+  let words: Array<string> = []
+  while (words.length < 10) {
+    words.push(chain.generate(options))
+  }
+  return words.join(" ")
+}
 
 function isChar(code: string) {
   if (code.slice(0, 3) === 'Key') return true
@@ -41,7 +61,7 @@ class App extends React.Component<{}, any> {
   constructor(props: any) {
     super(props)
     this.state = {
-      trainingStr: "Xylem Tube EP is an EP by the English electronic music producer Richard D. James under the pseudonym of Aphex Twin, released in June 1992 by Apollo Records. It was his second release under the Aphex Twin alias. Xylem Tube EP was released exclusively on vinyl in June 1992.",
+      trainingStr: generateStr(),//"Xylem Tube EP is an EP by the English electronic music producer Richard D. James under the pseudonym of Aphex Twin, released in June 1992 by Apollo Records. It was his second release under the Aphex Twin alias. Xylem Tube EP was released exclusively on vinyl in June 1992.",
       cursor: 0,
       mistakes: new Set(),
       pressed: new Set(),
@@ -60,7 +80,7 @@ class App extends React.Component<{}, any> {
   }
 
   componentWillMount() {
-    
+
   }
 
   componentDidMount() {
@@ -75,8 +95,6 @@ class App extends React.Component<{}, any> {
     document.removeEventListener('blur', () => this.handleBlur())
   }
 
-  
-
   handleKeyDown(event: KeyboardEvent) {
     let { pressed, trainingStr, cursor, mistakes } = this.state
 
@@ -90,12 +108,17 @@ class App extends React.Component<{}, any> {
     if (isChar(event.code)) {
       if (trainingStr[cursor] === event.key) {
         cursor += 1
+        if (cursor === trainingStr.length) {
+          cursor = 0
+          trainingStr = generateStr()
+          mistakes = new Set()
+        }
       } else {
         mistakes.add(this.state.cursor)
       }
     }
     // Update state
-    this.setState({ pressed: pressed, cursor: cursor, mistakes: mistakes })
+    this.setState({ pressed: pressed, trainingStr: trainingStr, cursor: cursor, mistakes: mistakes })
 
   }
 
@@ -121,15 +144,17 @@ class App extends React.Component<{}, any> {
   render() {
     return (
       <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: () => this.toggleTheme() }}>
-        <Container fluid className="App" style={this.state.theme} onClick={() => this.handleFocus() }>
+        <Container fluid className="App" style={this.state.theme} onClick={() => this.handleFocus()}>
           <Container >
-            <Toolbar />
+            <Toolbar>
+              <ThemeToggleSwitch />
+            </Toolbar>
             <TextDisplay>
               {this.state.status === AppStatus.Paused ?
-              (<p>Session paused, click anywhere to continue</p>) :
-              this.state.status === AppStatus.NewSession ?
-              (<p>Click here to begin</p>) :
-                <FormattedText cursor={this.state.cursor} trainingStr={this.state.trainingStr} mistakes={this.state.mistakes} />}
+                (<p>Session paused, click anywhere to continue</p>) :
+                this.state.status === AppStatus.NewSession ?
+                  (<p>Click here to begin</p>) :
+                  <FormattedText cursor={this.state.cursor} trainingStr={this.state.trainingStr} mistakes={this.state.mistakes} />}
             </TextDisplay>
             <Keyboard pressed={this.state.pressed} />
           </Container>

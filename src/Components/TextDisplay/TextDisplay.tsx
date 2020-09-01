@@ -4,8 +4,8 @@ import './TextDisplay.css'
 export function TextDisplay(props: any) {
   return (
     <div className="textDisplay" role="textbox">
-        {props.children}
-      </div>
+      {props.children}
+    </div>
   )
 }
 // {/* <textarea autoFocus readOnly value={props.displayText}></textarea> */}

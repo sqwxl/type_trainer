@@ -16,7 +16,7 @@ Essentially, more error prone characters (or character combination) will appear 
 ## User stories (task list)
 
 ### General functionalities
-- [ ] I can train immediately from the home page
+- [x] I can train immediately from the home page
 - [ ] I can register an account
 - [ ] I can access statistics about my training progress, with or without an account
 - [ ] The website is compatible with assistive technologies
@@ -29,6 +29,7 @@ Essentially, more error prone characters (or character combination) will appear 
 - [x] I can see a section with the text I have to type and the character to type is highlighted
 - [x] I see a prompt in the text area asking me to click to begin the session
 - [x] When I click outside of the page (i.e. lost focus) the training session pauses and I can see that is is paused
+- [x] When I finish typing a sentence, a new one appears immediately
 - [ ] I can easily read the text (visually & phonetically)
 - [x] When I type a correct character, the following character is highlighted
 - [x] When I type an incorrect character, that character is marked in red and remains highlighted until I type it

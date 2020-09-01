@@ -1,8 +1,7 @@
 import React from 'react'
-import ToggleSwitch from './ToggleSwitch/ToggleSwitch'
 
-export default function Toolbar() {
+export default function Toolbar(props: any) {
   return (<nav>
-    <ToggleSwitch />
+    {props.children}
   </nav>)
 }
