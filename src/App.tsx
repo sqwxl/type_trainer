@@ -2,12 +2,13 @@ import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Keyboard from './Components/Keyboard/Keyboard';
-import { TextDisplay, TextDisplayProps } from './Components/TextDisplay/TextDisplay';
+import { TextDisplay } from './Components/TextDisplay/TextDisplay';
 import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeContext';
 import { LayoutContext, layouts } from './Components/Contexts/LayoutContext/LayoutContext';
 import Toolbar from './Components/Toolbar/Toolbar'
 import { Container } from 'react-bootstrap';
 import { type } from 'os';
+import FormattedText from './Components/FormattedText/FormattedText';
 // import { ThemeConsumer } from 'react-bootstrap/esm/ThemeProvider';
 
 
@@ -141,7 +142,7 @@ class App extends React.Component<{}, any> {
     let before = ""
     let current = ""
     let after = format(trainingString.slice(currentChar + 1))
-    
+
     // Tag errors, up to but not including currentChar
     let start = 0
     for (let e of errorIndices) {
@@ -191,13 +192,21 @@ class App extends React.Component<{}, any> {
   }
 
   render() {
-    let displayText = this.state.paused ? "Session paused, click anywhere to continue" : this.getStrMarkup()
+    // let displayText = this.state.paused ? "Session paused, click anywhere to continue" : this.getStrMarkup()
     return (
       <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: () => this.toggleTheme() }}>
         <Container fluid className="App" style={this.state.theme} onClick={this.handleFocus}>
           <Container >
             <Toolbar />
-            <TextDisplay displayText={displayText}></TextDisplay>
+            <TextDisplay>
+              {
+                this.state.paused ?
+                  (<p>Session paused, click anywhere to continue</p>)
+                  :
+                  <FormattedText currentChar={this.state.currentChar} trainingString={this.state.trainingString} errorIndices={this.state.errorIndices} />
+
+              }
+            </TextDisplay>
             <Keyboard pressed={this.state.pressed} />
           </Container>
         </Container>

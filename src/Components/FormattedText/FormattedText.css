@@ -1,0 +1,33 @@
+.correct {
+  color: var(--text-secondary)
+}
+
+.after {
+  color: var(--text-primary)
+}
+
+.currentChar {
+  animation-name: cursor-blink;
+  animation-duration: 750ms;
+  animation-iteration-count: infinite;
+}
+
+.typo {
+  animation-name: mistake-blink;
+  animation-duration: 250ms;
+  animation-iteration-count: infinite;
+}
+
+@keyframes cursor-blink {
+  from {background-color: var(--text-background-highlight); color: var(--text-color-highlight);}
+  to {background-color: var(--color-primary); color: var(--text-background-highlight);}
+}
+
+@keyframes mistake-blink {
+  from {background-color: var(--mistake); color: var(--color-primary);}
+  to {background-color: var(--color-primary); color: var(--mistake);}
+}
+
+.mistake {
+  color: var(--mistake);
+}

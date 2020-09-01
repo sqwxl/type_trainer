@@ -1,14 +1,10 @@
 import React from 'react';
 import './TextDisplay.css'
 
-export interface TextDisplayProps { 
-  displayText: string;
-}
-
-export function TextDisplay(props: TextDisplayProps) {
+export function TextDisplay(props: any) {
   return (
     <div className="textDisplay" role="textbox">
-        <p dangerouslySetInnerHTML={{ __html: props.displayText }}></p>
+        {props.children}
       </div>
   )
 }
