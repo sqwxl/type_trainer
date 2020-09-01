@@ -7,6 +7,7 @@ import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeCo
 import { LayoutContext, layouts } from './Components/Contexts/LayoutContext/LayoutContext';
 import Toolbar from './Components/Toolbar/Toolbar'
 import { Container } from 'react-bootstrap';
+import { type } from 'os';
 // import { ThemeConsumer } from 'react-bootstrap/esm/ThemeProvider';
 
 
@@ -42,21 +43,15 @@ function isChar(code: string) {
   }
 }
 
-function replaceSpaces(str: string): string {
-  // let replacement = `&blank;<span style="font-family: sans-serif;">&NegativeVeryThinSpace;</span>`
-  let replacement = `&blank;&NegativeVeryThinSpace;`
-  return str.replaceAll(" ", replacement)//"␣")
-}
-
 class App extends React.Component<{}, any> {
   static contextType = ThemeContext
   constructor(props: AppProps) {
     super(props)
     this.state = {
-      trainingString: "The add() method appends a new element with a specified value to the end of a Set object.",
+      trainingString: "Xylem Tube EP is an EP by the English electronic music producer Richard D. James under the pseudonym of Aphex Twin, released in June 1992 by Apollo Records. It was his second release under the Aphex Twin alias. Xylem Tube EP was released exclusively on vinyl in June 1992.",
       currentChar: 0,
       errorIndices: new Set(),
-      pressed: [],
+      pressed: new Set(),
       paused: false,
       theme: themes.light
     }
@@ -69,7 +64,7 @@ class App extends React.Component<{}, any> {
   }
 
   componentDidUpdate() {
-    console.log(this.state.errorIndices)
+    console.log("errors: ", this.state.errorIndices)
   }
 
   componentWillMount() {
@@ -104,10 +99,10 @@ class App extends React.Component<{}, any> {
     let { pressed, currentChar, errorIndices } = this.state
 
     // Reject input
-    if (this.state.paused || event.repeat || pressed.includes(event.code)) {
+    if (this.state.paused || event.repeat || pressed.has(event.code)) {
       return
     }
-    pressed.push(event.code)
+    pressed.add(event.code)
 
     // Validate
     if (isChar(event.code)) {
@@ -123,17 +118,17 @@ class App extends React.Component<{}, any> {
 
   handleKeyUp(event: KeyboardEvent) {
     event.preventDefault()
-    let pressed = this.state.pressed.filter((code: string) => code !== event.code)
+    let pressed = this.state.pressed
+    pressed.delete(event.code)
     this.setState({ pressed: pressed })
   }
 
   handleFocus() {
-    console.log("got focus")
-    this.setState({paused: false})
+    this.setState({ paused: false })
   }
 
   handleBlur() {
-    this.setState({ pressed: [], paused: true })
+    this.setState({ pressed: new Set(), paused: true })
   }
 
   toggleTheme() {
@@ -143,21 +138,55 @@ class App extends React.Component<{}, any> {
   getStrMarkup() {
     let { currentChar, trainingString, errorIndices } = this.state
     // trainingString = replaceSpaces(trainingString)
-    let tagged = ""
-    let start = 0
+    let before = ""
+    let current = ""
+    let after = format(trainingString.slice(currentChar + 1))
+    
     // Tag errors, up to but not including currentChar
+    let start = 0
     for (let e of errorIndices) {
       if (e === currentChar) break
-      if (e < start) continue
-      tagged = tagged.concat(replaceSpaces(trainingString.slice(start, e)), tag(trainingString[e], `<span class="errorChar">`, `</span>`))
+      before = before.concat(format(trainingString.slice(start, e)), tag(format(trainingString[e]), 'mistake'))
       start = e + 1
     }
+    before = tag(before.concat(format(trainingString.slice(start, currentChar))), 'before')
+
     // Tag currentChar
-    tagged = tagged.concat(replaceSpaces(trainingString.slice(start, currentChar)), tag(trainingString[currentChar], `<span class="currentChar">`, `</span>`), replaceSpaces(trainingString.slice(currentChar + 1)))
-    return tagged
-    
-    function tag(content: string, open: string, close: string) {
-      return open + replaceSpaces(content) + close
+    if (errorIndices.has(currentChar)) {
+      current = tag(format(trainingString[currentChar]), 'typo')
+      setTimeout(() => {
+        let typo = document.getElementsByClassName('typo')
+        if (typo[0] != null) typo[0].className = 'currentChar'
+      }, 750)
+    } else {
+      current = tag(format(trainingString[currentChar]), 'currentChar')
+    }
+
+    // Return result
+    console.log(current)
+    return before.concat(current, after)
+
+    function tag(str: string, className: string): string {
+      let ret = `<span class="${className}">${str}</span>`
+      return ret
+    }
+    function format(str: string): string {
+      if (str)
+        return replaceSpaces(escapeHtml(str))
+      else
+        return ""
+    }
+    function escapeHtml(unsafe: string): string {
+      var text = document.createTextNode(unsafe);
+      var p = document.createElement('p');
+      p.appendChild(text);
+      let safe = p.innerHTML
+      p.remove()
+      return safe
+    }
+    function replaceSpaces(str: string): string {
+      let replacement = `&blank;&#8203;`
+      return str.replaceAll(" ", replacement)//"␣")
     }
   }
 
@@ -165,14 +194,14 @@ class App extends React.Component<{}, any> {
     let displayText = this.state.paused ? "Session paused, click anywhere to continue" : this.getStrMarkup()
     return (
       <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: () => this.toggleTheme() }}>
-        <Container fluid className="App" style={this.state.theme}  onClick={this.handleFocus}>
+        <Container fluid className="App" style={this.state.theme} onClick={this.handleFocus}>
           <Container >
-          <Toolbar />
-          <TextDisplay displayText={displayText}></TextDisplay>
-          <Keyboard pressed={this.state.pressed} />
+            <Toolbar />
+            <TextDisplay displayText={displayText}></TextDisplay>
+            <Keyboard pressed={this.state.pressed} />
+          </Container>
         </Container>
-        </Container>
-        
+
       </ThemeContext.Provider>
     );
   }

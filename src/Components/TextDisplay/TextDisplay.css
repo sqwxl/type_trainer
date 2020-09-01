@@ -3,8 +3,6 @@
   display: block;
   width: 80%;
   max-width: 55em;
-  height: 15vh;
-  min-height: 10rem;
   margin: 0 auto;
   resize: none;
   overflow: hidden;
@@ -13,7 +11,7 @@
   background-color: var(--color-primary);
   color: var(--text-primary);
   border: 1px solid var(--color-secondary);
-  border-radius: 1rem;
+  border-radius: 0.5rem;
 
   padding: 1rem;
 
@@ -21,11 +19,36 @@
   font-family: 'Courier New', Courier, monospace;
 }
 
-.currentChar {
-  background-color: var(--text-background-highlight);
-  color: var(--text-color-highlight);
+.before {
+  color: var(--text-secondary)
 }
 
-.errorChar {
-  color: #ff6666;
+.after {
+  
+}
+
+.currentChar {
+  animation-name: cursor-blink;
+  animation-duration: 750ms;
+  animation-iteration-count: infinite;
+}
+
+.typo {
+  animation-name: mistake-blink;
+  animation-duration: 250ms;
+  animation-iteration-count: infinite;
+}
+
+@keyframes cursor-blink {
+  from {background-color: var(--text-background-highlight); color: var(--text-color-highlight);}
+  to {background-color: var(--color-primary); color: var(--text-background-highlight);}
+}
+
+@keyframes mistake-blink {
+  from {background-color: var(--mistake); color: var(--color-primary);}
+  to {background-color: var(--color-primary); color: var(--mistake);}
+}
+
+.mistake {
+  color: var(--mistake);
 }

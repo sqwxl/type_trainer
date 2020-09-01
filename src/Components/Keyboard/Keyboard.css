@@ -1,7 +1,7 @@
 .keyboard {
   max-width: 55rem;
   margin: 1rem auto;
-  background: var(--color-secondary);
+  background: var(--color-tertiary);
   border-radius: 1rem;
   padding: 0.5rem 0rem;
   font-family: monospace;
@@ -20,7 +20,7 @@
   position: relative;
   top: 0;
   left: -1.2rem;
-  background-color: var(--color-tertiary);
+  background-color: var(--color-secondary);
   color: var(--text-primary);
   border-radius: 0.3rem;
   margin: 0.15rem;

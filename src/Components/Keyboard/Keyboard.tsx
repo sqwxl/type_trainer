@@ -10,7 +10,7 @@ interface KeyBtnData {
   class?: string[];
 }
 
-export default function Keyboard(props: any) {
+export default function Keyboard(props: {pressed: Set<string>}) {
   const layout = useContext(LayoutContext)
 
   let pressed = props.pressed
@@ -29,7 +29,7 @@ export default function Keyboard(props: any) {
       }
       let classes = ["key-btn"];
       classes.push("row-item-" + idx);
-      if (pressed && pressed.includes(keyBtnData.code)) classes.push("pressed")
+      if (pressed.size && pressed.has(keyBtnData.code)) classes.push("pressed")
       if (keyBtnData.class)
         classes.push(...keyBtnData.class);
       row.push(<li id={keyBtnData.code} key={keyBtnData.code} className={classes.join(" ")} dangerouslySetInnerHTML={label}></li>);
