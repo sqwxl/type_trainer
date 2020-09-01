@@ -1,32 +1,32 @@
 import React from 'react'
 import './FormattedText.css'
 
-function FormattedText(props: { currentChar: number, trainingString: string, errorIndices: Set<number> }) {
-  let { currentChar, trainingString, errorIndices } = props
-  // trainingString = replaceSpaces(trainingString)
+function FormattedText(props: { cursor: number, trainingStr: string, mistakes: Set<number> }) {
+  let { cursor, trainingStr, mistakes } = props
+  // trainingStr = replaceSpaces(trainingStr)
   let before: (JSX.Element | string)[] = []
   let current
-  let after = tag(trainingString.slice(currentChar + 1), 'after')
+  let after = tag(trainingStr.slice(cursor + 1), 'after')
 
-  // Tag mistakes, up to but not including currentChar
+  // Tag mistakes, up to but not including cursor
   let start = 0
-  for (let e of errorIndices) {
-    if (e === currentChar) break
-    before.push(tag(trainingString.slice(start, e), 'correct'))
-    before.push(tag(trainingString[e], 'mistake'))
+  for (let e of mistakes) {
+    if (e === cursor) break
+    before.push(tag(trainingStr.slice(start, e), 'correct'))
+    before.push(tag(trainingStr[e], 'mistake'))
     start = e + 1
   }
-  before.push(tag(trainingString.slice(start, currentChar), 'correct'))
+  before.push(tag(trainingStr.slice(start, cursor), 'correct'))
 
-  // Tag currentChar
-  if (errorIndices.has(currentChar)) {
-    current = tag(trainingString[currentChar], 'typo')
+  // Tag cursor
+  if (mistakes.has(cursor)) {
+    current = tag(trainingStr[cursor], 'typo')
     setTimeout(() => {
       let typo = document.getElementsByClassName('typo')
-      if (typo[0] != null) typo[0].className = 'currentChar'
+      if (typo[0] != null) typo[0].className = 'cursor'
     }, 750)
   } else {
-    current = tag(trainingString[currentChar], 'currentChar')
+    current = tag(trainingStr[cursor], 'cursor')
   }
 
   return (

@@ -38,25 +38,25 @@ enum AppStatus {
 
 class App extends React.Component<{}, any> {
   static contextType = ThemeContext
-  constructor(props: AppProps) {
+  constructor(props: any) {
     super(props)
     this.state = {
-      trainingString: "Xylem Tube EP is an EP by the English electronic music producer Richard D. James under the pseudonym of Aphex Twin, released in June 1992 by Apollo Records. It was his second release under the Aphex Twin alias. Xylem Tube EP was released exclusively on vinyl in June 1992.",
-      currentChar: 0,
-      errorIndices: new Set(),
+      trainingStr: "Xylem Tube EP is an EP by the English electronic music producer Richard D. James under the pseudonym of Aphex Twin, released in June 1992 by Apollo Records. It was his second release under the Aphex Twin alias. Xylem Tube EP was released exclusively on vinyl in June 1992.",
+      cursor: 0,
+      mistakes: new Set(),
       pressed: new Set(),
       status: AppStatus.NewSession,
       theme: themes.dark,
     }
-    this.handleKeyDown = this.handleKeyDown.bind(this)
-    this.handleKeyUp = this.handleKeyUp.bind(this)
-    this.handleBlur = this.handleBlur.bind(this)
-    this.toggleTheme = this.toggleTheme.bind(this)
-    this.handleFocus = this.handleFocus.bind(this)
+    // this.handleKeyDown = this.handleKeyDown.bind(this)
+    // this.handleKeyUp = this.handleKeyUp.bind(this)
+    // this.handleBlur = this.handleBlur.bind(this)
+    // this.toggleTheme = this.toggleTheme.bind(this)
+    // this.handleFocus = this.handleFocus.bind(this)
   }
 
   componentDidUpdate() {
-    console.log("errors: ", this.state.errorIndices)
+    console.log("errors: ", this.state.mistakes)
   }
 
   componentWillMount() {
@@ -64,29 +64,21 @@ class App extends React.Component<{}, any> {
   }
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown)
-    document.addEventListener('keyup', this.handleKeyUp)
-    document.addEventListener('blur', this.handleBlur)
+    document.addEventListener('keydown', e => this.handleKeyDown(e))
+    document.addEventListener('keyup', e => this.handleKeyUp(e))
+    document.addEventListener('blur', () => this.handleBlur())
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown)
-    document.removeEventListener('keyup', this.handleKeyUp)
-    document.removeEventListener('blur', this.handleBlur)
+    document.removeEventListener('keydown', e => this.handleKeyDown(e))
+    document.removeEventListener('keyup', e => this.handleKeyUp(e))
+    document.removeEventListener('blur', () => this.handleBlur())
   }
 
-  checkCorrect(key: string): boolean {
-    let str = this.state.trainingString
-    let i = this.state.currentChar
-    if (key === str[i]) {
-      return true
-    } else {
-      return false
-    }
-  }
+  
 
   handleKeyDown(event: KeyboardEvent) {
-    let { pressed, currentChar, errorIndices } = this.state
+    let { pressed, trainingStr, cursor, mistakes } = this.state
 
     // Reject input
     if (this.state.status === AppStatus.Paused || event.repeat || pressed.has(event.code)) {
@@ -96,14 +88,15 @@ class App extends React.Component<{}, any> {
 
     // Validate
     if (isChar(event.code)) {
-      if (this.checkCorrect(event.key)) {
-        currentChar += 1
+      if (trainingStr[cursor] === event.key) {
+        cursor += 1
       } else {
-        errorIndices.add(this.state.currentChar)
+        mistakes.add(this.state.cursor)
       }
     }
     // Update state
-    this.setState({ pressed: pressed, currentChar: currentChar, errorIndices: errorIndices })
+    this.setState({ pressed: pressed, cursor: cursor, mistakes: mistakes })
+
   }
 
   handleKeyUp(event: KeyboardEvent) {
@@ -128,7 +121,7 @@ class App extends React.Component<{}, any> {
   render() {
     return (
       <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: () => this.toggleTheme() }}>
-        <Container fluid className="App" style={this.state.theme} onClick={this.handleFocus}>
+        <Container fluid className="App" style={this.state.theme} onClick={() => this.handleFocus() }>
           <Container >
             <Toolbar />
             <TextDisplay>
@@ -136,7 +129,7 @@ class App extends React.Component<{}, any> {
               (<p>Session paused, click anywhere to continue</p>) :
               this.state.status === AppStatus.NewSession ?
               (<p>Click here to begin</p>) :
-                <FormattedText currentChar={this.state.currentChar} trainingString={this.state.trainingString} errorIndices={this.state.errorIndices} />}
+                <FormattedText cursor={this.state.cursor} trainingStr={this.state.trainingStr} mistakes={this.state.mistakes} />}
             </TextDisplay>
             <Keyboard pressed={this.state.pressed} />
           </Container>
