@@ -4,22 +4,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Keyboard from './Components/Keyboard/Keyboard';
 import { TextDisplay } from './Components/TextDisplay/TextDisplay';
 import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeContext';
-import { LayoutContext, layouts } from './Components/Contexts/LayoutContext/LayoutContext';
 import Toolbar from './Components/Toolbar/Toolbar'
 import { Container } from 'react-bootstrap';
-import { type } from 'os';
 import FormattedText from './Components/FormattedText/FormattedText';
-// import { ThemeConsumer } from 'react-bootstrap/esm/ThemeProvider';
 
 
 interface AppProps { }
 interface AppState {
   displayText: string;
   pressed: string[];
-}
-const INITIALSTATE: AppState = {
-  displayText: "",
-  pressed: []
 }
 
 function isChar(code: string) {
@@ -44,6 +37,12 @@ function isChar(code: string) {
   }
 }
 
+enum AppStatus {
+  NewSession,
+  Paused,
+  Training
+}
+
 class App extends React.Component<{}, any> {
   static contextType = ThemeContext
   constructor(props: AppProps) {
@@ -53,11 +52,10 @@ class App extends React.Component<{}, any> {
       currentChar: 0,
       errorIndices: new Set(),
       pressed: new Set(),
-      paused: false,
-      theme: themes.light
+      status: AppStatus.NewSession,
+      theme: themes.dark,
     }
     this.handleKeyDown = this.handleKeyDown.bind(this)
-    // this.keyReleaseTimer = setTimeout(() => { }, 0)
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
@@ -69,8 +67,7 @@ class App extends React.Component<{}, any> {
   }
 
   componentWillMount() {
-    // const str = replaceSpaces(this.state.trainingString)
-    // this.setState({ trainingString: str })
+    
   }
 
   componentDidMount() {
@@ -96,11 +93,10 @@ class App extends React.Component<{}, any> {
   }
 
   handleKeyDown(event: KeyboardEvent) {
-    // event.preventDefault()
     let { pressed, currentChar, errorIndices } = this.state
 
     // Reject input
-    if (this.state.paused || event.repeat || pressed.has(event.code)) {
+    if (this.state.status === AppStatus.Paused || event.repeat || pressed.has(event.code)) {
       return
     }
     pressed.add(event.code)
@@ -125,87 +121,29 @@ class App extends React.Component<{}, any> {
   }
 
   handleFocus() {
-    this.setState({ paused: false })
+    this.setState({ status: AppStatus.Training })
   }
 
   handleBlur() {
-    this.setState({ pressed: new Set(), paused: true })
+    this.setState({ pressed: new Set(), status: AppStatus.Paused })
   }
 
   toggleTheme() {
     this.setState({ theme: this.state.theme === themes.light ? themes.dark : themes.light })
   }
 
-  getStrMarkup() {
-    let { currentChar, trainingString, errorIndices } = this.state
-    // trainingString = replaceSpaces(trainingString)
-    let before = ""
-    let current = ""
-    let after = format(trainingString.slice(currentChar + 1))
-
-    // Tag errors, up to but not including currentChar
-    let start = 0
-    for (let e of errorIndices) {
-      if (e === currentChar) break
-      before = before.concat(format(trainingString.slice(start, e)), tag(format(trainingString[e]), 'mistake'))
-      start = e + 1
-    }
-    before = tag(before.concat(format(trainingString.slice(start, currentChar))), 'before')
-
-    // Tag currentChar
-    if (errorIndices.has(currentChar)) {
-      current = tag(format(trainingString[currentChar]), 'typo')
-      setTimeout(() => {
-        let typo = document.getElementsByClassName('typo')
-        if (typo[0] != null) typo[0].className = 'currentChar'
-      }, 750)
-    } else {
-      current = tag(format(trainingString[currentChar]), 'currentChar')
-    }
-
-    // Return result
-    console.log(current)
-    return before.concat(current, after)
-
-    function tag(str: string, className: string): string {
-      let ret = `<span class="${className}">${str}</span>`
-      return ret
-    }
-    function format(str: string): string {
-      if (str)
-        return replaceSpaces(escapeHtml(str))
-      else
-        return ""
-    }
-    function escapeHtml(unsafe: string): string {
-      var text = document.createTextNode(unsafe);
-      var p = document.createElement('p');
-      p.appendChild(text);
-      let safe = p.innerHTML
-      p.remove()
-      return safe
-    }
-    function replaceSpaces(str: string): string {
-      let replacement = `&blank;&#8203;`
-      return str.replaceAll(" ", replacement)//"␣")
-    }
-  }
-
   render() {
-    // let displayText = this.state.paused ? "Session paused, click anywhere to continue" : this.getStrMarkup()
     return (
       <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: () => this.toggleTheme() }}>
         <Container fluid className="App" style={this.state.theme} onClick={this.handleFocus}>
           <Container >
             <Toolbar />
             <TextDisplay>
-              {
-                this.state.paused ?
-                  (<p>Session paused, click anywhere to continue</p>)
-                  :
-                  <FormattedText currentChar={this.state.currentChar} trainingString={this.state.trainingString} errorIndices={this.state.errorIndices} />
-
-              }
+              {this.state.status === AppStatus.Paused ?
+              (<p>Session paused, click anywhere to continue</p>) :
+              this.state.status === AppStatus.NewSession ?
+              (<p>Click here to begin</p>) :
+                <FormattedText currentChar={this.state.currentChar} trainingString={this.state.trainingString} errorIndices={this.state.errorIndices} />}
             </TextDisplay>
             <Keyboard pressed={this.state.pressed} />
           </Container>
