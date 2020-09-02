@@ -12,6 +12,7 @@ import ThemeToggleSwitch from './Components/ThemeToggleSwitch/ThemeToggleSwitch'
 import Foswig from 'foswig'
 
 import dict from './english_words_array.json'
+import FontSizeSelect from './Components/FontSizeSelect/FontSizeSelet';
 
 // let dict
 // let loadDict = async function() { await fetch("./english_words_array.json").then(res => res.json()).then(data => {console.log(data);dict = data}).catch(err => console.log(err)) }
@@ -56,6 +57,8 @@ enum AppStatus {
   Training
 }
 
+const FontSizes: {[key: number]: string} = {0:"1rem", 1:"1.5rem", 2:"2rem"}
+
 class App extends React.Component<{}, any> {
   static contextType = ThemeContext
   constructor(props: any) {
@@ -66,7 +69,10 @@ class App extends React.Component<{}, any> {
       mistakes: new Set(),
       pressed: new Set(),
       status: AppStatus.NewSession,
-      theme: themes.dark,
+      settings: {
+        theme: themes.dark,
+        fontSize: 1,
+      }
     }
     // this.handleKeyDown = this.handleKeyDown.bind(this)
     // this.handleKeyUp = this.handleKeyUp.bind(this)
@@ -76,7 +82,7 @@ class App extends React.Component<{}, any> {
   }
 
   componentDidUpdate() {
-    console.log("errors: ", this.state.mistakes)
+    console.log("settings: ", this.state.settings)
   }
 
   componentWillMount() {
@@ -138,18 +144,26 @@ class App extends React.Component<{}, any> {
   }
 
   toggleTheme() {
-    this.setState({ theme: this.state.theme === themes.light ? themes.dark : themes.light })
+    this.setState({ theme: this.state.settings.theme === themes.light ? themes.dark : themes.light })
+  }
+
+  toggleFontSize() {
+    let {settings} = this.state
+    settings.fontSize = (settings.fontSize + 1) % 3
+    this.setState({ settings: settings })
   }
 
   render() {
+    console.log(FontSizes[this.state.settings.fontSize])
     return (
-      <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: () => this.toggleTheme() }}>
-        <Container fluid className="App" style={this.state.theme} onClick={() => this.handleFocus()}>
+      <ThemeContext.Provider value={{ theme: this.state.settings.theme, toggleTheme: () => this.toggleTheme() }}>
+        <Container fluid className="App" style={this.state.settings.theme} onClick={() => this.handleFocus()}>
           <Container >
             <Toolbar>
+              <FontSizeSelect toggleFn={() => this.toggleFontSize()} />
               <ThemeToggleSwitch />
             </Toolbar>
-            <TextDisplay>
+            <TextDisplay style={{ fontSize: FontSizes[this.state.settings.fontSize] }}>
               {this.state.status === AppStatus.Paused ?
                 (<p>Session paused, click anywhere to continue</p>) :
                 this.state.status === AppStatus.NewSession ?
