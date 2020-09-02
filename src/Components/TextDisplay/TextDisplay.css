@@ -1,7 +1,7 @@
 /* textarea { */
 .textDisplay {
   display: block;
-  width: 80%;
+  /* width: 100%; */
   max-width: 55em;
   margin: 0 auto;
   resize: none;

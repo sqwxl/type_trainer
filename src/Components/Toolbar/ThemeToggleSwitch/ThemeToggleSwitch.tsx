@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react'
-import { ThemeContext, themes } from '../Contexts/ThemeContext/ThemeContext'
+import React, { useContext } from 'react'
+import { ThemeContext, themes } from '../../Contexts/ThemeContext/ThemeContext'
 import { Form, FormCheck } from 'react-bootstrap'
 // import { css, cx } from "emotion";
 
@@ -13,7 +13,7 @@ export default function ThemeToggleSwitch() {
         id="custom-switch"
         label="Dark theme"
         role="switch"
-        onClick={toggleTheme} 
+        onChange={toggleTheme} 
         checked={theme === themes.dark}
       />
     </Form>

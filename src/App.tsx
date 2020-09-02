@@ -7,12 +7,13 @@ import { ThemeContext, themes } from './Components/Contexts/ThemeContext/ThemeCo
 import Toolbar from './Components/Toolbar/Toolbar'
 import { Container } from 'react-bootstrap';
 import FormattedText from './Components/FormattedText/FormattedText';
-import ThemeToggleSwitch from './Components/ThemeToggleSwitch/ThemeToggleSwitch'
+import ThemeToggleSwitch from './Components/Toolbar/ThemeToggleSwitch/ThemeToggleSwitch'
 
 import Foswig from 'foswig'
 
 import dict from './english_words_array.json'
-import FontSizeSelect from './Components/FontSizeSelect/FontSizeSelet';
+import FontSizeSelect from './Components/Toolbar/FontSizeSelect/FontSizeSelet';
+import TrainerQuickSettings from './Components/Toolbar/TrainerQuickSettings/TrainerQuickSettings';
 
 // let dict
 // let loadDict = async function() { await fetch("./english_words_array.json").then(res => res.json()).then(data => {console.log(data);dict = data}).catch(err => console.log(err)) }
@@ -57,6 +58,14 @@ enum AppStatus {
   Training
 }
 
+const defaultSettings = {
+  theme: themes.dark,
+  fontSize: 1,
+  caps: false,
+  punct: false, 
+  syms: false
+}
+
 const FontSizes: {[key: number]: string} = {0:"1rem", 1:"1.5rem", 2:"2rem"}
 
 class App extends React.Component<{}, any> {
@@ -69,10 +78,7 @@ class App extends React.Component<{}, any> {
       mistakes: new Set(),
       pressed: new Set(),
       status: AppStatus.NewSession,
-      settings: {
-        theme: themes.dark,
-        fontSize: 1,
-      }
+      settings: {...defaultSettings}
     }
     // this.handleKeyDown = this.handleKeyDown.bind(this)
     // this.handleKeyUp = this.handleKeyUp.bind(this)
@@ -83,10 +89,6 @@ class App extends React.Component<{}, any> {
 
   componentDidUpdate() {
     console.log("settings: ", this.state.settings)
-  }
-
-  componentWillMount() {
-
   }
 
   componentDidMount() {
@@ -144,22 +146,33 @@ class App extends React.Component<{}, any> {
   }
 
   toggleTheme() {
-    this.setState({ theme: this.state.settings.theme === themes.light ? themes.dark : themes.light })
+    let settings = {...this.state.settings}
+    settings.theme = settings.theme === themes.light ? themes.dark : themes.light
+    this.setState({settings: settings})
   }
 
   toggleFontSize() {
-    let {settings} = this.state
+    let settings = {...this.state.settings}
     settings.fontSize = (settings.fontSize + 1) % 3
     this.setState({ settings: settings })
   }
 
+  setQuickSettings(obj: any) {
+    let {caps, punct, syms} = obj
+    let settings = {...this.state.settings}
+    if (caps != null) settings.caps = caps;
+    if (punct != null) settings.punct = punct
+    if (syms != null) settings.syms = syms
+    this.setState({settings: settings})
+  }
+
   render() {
-    console.log(FontSizes[this.state.settings.fontSize])
     return (
       <ThemeContext.Provider value={{ theme: this.state.settings.theme, toggleTheme: () => this.toggleTheme() }}>
         <Container fluid className="App" style={this.state.settings.theme} onClick={() => this.handleFocus()}>
-          <Container >
+          <Container>
             <Toolbar>
+              <TrainerQuickSettings settings={this.state.settings} updateSettings={(settings: any) => this.setQuickSettings(settings)} />
               <FontSizeSelect toggleFn={() => this.toggleFontSize()} />
               <ThemeToggleSwitch />
             </Toolbar>
