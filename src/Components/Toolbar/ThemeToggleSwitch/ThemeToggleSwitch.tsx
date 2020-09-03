@@ -7,7 +7,7 @@ import { Form, FormCheck } from 'react-bootstrap'
 export default function ThemeToggleSwitch() {
   const { theme, toggleTheme } = useContext(ThemeContext)
   return (
-    <Form>
+    // <Form>
       <FormCheck
         type="switch"
         id="custom-switch"
@@ -16,6 +16,6 @@ export default function ThemeToggleSwitch() {
         onChange={toggleTheme} 
         checked={theme === themes.dark}
       />
-    </Form>
+    // </Form>
   )
 }

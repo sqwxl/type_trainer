@@ -38,7 +38,7 @@ Essentially, more error prone characters (or character combination) will appear 
 ### Settings
 - [x] I can switch between light and dark global color themes from the toolbar
 - [x] I can switch between predefined font sizes from the toolbar
-- [ ] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters+numbers, etc)
+- [ ] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters)+numbers, etc)
 - [ ] I can provide my own text to use as a training set
 - [ ] I can choose a from a selection of fonts for the training interface (i.e. monospace, comic sans for dyslexia, etc.)
 - [ ] I can choose a keyboard layout
