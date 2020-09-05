@@ -10,7 +10,7 @@ export default function CharacterCheckboxForm(props: any) {
   function change(setting: string) {
     let characters = {...props.characters}
     characters[setting] = !characters[setting]
-    return () => props.updateSettings(characters)
+    return () => props.setCharacters(characters)
   }
   return (
     <Form style={{ display: "flex"}}>

@@ -34,13 +34,14 @@ Essentially, more error prone characters (or character combination) will appear 
 - [x] When I type a correct character, the following character is highlighted
 - [x] When I type an incorrect character, that character is marked in red and remains highlighted until I type it
 - [ ] When I have inputed an incorrect character, but continue on to type a string of correct characters following it, the highlighted letter jumps ahead without me having to correct my error (the error is still recorded)
-- [ ] I see a summary of relevant stats (WPM, errors, etc) that updates as I complete sessions
+- [x] I see a summary of relevant stats (WPM, errors, etc) that updates as I complete sessions
+- [x] My training sessions pauses automatically when I am inactive
 ### Settings
 - [x] I can switch between light and dark global color themes from the toolbar
 - [x] I can switch between predefined font sizes from the toolbar
-- [ ] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters)+numbers, etc)
+- [x] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters)+numbers, etc)
 - [ ] I can provide my own text to use as a training set
-- [ ] I can choose a from a selection of fonts for the training interface (i.e. monospace, comic sans for dyslexia, etc.)
+- [ ] I can choose from a selection of fonts for the training interface (i.e. monospace, comic sans for dyslexia, etc.)
 - [ ] I can choose a keyboard layout
 ### Stats page
 - [ ] I can see a heat map of the keyboard highlighting error-prone keys

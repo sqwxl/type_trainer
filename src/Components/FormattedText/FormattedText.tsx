@@ -1,7 +1,7 @@
 import React from 'react'
 import './FormattedText.css'
 
-function FormattedText(props: { cursor: number, trainingString: string, mistakes: Set<number> }) {
+function FormattedText(props: { greyed: boolean, cursor: number, trainingString: string, mistakes: Set<number> }) {
   let { cursor, trainingString, mistakes } = props
 
   //edge case (easter egg)
@@ -34,7 +34,7 @@ function FormattedText(props: { cursor: number, trainingString: string, mistakes
   }
 
   return (
-    <p>
+    <p className={props.greyed ? "greyed" : ""}>
       {before}
       {current}
       {after}

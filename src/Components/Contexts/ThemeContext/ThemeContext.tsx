@@ -15,6 +15,7 @@ const light: CSSCustomProperties = {
   "--text-color-highlight": "#ffffff",
 
   "--mistake": "#ff6666",
+  "--correct": "#b3ff66",
   color: "var(--text-primary)"
 }
 
@@ -31,6 +32,7 @@ const dark: CSSCustomProperties = {
   "--text-background-highlight": "#66ffff",
   "--text-color-highlight": "#ffffff",
   "--mistake": "#ff6666",
+  "--correct": "#b3ff66",
   color: "var(--text-primary)"
 }
 

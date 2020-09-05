@@ -8,83 +8,169 @@ import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
 import Foswig from "foswig"
 import dict from "../english_words_array.json"
-import FontSizeSelect from "./Toolbar/FontSizeSelect/FontSizeSelet"
-import CharacterCheckboxForm from "./Toolbar/CharacterCheckboxForm/CharacterCheckboxForm"
-import { isChar, isVowel } from "../utils"
-import { FontSizes } from "../App"
+import FontSizeSelect from "./Toolbar/FontSizeSelet"
+import CharacterCheckboxForm from "./Toolbar/CharacterCheckboxForm"
+import { isChar, isVowel, Timer } from "../utils/utils"
+import QuickStats from "./Toolbar/QuickStats"
+import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
+import StringLengthSelect from "./Toolbar/SringLengthSelect"
 
 const chain = new Foswig(3, dict.dict)
 const options = { minLength: 3, maxLength: 12 }
-enum AppStatus {
-  NewSession,
-  Paused,
-  Training,
+enum Paradigm {
+  Loaded = "LOADED",
+  SessionReady = "READY",
+  Paused = "PAUSED",
+  Training = "TRAINING",
 }
+
+const FontSizes: { [key: number]: string } = { 0: "1rem", 1: "1.5rem", 2: "2rem" }
 const defaultSettings = {
-  theme: themes.dark,
-  fontSize: 1,
-  characters: {
-    letters: true,
-    caps: false,
-    punct: false,
-    syms: false,
-    nums: false,
-    spaces: true,
+  UI: { theme: themes.dark, fontSize: 1 },
+  session: {
+    characters: {
+      letters: true,
+      caps: false,
+      punct: false,
+      syms: false,
+      nums: false,
+      spaces: true,
+    },
+    wordsPerString: 4,
   },
 }
 
-export class TypeTrainer extends React.Component<{}, any> {
+interface State {
+  pressed: Set<string>
+  paradigm: Paradigm
+  trainingString: string
+  cursor: number
+  mistakes: Set<number>
+  sessionStats: {
+    wpm: number
+    mistakes: number
+    totalSessions: number
+    averages: {
+      wpm: number
+      mistakes: number
+    }
+  }
+  settings: {
+    UI: {
+      theme: { [index: string]: CSSCustomProperties }
+      fontSize: number
+    }
+    session: {
+      characters: {
+        letters: boolean
+        caps: boolean
+        punct: boolean
+        syms: boolean
+        nums: boolean
+        spaces: boolean
+      }
+      wordsPerString: number
+    }
+  }
+}
+
+const inactivityDelay = 2000
+
+export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
+  sessionTimer = Timer()
+  inactivityTimer!: number
   constructor(props: any) {
     super(props)
     this.state = {
       trainingString: "",
       cursor: 0,
       mistakes: new Set(),
+      sessionStats: {
+        wpm: 0,
+        mistakes: 0,
+        totalSessions: 0,
+        averages: { wpm: 0, mistakes: 0 },
+      },
       pressed: new Set(),
-      status: AppStatus.NewSession,
+      paradigm: Paradigm.Loaded,
       settings: { ...defaultSettings },
     }
   }
 
+  startInactivityTimer() {
+    return setTimeout(() => this.routeEvent(new Event("blur")), inactivityDelay)
+  }
   componentDidMount() {
-    document.addEventListener("keydown", e => this.handleKeyDown(e))
-    document.addEventListener("keyup", e => this.handleKeyUp(e))
-    document.addEventListener("blur", () => this.handleBlur())
-    this.setState({ trainingString: this.generateTrainingString() })
+    document.addEventListener("keydown", e => this.routeEvent(e))
+    document.addEventListener("keyup", e => this.routeEvent(e))
+    document.addEventListener("blur", e => this.routeEvent(e))
+    this.prepareNewSession()
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", e => this.handleKeyDown(e))
-    document.removeEventListener("keyup", e => this.handleKeyUp(e))
-    document.removeEventListener("blur", () => this.handleBlur())
+    document.removeEventListener("keydown", e => this.routeEvent(e))
+    document.removeEventListener("keyup", e => this.routeEvent(e))
+    document.removeEventListener("blur", e => this.routeEvent(e))
+  }
+
+  routeEvent(event: Event) {
+    let paradigm = this.state.paradigm
+    switch (event.type) {
+      case "keydown":
+        switch (paradigm) {
+          case Paradigm.Training:
+          case Paradigm.SessionReady:
+            this.handleKeyDown(event as KeyboardEvent)
+            clearTimeout(this.inactivityTimer)
+            this.inactivityTimer = this.startInactivityTimer()
+            break
+          case Paradigm.Paused:
+            this.unPauseSession(event)
+          break
+          default:
+            break
+        }
+        break
+      case "keyup":
+        this.handleKeyUp(event as KeyboardEvent)
+        break
+      case "blur":
+        this.pauseSession()
+        break
+      default:
+        break
+    }
   }
 
   handleKeyDown(event: KeyboardEvent) {
     event.preventDefault()
-    let { pressed, trainingString, cursor, mistakes } = this.state
-
+    const state = { ...this.state }
     // Reject input
-    if (this.state.status === AppStatus.Paused || event.repeat || pressed.has(event.code)) {
+    if (event.repeat || state.pressed.has(event.code)) {
       return
     }
-    pressed.add(event.code)
+    state.pressed.add(event.code)
 
     // Validate
     if (isChar(event.code)) {
-      if (trainingString[cursor] === event.key) {
-        cursor += 1
-        if (cursor === trainingString.length) {
-          cursor = 0
-          trainingString = this.generateTrainingString()
-          mistakes = new Set()
+      if (state.trainingString[state.cursor] === event.key) {
+        state.cursor += 1
+        if (state.cursor === state.trainingString.length) {
+          this.endSession()
+          return
         }
       } else {
-        mistakes.add(this.state.cursor)
+        state.mistakes.add(state.cursor)
       }
     }
+
     // Update state
-    this.setState({ pressed: pressed, trainingString: trainingString, cursor: cursor, mistakes: mistakes })
+    this.setState(state, () => {
+      if (this.state.paradigm === Paradigm.SessionReady) {
+        this.startSession()
+      }
+    })
   }
 
   handleKeyUp(event: KeyboardEvent) {
@@ -94,38 +180,101 @@ export class TypeTrainer extends React.Component<{}, any> {
     this.setState({ pressed: pressed })
   }
 
-  handleFocus() {
-    this.setState({ status: AppStatus.Training })
+  logStatus() {
+    console.info("Status: " + this.state.paradigm)
   }
 
-  handleBlur() {
-    this.setState({ pressed: new Set(), status: AppStatus.Paused })
+  startSession() {
+    this.sessionTimer.start()
+    this.setState({ paradigm: Paradigm.Training }, () => this.logStatus())
+  }
+
+  pauseSession() {
+    // Record pause start time
+    if (this.sessionTimer != null) this.sessionTimer.pause()
+    this.setState({ pressed: new Set(), paradigm: Paradigm.Paused }, () => this.logStatus())
+  }
+
+  unPauseSession(event: Event) {
+    // Translate timer variable forward
+    this.sessionTimer.unPause()
+    this.setState({ paradigm: Paradigm.Training }, () => {
+      this.logStatus()
+      this.routeEvent(event)
+    })
+  }
+
+  endSession() {
+    // Computes sessions stats and passes baton to this.startNewSession
+    let sessionStats = { ...this.state.sessionStats }
+    let minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
+
+    // Calculate words per minute
+    let words = this.state.trainingString.length / 5
+    let wpm = Math.round(words / minutes)
+    sessionStats.wpm = wpm
+
+    sessionStats.mistakes = this.state.mistakes.size
+    // Calculate mistakes per session
+    sessionStats.totalSessions += 1
+    sessionStats.averages.wpm = Math.round(
+      (sessionStats.averages.wpm * (sessionStats.totalSessions - 1) + sessionStats.wpm) / sessionStats.totalSessions
+    )
+    sessionStats.averages.mistakes = Math.round(
+      (sessionStats.averages.mistakes * (sessionStats.totalSessions - 1) + sessionStats.mistakes) /
+        sessionStats.totalSessions
+    )
+
+    this.setState(
+      {
+        sessionStats: sessionStats,
+      },
+      () => this.prepareNewSession()
+    )
+  }
+
+  prepareNewSession() {
+    this.setState(
+      {
+        cursor: 0,
+        trainingString: this.generateTrainingString(),
+        mistakes: new Set(),
+        paradigm: Paradigm.SessionReady,
+      },
+      () => this.logStatus()
+    )
   }
 
   toggleTheme() {
     let settings = { ...this.state.settings }
-    settings.theme = settings.theme === themes.light ? themes.dark : themes.light
+    settings.UI.theme = settings.UI.theme === themes.light ? themes.dark : themes.light
     this.setState({ settings: settings })
   }
 
   toggleFontSize() {
     let settings = { ...this.state.settings }
-    settings.fontSize = (settings.fontSize + 1) % 3
+    settings.UI.fontSize = (settings.UI.fontSize + 1) % 3
     this.setState({ settings: settings })
   }
 
-  setQuickSettings(obj: any) {
+  updateStringCharacterSettings(obj: any) {
     if (!obj.letters) {
       obj.caps = false
     }
-    let settings = {...this.state.settings}
-    settings.characters = {...obj}
+    let settings = { ...this.state.settings }
+    settings.session.characters = { ...obj }
     this.setState({ settings: settings }, () => this.setState({ trainingString: this.generateTrainingString() }))
   }
 
+  setStringLength(length: string) {
+    let settings = { ...this.state.settings }
+    settings.session.wordsPerString = parseInt(length)
+    this.setState({ settings: settings }, () => this.prepareNewSession())
+  }
+
   generateTrainingString() {
-    if (Object.values(this.state.settings.characters).every(v => !v)) return ""
-    let { letters, caps, punct, syms, nums, spaces } = this.state.settings.characters
+    if (Object.values(this.state.settings.session.characters).every(v => !v)) return ""
+    let { letters, caps, punct, syms, nums, spaces } = this.state.settings.session.characters
     let words: Array<string> = []
 
     enum Kind {
@@ -186,7 +335,7 @@ export class TypeTrainer extends React.Component<{}, any> {
     const modifyingLikelyhood = 0.8
     let willApply = () => Math.random() * modifyingLikelyhood
 
-    while (words.length < 10) {
+    while (words.length < this.state.settings.session.wordsPerString) {
       let word = letters ? chain.generate(options) : ""
       if (caps && willApply()) word = word.slice(0, 1).toUpperCase().concat(word.slice(1))
       if (punct && willApply()) word = symbolize(word, punctuation)
@@ -194,7 +343,7 @@ export class TypeTrainer extends React.Component<{}, any> {
       if (nums && willApply()) word = symbolize(word, numbers)
       words.push(word)
     }
-    
+
     return words.join(spaces ? " " : "")
 
     function symbolize(str: string, symbols: Array<CharacterSet>): string {
@@ -244,29 +393,35 @@ export class TypeTrainer extends React.Component<{}, any> {
 
   render() {
     return (
-      <ThemeContext.Provider value={{ theme: this.state.settings.theme, toggleTheme: () => this.toggleTheme() }}>
-        <Container fluid className="App" style={this.state.settings.theme} onClick={() => this.handleFocus()}>
+      <ThemeContext.Provider value={{ theme: this.state.settings.UI.theme, toggleTheme: () => this.toggleTheme() }}>
+        <Container
+          fluid
+          className="App"
+          style={this.state.settings.UI.theme}
+        >
           <Container>
-            <Toolbar>
-              <CharacterCheckboxForm
-                characters={this.state.settings.characters}
-                updateSettings={(settings: any) => this.setQuickSettings(settings)}
+            <Toolbar
+              left={<QuickStats sessionStats={this.state.sessionStats} />}
+              right={[
+                <CharacterCheckboxForm
+                  characters={this.state.settings.session.characters}
+                  setCharacters={(settings: any) => this.updateStringCharacterSettings(settings)}
+                />,
+                <StringLengthSelect
+                  value={this.state.settings.session.wordsPerString}
+                  updateFn={(s: string) => this.setStringLength(s)}
+                />,
+                <FontSizeSelect toggleFn={() => this.toggleFontSize()} />,
+                <ThemeToggleSwitch />,
+              ]}
+            ></Toolbar>
+            <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
+              <FormattedText
+                greyed={this.state.paradigm === Paradigm.Paused}
+                cursor={this.state.cursor}
+                trainingString={this.state.trainingString}
+                mistakes={this.state.mistakes}
               />
-              <FontSizeSelect toggleFn={() => this.toggleFontSize()} />
-              <ThemeToggleSwitch />
-            </Toolbar>
-            <TextDisplay style={{ fontSize: FontSizes[this.state.settings.fontSize] }}>
-              {this.state.status === AppStatus.NewSession ? (
-                <p>Click here to begin</p>
-              ) : this.state.status === AppStatus.Paused ? (
-                <p>Session paused, click anywhere to continue</p>
-              ) : (
-                <FormattedText
-                  cursor={this.state.cursor}
-                  trainingString={this.state.trainingString}
-                  mistakes={this.state.mistakes}
-                />
-              )}
             </TextDisplay>
             <Keyboard pressed={this.state.pressed} />
           </Container>

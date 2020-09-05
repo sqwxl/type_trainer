@@ -31,3 +31,7 @@
 .mistake {
   color: var(--mistake);
 }
+
+.greyed {
+  filter: opacity(0.4);
+}
