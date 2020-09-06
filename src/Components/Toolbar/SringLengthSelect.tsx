@@ -8,7 +8,7 @@ export default function StringLengthSelect(props : any) {
     props.updateFn(target.value as string)
   }
   return (
-    <Form>
+    <Form inline>
       <FormLabel>Length: </FormLabel>
       <FormControl type="number" defaultValue={props.value} onChange={handleChange}></FormControl>
     </Form>

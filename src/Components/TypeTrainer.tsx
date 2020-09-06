@@ -6,17 +6,16 @@ import Toolbar from "./Toolbar/Toolbar"
 import { Container } from "react-bootstrap"
 import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
-import Foswig from "foswig"
 import dict from "../english_words_array.json"
 import FontSizeSelect from "./Toolbar/FontSizeSelet"
 import CharacterCheckboxForm from "./Toolbar/CharacterCheckboxForm"
-import { isChar, isVowel, Timer } from "../utils/utils"
+import { applyMaskToCharSet, generateTrainingString, isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import StringLengthSelect from "./Toolbar/SringLengthSelect"
+import { characterSets, FingerZone, FingerZoneChars } from "./Contexts/LayoutContext/layouts"
+import MarkovChain from "../utils/MarkovChain"
 
-const chain = new Foswig(3, dict.dict)
-const options = { minLength: 3, maxLength: 12 }
+const chain = new MarkovChain(3, dict.dict)
 enum Paradigm {
   Loaded = "LOADED",
   SessionReady = "READY",
@@ -24,10 +23,18 @@ enum Paradigm {
   Training = "TRAINING",
 }
 
+const TrainingLevels: Array<FingerZone[]> = [
+  [FingerZone.t, FingerZone.i],
+  [FingerZone.t, FingerZone.i, FingerZone.m],
+  [FingerZone.t, FingerZone.i, FingerZone.m, FingerZone.r],
+  [FingerZone.t, FingerZone.i, FingerZone.m, FingerZone.r, FingerZone.p],
+]
+
 const FontSizes: { [key: number]: string } = { 0: "1rem", 1: "1.5rem", 2: "2rem" }
 const defaultSettings = {
   UI: { theme: themes.dark, fontSize: 1 },
   session: {
+    markov: { minLength: 3, maxLength: 12 },
     characters: {
       letters: true,
       caps: false,
@@ -37,6 +44,7 @@ const defaultSettings = {
       spaces: true,
     },
     wordsPerString: 4,
+    trainingLevel: 0,
   },
 }
 
@@ -61,6 +69,7 @@ interface State {
       fontSize: number
     }
     session: {
+      markov : { minLength: number, maxLength: number }
       characters: {
         letters: boolean
         caps: boolean
@@ -70,6 +79,7 @@ interface State {
         spaces: boolean
       }
       wordsPerString: number
+      trainingLevel: number
     }
   }
 }
@@ -127,7 +137,7 @@ export class TypeTrainer extends React.Component<{}, State> {
             break
           case Paradigm.Paused:
             this.unPauseSession(event)
-          break
+            break
           default:
             break
         }
@@ -234,10 +244,16 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   prepareNewSession() {
+
+    let mask = TrainingLevels[this.state.settings.session.trainingLevel].reduce((keys: Array<string>, fz: FingerZone) => {
+      return keys.concat(FingerZoneChars[fz as string])
+    }, [])
+    const charSets = applyMaskToCharSet(characterSets, mask)
+    
     this.setState(
       {
         cursor: 0,
-        trainingString: this.generateTrainingString(),
+        trainingString: generateTrainingString(chain, this.state.settings.session, charSets),
         mistakes: new Set(),
         paradigm: Paradigm.SessionReady,
       },
@@ -257,164 +273,36 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ settings: settings })
   }
 
-  updateStringCharacterSettings(obj: any) {
-    if (!obj.letters) {
-      obj.caps = false
-    }
-    let settings = { ...this.state.settings }
-    settings.session.characters = { ...obj }
-    this.setState({ settings: settings }, () => this.setState({ trainingString: this.generateTrainingString() }))
-  }
-
   setStringLength(length: string) {
     let settings = { ...this.state.settings }
     settings.session.wordsPerString = parseInt(length)
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
-  generateTrainingString() {
-    if (Object.values(this.state.settings.session.characters).every(v => !v)) return ""
-    let { letters, caps, punct, syms, nums, spaces } = this.state.settings.session.characters
-    let words: Array<string> = []
-
-    enum Kind {
-      "punctual",
-      "splitting",
-      "surrounding",
-    }
-    interface CharacterSet {
-      kind: Kind
-      chars: Array<string | string[]>
-      weight: number
-    }
-
-    const punctuation: Array<CharacterSet> = [
-      {
-        kind: Kind.punctual,
-        chars: [",", ".", "?", "!", ";", ":", "'s"],
-        weight: 5,
-      },
-      {
-        kind: Kind.surrounding,
-        chars: [["'"], ['"'], ["(", ")"]],
-        weight: 5,
-      },
-      {
-        kind: Kind.splitting,
-        chars: ["'", "-"],
-        weight: 5,
-      },
-    ]
-
-    const symbols: Array<CharacterSet> = [
-      {
-        kind: Kind.punctual,
-        chars: ["`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "-", "_", "=", "+", "\\", "|", "<", ">", "/"],
-        weight: 8,
-      },
-      {
-        kind: Kind.surrounding,
-        chars: [["'"], ['"'], ["(", ")"], ["[", "]"], ["{ ", " }"], ["<", ">"]],
-        weight: 6,
-      },
-      {
-        kind: Kind.splitting,
-        chars: [".", "@", "_", "\\", "/"],
-        weight: 5,
-      },
-    ]
-
-    const numbers: Array<CharacterSet> = [
-      {
-        kind: Kind.punctual,
-        chars: ["0", "1", "3", "4", "5", "6", "7", "9"],
-        weight: 5,
-      },
-    ]
-
-    const modifyingLikelyhood = 0.8
-    let willApply = () => Math.random() * modifyingLikelyhood
-
-    while (words.length < this.state.settings.session.wordsPerString) {
-      let word = letters ? chain.generate(options) : ""
-      if (caps && willApply()) word = word.slice(0, 1).toUpperCase().concat(word.slice(1))
-      if (punct && willApply()) word = symbolize(word, punctuation)
-      if (syms && willApply()) word = symbolize(word, symbols)
-      if (nums && willApply()) word = symbolize(word, numbers)
-      words.push(word)
-    }
-
-    return words.join(spaces ? " " : "")
-
-    function symbolize(str: string, symbols: Array<CharacterSet>): string {
-      // Relative likelihoods of different types of punctuation
-      const weights = symbols.reduce((a, c) => a.concat([c.weight]), [] as number[])
-      let loto = Math.round(Math.random() * weights.reduce((a, c) => c + a))
-      let type = 0
-      let sum = 0
-      for (let i = 0; i < weights.length; i++) {
-        sum += weights[i]
-        if (loto <= sum) {
-          type = i
-          break
-        }
-      }
-      let symbolized = str
-      let { kind, chars } = symbols[type]
-      let s = chars[Math.floor(Math.random() * chars.length)]
-      switch (kind) {
-        case Kind.punctual: // punctuating
-          if (s instanceof Array) s = s[0]
-          symbolized = str.concat(s)
-          break
-        case Kind.surrounding: // surounding
-          symbolized = s[0].concat(str, s[1] || s[0])
-          break
-        case Kind.splitting: // splitting
-          if (str.length < 5) break
-          let split = 0
-          // Try to split somewhere after 2nd and before 2nd-to-last letters -- not between two vowels
-          for (let i = 2; i < str.length - 3; i++) {
-            if (!isVowel(str[i]) && !isVowel(str[i + 1])) {
-              split = i
-              break
-            }
-          }
-          if (split === 0) break
-          if (s instanceof Array) s = s[0]
-          symbolized = str.slice(0, split).concat(s, str.slice(split))
-          break
-        default:
-          break
-      }
-      return symbolized
-    }
+  changeSessionSettings(sessionSettings: any) {
+    let session = { ...sessionSettings }
+    if (!session.characters.letters) session.characters.caps = false
+    let settings = { ...this.state.settings }
+    settings.session = session
+    this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
   render() {
     return (
       <ThemeContext.Provider value={{ theme: this.state.settings.UI.theme, toggleTheme: () => this.toggleTheme() }}>
-        <Container
-          fluid
-          className="App"
-          style={this.state.settings.UI.theme}
-        >
+        <Container fluid className="App" style={this.state.settings.UI.theme}>
+          <Toolbar
+            left={<QuickStats sessionStats={this.state.sessionStats} />}
+            right={[
+              <CharacterCheckboxForm
+                sessionSettings={this.state.settings.session}
+                updateFn={(settings: any) => this.changeSessionSettings(settings)}
+              />,
+              <FontSizeSelect toggleFn={() => this.toggleFontSize()} />,
+              <ThemeToggleSwitch />,
+            ]}
+          ></Toolbar>
           <Container>
-            <Toolbar
-              left={<QuickStats sessionStats={this.state.sessionStats} />}
-              right={[
-                <CharacterCheckboxForm
-                  characters={this.state.settings.session.characters}
-                  setCharacters={(settings: any) => this.updateStringCharacterSettings(settings)}
-                />,
-                <StringLengthSelect
-                  value={this.state.settings.session.wordsPerString}
-                  updateFn={(s: string) => this.setStringLength(s)}
-                />,
-                <FontSizeSelect toggleFn={() => this.toggleFontSize()} />,
-                <ThemeToggleSwitch />,
-              ]}
-            ></Toolbar>
             <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
               <FormattedText
                 greyed={this.state.paradigm === Paradigm.Paused}
@@ -423,7 +311,10 @@ export class TypeTrainer extends React.Component<{}, State> {
                 mistakes={this.state.mistakes}
               />
             </TextDisplay>
-            <Keyboard pressed={this.state.pressed} />
+            <Keyboard
+              pressed={this.state.pressed}
+              keyZones={TrainingLevels[this.state.settings.session.trainingLevel]}
+            />
           </Container>
         </Container>
       </ThemeContext.Provider>

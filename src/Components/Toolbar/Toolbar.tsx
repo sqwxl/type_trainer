@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const Wrapper = styled.nav`
   height: 4rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: end;
   margin: 0.5rem 0;
 `
@@ -15,6 +15,7 @@ const ToolbarLeft = styled.div`
 `
 const ToolbarRight = styled.div`
   display: flex;
+  align-items: center;
 `
 
 export default function Toolbar(props: any) {

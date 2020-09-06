@@ -5,7 +5,7 @@ function FormattedText(props: { greyed: boolean, cursor: number, trainingString:
   let { cursor, trainingString, mistakes } = props
 
   //edge case (easter egg)
-  if (trainingString === "") return (<p><span role="img" aria-label="shrugging woman">🤷</span></p>)
+  if (trainingString === "" || trainingString.split("").every(v => v === " ")) return (<p><span role="img" aria-label="shrugging woman">🤷</span></p>)
 
   // trainingString = replaceSpaces(trainingString)
   let before: (JSX.Element | string)[] = []

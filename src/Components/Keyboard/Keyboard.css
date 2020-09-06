@@ -37,6 +37,10 @@
   color: var(--text-accent);
 }
 
+.greyed {
+  filter: opacity(0.3);
+}
+
 #Delete, #Escape {
   flex-grow: 1;
 }
