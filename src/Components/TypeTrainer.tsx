@@ -124,7 +124,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     document.removeEventListener("blur", e => this.routeEvent(e))
   }
 
-  routeEvent(event: Event) {
+  routeEvent(event: Event): void {
     let paradigm = this.state.paradigm
     switch (event.type) {
       case "keydown":
@@ -153,7 +153,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     }
   }
 
-  handleKeyDown(event: KeyboardEvent) {
+  handleKeyDown(event: KeyboardEvent): void {
     event.preventDefault()
     const state = { ...this.state }
     // Reject input
@@ -183,29 +183,29 @@ export class TypeTrainer extends React.Component<{}, State> {
     })
   }
 
-  handleKeyUp(event: KeyboardEvent) {
+  handleKeyUp(event: KeyboardEvent): void {
     event.preventDefault()
     let pressed = this.state.pressed
     pressed.delete(event.code)
     this.setState({ pressed: pressed })
   }
 
-  logStatus() {
+  logStatus(): void {
     console.info("Status: " + this.state.paradigm)
   }
 
-  startSession() {
+  startSession(): void {
     this.sessionTimer.start()
     this.setState({ paradigm: Paradigm.Training }, () => this.logStatus())
   }
 
-  pauseSession() {
+  pauseSession(): void {
     // Record pause start time
     if (this.sessionTimer != null) this.sessionTimer.pause()
     this.setState({ pressed: new Set(), paradigm: Paradigm.Paused }, () => this.logStatus())
   }
 
-  unPauseSession(event: Event) {
+  unPauseSession(event: Event): void {
     // Translate timer variable forward
     this.sessionTimer.unPause()
     this.setState({ paradigm: Paradigm.Training }, () => {
@@ -214,7 +214,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     })
   }
 
-  endSession() {
+  endSession(): void {
     // Computes sessions stats and passes baton to this.startNewSession
     let sessionStats = { ...this.state.sessionStats }
     let minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
@@ -243,7 +243,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     )
   }
 
-  prepareNewSession() {
+  prepareNewSession(): void {
 
     let mask = TrainingLevels[this.state.settings.session.trainingLevel].reduce((keys: Array<string>, fz: FingerZone) => {
       return keys.concat(FingerZoneChars[fz as string])
@@ -261,25 +261,25 @@ export class TypeTrainer extends React.Component<{}, State> {
     )
   }
 
-  toggleTheme() {
+  toggleTheme(): void {
     let settings = { ...this.state.settings }
     settings.UI.theme = settings.UI.theme === themes.light ? themes.dark : themes.light
     this.setState({ settings: settings })
   }
 
-  toggleFontSize() {
+  toggleFontSize(): void {
     let settings = { ...this.state.settings }
     settings.UI.fontSize = (settings.UI.fontSize + 1) % 3
     this.setState({ settings: settings })
   }
 
-  setStringLength(length: string) {
+  setStringLength(length: string): void {
     let settings = { ...this.state.settings }
     settings.session.wordsPerString = parseInt(length)
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
-  changeSessionSettings(sessionSettings: any) {
+  changeSessionSettings(sessionSettings: any): void {
     let session = { ...sessionSettings }
     if (!session.characters.letters) session.characters.caps = false
     let settings = { ...this.state.settings }

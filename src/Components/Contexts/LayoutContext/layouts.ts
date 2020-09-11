@@ -1,4 +1,6 @@
-export enum Finger {
+
+
+declare enum Finger {
   pinkyL = "pinky",
   ringL = "ring",
   middleL = "middle",
@@ -10,7 +12,7 @@ export enum Finger {
   thumb = "thumb",
 }
 
-export enum FingerZone {
+declare enum FingerZone {
   t = "thumb",
   i = "index",
   m = "middle",
@@ -18,21 +20,35 @@ export enum FingerZone {
   p = "pinky",
 }
 
-export const FingerZoneChars: { [finger: string]: Array<string>  } = {
-  thumb: [" "],
-  index:  ["6", "7", "r", "t", "y", "u", "f", "g", "h", "j", "c", "v", "b", "n", "m"]
-}
-
-
-
-interface KeyBtnData {
+declare interface KeyBtnData {
   code: string
   key: string
   label?: string
   finger?: Finger
 }
+declare interface KeyboardLayout {
+  [name: string]: KeyBtnData[][]
+}
 
-export const layouts: { [name: string]: KeyBtnData[][] } = {
+
+
+declare enum Kind {
+  "punctual",
+  "splitting",
+  "surrounding",
+}
+declare interface CharacterSet {
+  kind: Kind
+  chars: Array<string>
+  closing?: Array<string>
+  weight: number
+}
+export const FingerZoneChars: { [finger: string]: Array<string>  } = {
+  thumb: [" "],
+  index:  ["6", "7", "r", "t", "y", "u", "f", "g", "h", "j", "c", "v", "b", "n", "m"]
+}
+
+export const layouts: KeyboardLayout = {
   enUS_linux: [
     [
       { code: "Escape", key: "Escape", label: "Esc" },
@@ -133,17 +149,6 @@ export const layouts: { [name: string]: KeyBtnData[][] } = {
   ],
 }
 
-export enum Kind {
-  "punctual",
-  "splitting",
-  "surrounding",
-}
-export interface CharacterSet {
-  kind: Kind
-  chars: Array<string>
-  closing?: Array<string>
-  weight: number
-}
 export const characterSets: { [set: string]: Array<CharacterSet> } = {
   letters: [
     {
