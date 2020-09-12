@@ -6,29 +6,25 @@ import Toolbar from "./Toolbar/Toolbar"
 import { Container } from "react-bootstrap"
 import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
-import dict from "../english_words_array.json"
+
 import FontSizeSelect from "./Toolbar/FontSizeSelet"
 import CharacterCheckboxForm from "./Toolbar/CharacterCheckboxForm"
 import { applyMaskToCharSet, generateTrainingString, isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import { characterSets, FingerZone, FingerZoneChars } from "./Contexts/LayoutContext/layouts"
+import { characterSets } from "../Layouts/layouts"
 import MarkovChain from "../utils/MarkovChain"
+import { getCharactersPerFinger } from "../utils/training"
+import { TrainingLevels } from "../utils/models"
+import { newTrainingStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator"
 
-const chain = new MarkovChain(3, dict.dict)
+
 enum Paradigm {
   Loaded = "LOADED",
   SessionReady = "READY",
   Paused = "PAUSED",
   Training = "TRAINING",
 }
-
-const TrainingLevels: Array<FingerZone[]> = [
-  [FingerZone.t, FingerZone.i],
-  [FingerZone.t, FingerZone.i, FingerZone.m],
-  [FingerZone.t, FingerZone.i, FingerZone.m, FingerZone.r],
-  [FingerZone.t, FingerZone.i, FingerZone.m, FingerZone.r, FingerZone.p],
-]
 
 const FontSizes: { [key: number]: string } = { 0: "1rem", 1: "1.5rem", 2: "2rem" }
 const defaultSettings = {
@@ -44,8 +40,22 @@ const defaultSettings = {
       spaces: true,
     },
     wordsPerString: 4,
-    trainingLevel: 0,
+    trainingLevel: 0, //todo: trainingLevelIndex
   },
+}
+
+export interface SessionOptions {
+  markov : { minLength: number, maxLength: number }
+  characters: {
+    letters: boolean
+    caps: boolean
+    punct: boolean
+    syms: boolean
+    nums: boolean
+    spaces: boolean
+  }
+  wordsPerString: number
+  trainingLevel: number ////todo: trainingLevelIndex
 }
 
 interface State {
@@ -53,14 +63,14 @@ interface State {
   paradigm: Paradigm
   trainingString: string
   cursor: number
-  mistakes: Set<number>
+  mistakes: Set<number> // todo: mistakenCharacterIndexes
   sessionStats: {
-    wpm: number
-    mistakes: number
+    wpm: number 
+    mistakes: number //todo: mistakeCount
     totalSessions: number
     averages: {
       wpm: number
-      mistakes: number
+      mistakes: number // mistakeCount
     }
   }
   settings: {
@@ -68,28 +78,21 @@ interface State {
       theme: { [index: string]: CSSCustomProperties }
       fontSize: number
     }
-    session: {
-      markov : { minLength: number, maxLength: number }
-      characters: {
-        letters: boolean
-        caps: boolean
-        punct: boolean
-        syms: boolean
-        nums: boolean
-        spaces: boolean
-      }
-      wordsPerString: number
-      trainingLevel: number
-    }
+    session: SessionOptions
   }
 }
 
-const inactivityDelay = 2000
+interface Props {
+  generator: TrainingStringGenerator
+}
 
-export class TypeTrainer extends React.Component<{}, State> {
+const inactivityDelay = 2000 //todo: mettre dans settings
+
+export class TypeTrainer extends React.Component<Props, State> {
   static contextType = ThemeContext
   sessionTimer = Timer()
-  inactivityTimer!: number
+  inactivityTimer: number = 0
+
   constructor(props: any) {
     super(props)
     this.state = {
@@ -106,22 +109,23 @@ export class TypeTrainer extends React.Component<{}, State> {
       paradigm: Paradigm.Loaded,
       settings: { ...defaultSettings },
     }
+    this.routeEvent = this.routeEvent.bind(this)
   }
 
   startInactivityTimer() {
     return setTimeout(() => this.routeEvent(new Event("blur")), inactivityDelay)
   }
   componentDidMount() {
-    document.addEventListener("keydown", e => this.routeEvent(e))
-    document.addEventListener("keyup", e => this.routeEvent(e))
-    document.addEventListener("blur", e => this.routeEvent(e))
+    document.addEventListener("keydown", this.routeEvent)
+    document.addEventListener("keyup", this.routeEvent)
+    document.addEventListener("blur", this.routeEvent)
     this.prepareNewSession()
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", e => this.routeEvent(e))
-    document.removeEventListener("keyup", e => this.routeEvent(e))
-    document.removeEventListener("blur", e => this.routeEvent(e))
+    document.removeEventListener("keydown", this.routeEvent)
+    document.removeEventListener("keyup", this.routeEvent)
+    document.removeEventListener("blur", this.routeEvent)
   }
 
   routeEvent(event: Event): void {
@@ -132,8 +136,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           case Paradigm.Training:
           case Paradigm.SessionReady:
             this.handleKeyDown(event as KeyboardEvent)
-            clearTimeout(this.inactivityTimer)
-            this.inactivityTimer = this.startInactivityTimer()
+            this.resetInactivityTimer()
             break
           case Paradigm.Paused:
             this.unPauseSession(event)
@@ -153,20 +156,25 @@ export class TypeTrainer extends React.Component<{}, State> {
     }
   }
 
+  private resetInactivityTimer() {
+    clearTimeout(this.inactivityTimer)
+    this.inactivityTimer = this.startInactivityTimer()
+  }
+
   handleKeyDown(event: KeyboardEvent): void {
     event.preventDefault()
     const state = { ...this.state }
     // Reject input
-    if (event.repeat || state.pressed.has(event.code)) {
+    if (!this.shouldKeepKeyDownEvent(event, state)) {
       return
     }
     state.pressed.add(event.code)
 
     // Validate
     if (isChar(event.code)) {
-      if (state.trainingString[state.cursor] === event.key) {
-        state.cursor += 1
-        if (state.cursor === state.trainingString.length) {
+      if (this.isCorrectCharPressed(state, event)) {
+        this.goToNextChar(state)
+        if (this.isEOF(state)) {
           this.endSession()
           return
         }
@@ -181,6 +189,22 @@ export class TypeTrainer extends React.Component<{}, State> {
         this.startSession()
       }
     })
+  }
+
+  private isEOF(state: State) {
+    return state.cursor === state.trainingString.length
+  }
+
+  private goToNextChar(state: State) {
+    state.cursor += 1
+  }
+
+  private isCorrectCharPressed(state: State, event: KeyboardEvent) {
+    return state.trainingString[state.cursor] === event.key
+  }
+
+  private shouldKeepKeyDownEvent(event: KeyboardEvent, state: State) {
+    return !event.repeat && !state.pressed.has(event.code)
   }
 
   handleKeyUp(event: KeyboardEvent): void {
@@ -244,16 +268,10 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   prepareNewSession(): void {
-
-    let mask = TrainingLevels[this.state.settings.session.trainingLevel].reduce((keys: Array<string>, fz: FingerZone) => {
-      return keys.concat(FingerZoneChars[fz as string])
-    }, [])
-    const charSets = applyMaskToCharSet(characterSets, mask)
-    
     this.setState(
       {
         cursor: 0,
-        trainingString: generateTrainingString(chain, this.state.settings.session, charSets),
+        trainingString: this.props.generator.generate(this.state.settings.session),
         mistakes: new Set(),
         paradigm: Paradigm.SessionReady,
       },
@@ -291,7 +309,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     return (
       <ThemeContext.Provider value={{ theme: this.state.settings.UI.theme, toggleTheme: () => this.toggleTheme() }}>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
-          <Toolbar
+          {/* <Toolbar
             left={<QuickStats sessionStats={this.state.sessionStats} />}
             right={[
               <CharacterCheckboxForm
@@ -301,20 +319,20 @@ export class TypeTrainer extends React.Component<{}, State> {
               <FontSizeSelect toggleFn={() => this.toggleFontSize()} />,
               <ThemeToggleSwitch />,
             ]}
-          ></Toolbar>
+          ></Toolbar> */}
           <Container>
-            <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
+           {/*  <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
               <FormattedText
                 greyed={this.state.paradigm === Paradigm.Paused}
                 cursor={this.state.cursor}
                 trainingString={this.state.trainingString}
                 mistakes={this.state.mistakes}
               />
-            </TextDisplay>
-            <Keyboard
+            </TextDisplay> */}
+            {/* <Keyboard
               pressed={this.state.pressed}
               keyZones={TrainingLevels[this.state.settings.session.trainingLevel]}
-            />
+            /> */}
           </Container>
         </Container>
       </ThemeContext.Provider>

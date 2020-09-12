@@ -7,7 +7,7 @@ describe('toolbar', () => {
     render(<Toolbar />, {})
   })
   
-  it('has a button that toggles color theme', () => {
+  it.skip('has a button that toggles color theme', () => {
     render(<Toolbar />, {})
     expect(screen.getByRole('switch')).toBeInTheDocument()
   })

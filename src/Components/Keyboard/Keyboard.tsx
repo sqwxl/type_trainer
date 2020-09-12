@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import Container from "react-bootstrap/Container"
 import "./Keyboard.css"
 import { LayoutContext } from "../Contexts/LayoutContext/LayoutContext"
-import { FingerZone } from "../Contexts/LayoutContext/layouts"
+import { FingerZone } from "../../Layouts/layouts"
 
 
 export default function Keyboard(props: { pressed: Set<string>; keyZones: FingerZone[] }) {

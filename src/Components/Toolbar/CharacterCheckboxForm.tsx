@@ -30,6 +30,7 @@ export default function CharacterCheckboxForm(props: { sessionSettings: any; upd
     <Form inline>
       {Object.keys(props.sessionSettings.characters).map((characterType: string, index: number) => (
         <StyledFormCheck
+          key={"cb-" + index}
           type="checkbox"
           label={labels[characterType]}
           inline
@@ -41,6 +42,7 @@ export default function CharacterCheckboxForm(props: { sessionSettings: any; upd
       <FormLabel htmlFor="lengthSelector">Length: </FormLabel>
       <FormControl
         id="lengthSelector"
+        key="length-sel"
         type="number"
         size="sm"
         name="wordsPerString"

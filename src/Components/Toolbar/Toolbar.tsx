@@ -21,8 +21,8 @@ const ToolbarRight = styled.div`
 export default function Toolbar(props: any) {
   return (
     <Wrapper>
-      <ToolbarLeft>{props.left}</ToolbarLeft>
-      <ToolbarRight>{props.right}</ToolbarRight>
+      <ToolbarLeft key="left">{props.left}</ToolbarLeft>
+      <ToolbarRight key="right">{props.right}</ToolbarRight>
     </Wrapper>
   )
 }
