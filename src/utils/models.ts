@@ -1,9 +1,9 @@
-import { FingerZone } from "../Layouts/layouts"
+import { Finger } from "../Layouts/layouts"
 
 
-export const TrainingLevels: Array<FingerZone[]> = [
-  [FingerZone.THUMB, FingerZone.INDEX],
-  [FingerZone.THUMB, FingerZone.INDEX, FingerZone.MIDDLE],
-  [FingerZone.THUMB, FingerZone.INDEX, FingerZone.MIDDLE, FingerZone.RING],
-  [FingerZone.THUMB, FingerZone.INDEX, FingerZone.MIDDLE, FingerZone.RING, FingerZone.PINKY],
+export const TrainingLevel: Array<Finger[]> = [
+  [Finger.THUMB, Finger.INDEX],
+  [Finger.THUMB, Finger.INDEX, Finger.MIDDLE],
+  [Finger.THUMB, Finger.INDEX, Finger.MIDDLE, Finger.RING],
+  [Finger.THUMB, Finger.INDEX, Finger.MIDDLE, Finger.RING, Finger.PINKY],
 ]

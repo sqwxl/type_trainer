@@ -1,15 +1,16 @@
 
 import React from 'react'
 import { render } from '@testing-library/react'
-import {LayoutContext, layouts} from '../Components/Contexts/LayoutContext/LayoutContext'
+import {KeyboardLayoutContext} from '../Components/Contexts/KeyboardLayoutContext/KeyboardLayoutContext'
 import {ThemeContext, themes} from '../Components/Contexts/ThemeContext/ThemeContext'
+import { en_US_CharSet, en_US_KeyLabels } from '../Layouts/en_US'
 
 const AllProviders = ({ children }: any) => {
   return (
     <ThemeContext.Provider value={{ theme: themes.dark, toggleTheme: () => { }}}>
-      <LayoutContext.Provider value={layouts.enUS_linux}>
+      <KeyboardLayoutContext.Provider value={{keyLabels: en_US_KeyLabels, charset: en_US_CharSet}}>
         {children}
-      </LayoutContext.Provider>
+      </KeyboardLayoutContext.Provider>
     </ThemeContext.Provider>
   )
 }

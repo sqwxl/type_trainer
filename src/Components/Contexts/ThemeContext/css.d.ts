@@ -1,4 +1,4 @@
-import {CSSProperties} from '@types/react'
+import {CSSProperties} from 'react'
 
 
 // module augmentation to allow for custom css variables

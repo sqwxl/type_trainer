@@ -1,31 +1,36 @@
 import { SessionOptions } from "../Components/TypeTrainer"
+import { en_US_CharSet } from "../Layouts/en_US"
 import MarkovChain from "./MarkovChain"
-import dict from "../english_words_array.json"
 import { getCharactersPerFinger } from "./training"
 import { applyMaskToCharSet } from "./utils"
-import { allCharacterSets } from "../Layouts/layouts";
+import { StandardFingerMap } from "../Layouts/StandardPhysicalLayout"
+import { TrainingLevel } from "./models"
+import { CharacterSet, CharacterType, Finger } from "../Layouts/layouts"
 
 export interface TrainingStringGenerator {
   generate(options: SessionOptions): string
 }
 
-const chain = new MarkovChain(3, dict.dict)
-
 export class MarkovTrainingStringGenerator implements TrainingStringGenerator {
-  constructor(private chain: MarkovChain) {}
+  private chain: MarkovChain
+  constructor(dictionary: string[]) {
+    this.chain = new MarkovChain(3, dictionary)
+  }
 
-  generate(options: SessionOptions): string {
+  generate(options: SessionOptions, fullCharSet = en_US_CharSet): string {
     // BASED ON OPTIONS, GENERATE STRING
-
-    let charactersPerFinger = getCharactersPerFinger(options.trainingLevel)
-    const characterSets = applyMaskToCharSet(allCharacterSets, charactersPerFinger)
 
     // Return empty string if all characters options are false
     if (Object.values(options.characters).every(v => !v)) return ""
+
+    // get character set based on training level ( intersection of traininglevel, fingermap, and charset)
+    const trainingLevel = TrainingLevel[options.trainingLevel]
+    const charSet = getCharSetAtTrainingLevel(fullCharSet, trainingLevel)
+
     let words: Array<string> = []
 
     const modifyingLikelyhood = 0.8
-    let willApply = () => Math.random() * modifyingLikelyhood
+    let modificationShouldApply = () => Math.random() < modifyingLikelyhood
     let minLength = 3
     let maxLength = 12
 
@@ -33,48 +38,47 @@ export class MarkovTrainingStringGenerator implements TrainingStringGenerator {
       let word = ""
       // generate a word that respects training set
       if (options.characters.letters) {
+        const letters = charSet
+          .filter(char => char.type === CharacterType.LOWERCASE_LETTER)
+          .map(char => char.glyph as string)
         if (options.trainingLevel > 2) {
-          word = chain.generate(options.markov, characterSets.letters[0].chars)
+          // todo: make generation work the same at all levels
+          word = this.chain.generate(options.markov, letters)
         } else {
-          while (word.length < minLength + Math.floor(Math.random() * (maxLength - minLength))) {
-            let char = characterSets.letters[0].chars[Math.floor(Math.random() * characterSets.letters[0].chars.length)]
+          let wordLength = minLength + Math.floor(Math.random() * (maxLength - minLength))
+          while (word.length < wordLength) {
+            let char = letters[Math.floor(Math.random() * letters.length)]
             word += char
           }
         }
       } else {
         word = ""
       }
-      if (options.characters.caps && willApply()) word = word.slice(0, 1).toUpperCase().concat(word.slice(1))
-      if (options.characters.punct && willApply()) word = symbolize(word, characterSets.punctuation)
-      if (options.characters.syms && willApply()) word = symbolize(word, characterSets.symbols)
-      if (options.characters.nums && willApply()) word = symbolize(word, characterSets.numbers)
+      // APPLY MODS
+      if (options.characters.caps && modificationShouldApply())
+        word = word.slice(0, 1).toUpperCase().concat(word.slice(1))
+      if (options.characters.punct && modificationShouldApply())
+        word = symbolize(
+          word,
+          charSet.filter(char => char.type === CharacterType.PUNCTUATION)
+        )
+      if (options.characters.syms && modificationShouldApply()) word = symbolize(word, charSet.filter(char => char.type === CharacterType.SYMBOL))
+      if (options.characters.nums && modificationShouldApply()) word = symbolize(word, charSet.filter(char => char.type === CharacterType.NUMBER))
       words.push(word)
     }
 
     return words.join(options.characters.spaces ? " " : "")
 
-    function symbolize(str: string, symbols: Array<CharacterSet>): string {
-      // Relative likelihoods of different types of punctuation
-      const weights = symbols.reduce((a, c) => a.concat([c.weight]), [] as number[])
-      let loto = Math.round(Math.random() * weights.reduce((a, c) => c + a))
-      let type = 0
-      let sum = 0
-      for (let i = 0; i < weights.length; i++) {
-        sum += weights[i]
-        if (loto <= sum) {
-          type = i
-          break
-        }
-      }
+    function symbolize(str: string, charSet: CharacterSet): string {
       let symbolized = str
-      let { kind, chars } = symbols[type]
+      let { kind, chars } = charSet[type]
       let idx = Math.floor(Math.random() * chars.length)
       switch (kind) {
         case Kind.punctual: // punctuating
           symbolized = str.concat(chars[idx])
           break
         case Kind.surrounding: // surounding
-          symbolized = chars[idx].concat(str, symbols[type].closing![idx])
+          symbolized = chars[idx].concat(str, charSet[type].closing![idx])
           break
         case Kind.splitting: // splitting
           if (str.length < 5) break
@@ -102,6 +106,20 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
   generate(options: SessionOptions) {
     return this.trainingString
   }
+}
+
+function getCharSetAtTrainingLevel(fullCharSet: CharacterSet, trainingLevel: Finger[]): CharacterSet {
+  let filteredSet: CharacterSet = [...fullCharSet]
+  fullCharSet.filter(charObject => {
+    if (charObject.code instanceof Array) {
+      const eachCharIsIncluded = charObject.code.every(code => trainingLevel.includes(StandardFingerMap[code].finger))
+      if (eachCharIsIncluded) return true
+    } else if (!trainingLevel.includes(StandardFingerMap[charObject.code].finger)) {
+      return true
+    }
+    return false
+  })
+  return filteredSet
 }
 
 export function newTrainingStringGenerator() {

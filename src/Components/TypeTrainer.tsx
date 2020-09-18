@@ -15,11 +15,11 @@ import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
 import { characterSets } from "../Layouts/layouts"
 import MarkovChain from "../utils/MarkovChain"
 import { getCharactersPerFinger } from "../utils/training"
-import { TrainingLevels } from "../utils/models"
+import { TrainingLevel } from "../utils/models"
 import { newTrainingStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator"
 
 
-enum Paradigm {
+enum MachineState {
   Loaded = "LOADED",
   SessionReady = "READY",
   Paused = "PAUSED",
@@ -27,21 +27,22 @@ enum Paradigm {
 }
 
 const FontSizes: { [key: number]: string } = { 0: "1rem", 1: "1.5rem", 2: "2rem" }
+export const defaultSessionOptions = {
+  markov: { minLength: 3, maxLength: 12 },
+  characters: {
+    letters: true,
+    caps: false,
+    punct: false,
+    syms: false,
+    nums: false,
+    spaces: true,
+  },
+  wordsPerString: 4,
+  trainingLevelIndex: 0,
+}
 const defaultSettings = {
   UI: { theme: themes.dark, fontSize: 1 },
-  session: {
-    markov: { minLength: 3, maxLength: 12 },
-    characters: {
-      letters: true,
-      caps: false,
-      punct: false,
-      syms: false,
-      nums: false,
-      spaces: true,
-    },
-    wordsPerString: 4,
-    trainingLevel: 0, //todo: trainingLevelIndex
-  },
+  session: defaultSessionOptions,
 }
 
 export interface SessionOptions {
@@ -55,12 +56,12 @@ export interface SessionOptions {
     spaces: boolean
   }
   wordsPerString: number
-  trainingLevel: number ////todo: trainingLevelIndex
+  trainingLevel: number
 }
 
 interface State {
   pressed: Set<string>
-  paradigm: Paradigm
+  paradigm: MachineState
   trainingString: string
   cursor: number
   mistakes: Set<number> // todo: mistakenCharacterIndexes
@@ -106,7 +107,7 @@ export class TypeTrainer extends React.Component<Props, State> {
         averages: { wpm: 0, mistakes: 0 },
       },
       pressed: new Set(),
-      paradigm: Paradigm.Loaded,
+      paradigm: MachineState.Loaded,
       settings: { ...defaultSettings },
     }
     this.routeEvent = this.routeEvent.bind(this)
@@ -133,12 +134,12 @@ export class TypeTrainer extends React.Component<Props, State> {
     switch (event.type) {
       case "keydown":
         switch (paradigm) {
-          case Paradigm.Training:
-          case Paradigm.SessionReady:
+          case MachineState.Training:
+          case MachineState.SessionReady:
             this.handleKeyDown(event as KeyboardEvent)
             this.resetInactivityTimer()
             break
-          case Paradigm.Paused:
+          case MachineState.Paused:
             this.unPauseSession(event)
             break
           default:
@@ -185,7 +186,7 @@ export class TypeTrainer extends React.Component<Props, State> {
 
     // Update state
     this.setState(state, () => {
-      if (this.state.paradigm === Paradigm.SessionReady) {
+      if (this.state.paradigm === MachineState.SessionReady) {
         this.startSession()
       }
     })
@@ -220,19 +221,19 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   startSession(): void {
     this.sessionTimer.start()
-    this.setState({ paradigm: Paradigm.Training }, () => this.logStatus())
+    this.setState({ paradigm: MachineState.Training }, () => this.logStatus())
   }
 
   pauseSession(): void {
     // Record pause start time
     if (this.sessionTimer != null) this.sessionTimer.pause()
-    this.setState({ pressed: new Set(), paradigm: Paradigm.Paused }, () => this.logStatus())
+    this.setState({ pressed: new Set(), paradigm: MachineState.Paused }, () => this.logStatus())
   }
 
   unPauseSession(event: Event): void {
     // Translate timer variable forward
     this.sessionTimer.unPause()
-    this.setState({ paradigm: Paradigm.Training }, () => {
+    this.setState({ paradigm: MachineState.Training }, () => {
       this.logStatus()
       this.routeEvent(event)
     })
@@ -273,7 +274,7 @@ export class TypeTrainer extends React.Component<Props, State> {
         cursor: 0,
         trainingString: this.props.generator.generate(this.state.settings.session),
         mistakes: new Set(),
-        paradigm: Paradigm.SessionReady,
+        paradigm: MachineState.SessionReady,
       },
       () => this.logStatus()
     )
