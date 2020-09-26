@@ -97,14 +97,6 @@ export default class MarkovChain {
     return true;
   }
 
-  private isAllowed(word: string, characters: Array<string>): boolean {
-    word = word.toLowerCase()
-    for (let char of characters) {
-      if (word.includes(char)) return true
-    }
-    return false
-  }
-
   generate({
     minLength = 0,
     maxLength = 0,
@@ -117,35 +109,20 @@ export default class MarkovChain {
     allowDuplicates?: boolean;
     maxAttempts?: number;
     random?: RandomGenerator;
-  }
-   , allowedCharacters?: Array<string>): string {
+  }): string {
     let word;
     let repeat;
     let attempts = 0;
-    let getNextNode = (node: MarkovNode): MarkovNode | null => {
-      let nextNodeIndex, nextNode
-      if (allowedCharacters == null) {
-        nextNodeIndex = Math.floor(random() * node.neighbors.length);
-        nextNode = node.neighbors[nextNodeIndex]
-      } else {
-        do {
-          console.log('searching')
-          nextNodeIndex = Math.floor(random() * node.neighbors.length);
-          nextNode = node.neighbors[nextNodeIndex];
-          if (nextNode == null) break
-        } while (!this.isAllowed(nextNode.character, allowedCharacters))
-      }
-      return nextNode
-    }
     do {
       repeat = false;
-      let currentNode
-      currentNode = getNextNode(this.start)
+      let nextNodeIndex = Math.floor(random() * this.start.neighbors.length);
+      let currentNode = this.start.neighbors[nextNodeIndex];
       word = '';
 
-      while (currentNode != null && (maxLength <= 0 || word.length <= maxLength)) {
+      while (currentNode && (maxLength <= 0 || word.length <= maxLength)) {
         word += currentNode.character;
-        currentNode = getNextNode(currentNode)
+        nextNodeIndex = Math.floor(random() * currentNode.neighbors.length);
+        currentNode = currentNode.neighbors[nextNodeIndex];
       }
       if (
         (maxLength > 0 && word.length > maxLength) ||
@@ -166,6 +143,5 @@ export default class MarkovChain {
       );
     }
     return word;
-
   }
 }

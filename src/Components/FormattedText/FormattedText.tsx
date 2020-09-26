@@ -1,7 +1,7 @@
 import React from 'react'
 import './FormattedText.css'
 
-function FormattedText(props: { greyed: boolean, cursor: number, trainingString: string, mistakes: Set<number> }) {
+export function FormattedText(props: { greyed: boolean, cursor: number, trainingString: string, mistakes: Set<number> }) {
   let { cursor, trainingString, mistakes } = props
 
   //edge case (easter egg)

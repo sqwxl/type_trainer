@@ -1,13 +1,14 @@
 import "./Keyboard.css"
-import { StandardFingerMap, StandardPhysicalLayout } from "../../Layouts/StandardPhysicalLayout"
-import * as KB from "../../Layouts/layouts"
-import { en_US_KeyLabels } from "../../Layouts/en_US"
+import * as PhysicalKB from "../../utils/PhysicalKeyboard"
+import * as KB from "../../utils/kb_types"
+import { QWERTY_labels } from "../../assets/Layouts/en_US"
 import React from "react"
-// import { FingerZone } from "../../Layouts/layouts"
+
+
 type KeyboardObject = {
   code: KB.KeyCode
   labels: KB.KeyLabel
-  fingerHand: KB.FingerHand
+  fingerHand: { hand: PhysicalKB.Hand, finger: PhysicalKB.Finger }
 }[][]
 
 /* export interface VitrualKeyboardInterface {
@@ -22,16 +23,15 @@ export class VitrualKeyboard {
     this._KeyboardObject = this.loadLayout()
   }
   loadLayout(
-    physicalLayout: KB.KeyboardPhysicalLayout = StandardPhysicalLayout,
-    fingerMap: KB.KeyboardFingerMap = StandardFingerMap,
-    labels: KB.KeyboardKeyLabels = en_US_KeyLabels
+    physicalLayout: PhysicalKB.KeyboardPhysicalLayout = PhysicalKB.Layout,
+    fingerMap: PhysicalKB.KeyboardFingerMap = PhysicalKB.FingerMap,
+    labels: KB.KeyboardVisualLayout = QWERTY_labels
   ) {
     let obj: KeyboardObject = []
-    for (let [row, keyCodes] of Object.entries(physicalLayout)) {
-      let rowIdx = parseInt(row)
-      obj[rowIdx] = []
-      for (let [col, code] of keyCodes.entries()) {
-        obj[rowIdx][col] = {
+    for (let [idx, rowCodes] of physicalLayout.entries()) {
+      obj[idx] = []
+      for (let [col, code] of rowCodes.entries()) {
+        obj[idx][col] = {
           code: code,
           labels: labels[code],
           fingerHand: fingerMap[code],
@@ -47,11 +47,11 @@ export class VitrualKeyboard {
 
 const VKB = new VitrualKeyboard()
 
-export default function Keyboard(props: { pressed: Set<string>; keyZones: KB.Finger[] }): JSX.Element {
+export default function Keyboard(props: { fullCharSet: KB.CharacterSet, pressed: Set<string>; active: KB.KeyCode[]; current: KB.KeyCode; }): JSX.Element {
   // const { keyLabels } = useContext(KeyboardLayoutContext)
 
   const scaffold = VKB.KeyboardObject
-  let pressed = props.pressed
+
   return (
     <div className={"keyboard"} id="keyboard" data-testid="keyboard">
       {scaffold.map((row, rowIdx) => (
@@ -59,16 +59,23 @@ export default function Keyboard(props: { pressed: Set<string>; keyZones: KB.Fin
           {row.map(keyBtn => {
             // Determine style classes to apply to each btn
             let classes = []
+
             classes.push("row-item-" + rowIdx)
-            if (pressed.size && pressed.has(keyBtn.code)) classes.push("pressed")
-            if (props.keyZones.every(keyZone => (keyZone as string) !== keyBtn.fingerHand.finger))
-              classes.push("greyed")
+            // Pressed keys
+            const keyIsPressed = props.pressed.size && props.pressed.has(keyBtn.code)
+            if (keyIsPressed) classes.push("pressed")
+            // Active/inactive
+            const keyIsActive = props.active.includes(keyBtn.code)
+            if (!keyIsActive) classes.push("greyed")
+            // Current
+            const keyIsCurrent = props.current === keyBtn.code
+            if (keyIsCurrent) classes.push("highlight")
 
             // Generate label html
             let labelHtml: JSX.Element = generateLabelHtml(keyBtn)
 
             return (
-              <li id={keyBtn.code} key={keyBtn.code} className={classes.join(" ")}>
+              <li id={keyBtn.code} data-testid={keyBtn.code} key={keyBtn.code} className={classes.join(" ")}>
                 {labelHtml}
               </li>
             )
@@ -79,27 +86,27 @@ export default function Keyboard(props: { pressed: Set<string>; keyZones: KB.Fin
   )
 
 
-  function generateLabelHtml(keyBtn: { code: KB.KeyCode; labels: KB.KeyLabel; fingerHand: KB.FingerHand }) {
+  function generateLabelHtml({ labels }: { labels: KB.KeyLabel }) {
     let label: JSX.Element
-    switch (Object.keys(keyBtn.labels).length) {
+    switch (Object.keys(labels).length) {
       case 1:
-        label = <p>{keyBtn.labels.main}</p>
+        label = <p>{labels.main}</p>
         break
       case 2:
         label = (
           <p>
-            {keyBtn.labels.shift}
+            {labels.shift}
             <br />
-            {keyBtn.labels.main}
+            {labels.main}
           </p>
         )
         break
       case 3:
         label = (
           <p>
-            {keyBtn.labels.shift}
+            {labels.shift}
             <br />
-            {keyBtn.labels.main} {keyBtn.labels.opt}
+            {labels.main} {labels.opt}
           </p>
         )
         break

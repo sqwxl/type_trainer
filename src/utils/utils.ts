@@ -1,11 +1,8 @@
-import { CharacterSet, characterSets as allCharacterSets, Kind } from "../Layouts/layouts"
-import MarkovChain from "./MarkovChain"
+import { CharacterSet, characterSets as allCharacterSets, Kind } from "./kb_types"
+import MarkovChain from "./TrainingStringGenerator/MarkovChain"
 import {SessionOptions} from '../Components/TypeTrainer'
 
-export function isVowel(char: string): boolean {
-  const vowels = ["a", "e", "i", "o", "u"]
-  return vowels.includes(char)
-}
+
 
 export function isChar(code: string) {
   if (code.slice(0, 3) === "Key") return true

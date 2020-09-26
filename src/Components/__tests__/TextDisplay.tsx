@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextDisplay } from './TextDisplay'
+import { TextDisplay } from '../TextDisplay/TextDisplay'
 import { render, screen } from '../../utils/test-utils'
 
 // 'should render'

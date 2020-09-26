@@ -41,6 +41,10 @@
   filter: opacity(0.3);
 }
 
+.highlight {
+  box-shadow: 5px 0 0 yellow ;
+}
+
 #Delete, #Escape {
   flex-grow: 1;
 }
@@ -89,34 +93,10 @@
   font-size: 0.8rem;
 }
 
-#ArrowUp, #ArrowDown, #ArrowLeft, #ArrowRight {
-  line-height: 2.5rem;
-  text-align: center;
-  font-size: 1.5rem;
-}
-
 #Space {
   flex-grow: 8;
 }
 
-.row-6 {
-  justify-content: flex-end;
-}
-
-.row-6 > .key-btn {
-  flex-grow: 0;
-}
-
-.row-item-0 {
-  height: 1.5rem;
-  border-radius: 5%;
-  font-size: 0.6rem;
-}
-
-.row-item-5 {
-  font-size: 0.8rem;
-}
-
-.row-item-1, .row-item-2, .row-item-3, .row-item-4, .row-item-5, .row-item-6 {
+.row-item-0, .row-item-1, .row-item-2, .row-item-3 {
   height: 3rem;
 }

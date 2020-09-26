@@ -9,14 +9,18 @@ import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
 
 import FontSizeSelect from "./Toolbar/FontSizeSelet"
 import CharacterCheckboxForm from "./Toolbar/CharacterCheckboxForm"
-import { applyMaskToCharSet, generateTrainingString, isChar, Timer } from "../utils/utils"
+import { isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import { characterSets } from "../Layouts/layouts"
-import MarkovChain from "../utils/MarkovChain"
+import MarkovChain from "../utils/TrainingStringGenerator/MarkovChain"
 import { getCharactersPerFinger } from "../utils/training"
-import { TrainingLevel } from "../utils/models"
-import { newTrainingStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator"
+import { GuidedCourseLevels, TrainingLevelFingers } from "../utils/models"
+import { TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
+import { Session } from "inspector"
+import CharSet from "../utils/CharSet"
+import { KeyboardVisualLayout } from "../utils/kb_types"
+import * as en_US from '../assets/Layouts/en_US'
+import { convertTypeAcquisitionFromJson } from "typescript"
 
 
 enum MachineState {
@@ -27,23 +31,7 @@ enum MachineState {
 }
 
 const FontSizes: { [key: number]: string } = { 0: "1rem", 1: "1.5rem", 2: "2rem" }
-export const defaultSessionOptions = {
-  markov: { minLength: 3, maxLength: 12 },
-  characters: {
-    letters: true,
-    caps: false,
-    punct: false,
-    syms: false,
-    nums: false,
-    spaces: true,
-  },
-  wordsPerString: 4,
-  trainingLevelIndex: 0,
-}
-const defaultSettings = {
-  UI: { theme: themes.dark, fontSize: 1 },
-  session: defaultSessionOptions,
-}
+
 
 export interface SessionOptions {
   markov : { minLength: number, maxLength: number }
@@ -56,12 +44,32 @@ export interface SessionOptions {
     spaces: boolean
   }
   wordsPerString: number
-  trainingLevel: number
+  trainingLevelIndex: number
 }
-
+export const defaultSessionOptions: SessionOptions = {
+  markov: { minLength: 3, maxLength: 12 },
+  characters: {
+    letters: true,
+    caps: false,
+    punct: false,
+    syms: false,
+    nums: false,
+    spaces: true,
+  },
+  wordsPerString: 6,
+  trainingLevelIndex: 0,
+}
+const defaultSettings = {
+  locale: {
+    keyLabels: en_US.QWERTY_labels,
+    charSet: new CharSet(en_US.QWERTY_CharSet)
+  },
+  UI: { theme: themes.dark, fontSize: 1 },
+  session: defaultSessionOptions,
+}
 interface State {
   pressed: Set<string>
-  paradigm: MachineState
+  machineState: MachineState
   trainingString: string
   cursor: number
   mistakes: Set<number> // todo: mistakenCharacterIndexes
@@ -75,6 +83,10 @@ interface State {
     }
   }
   settings: {
+    locale: {
+      keyLabels: KeyboardVisualLayout
+      charSet: CharSet
+    }
     UI: {
       theme: { [index: string]: CSSCustomProperties }
       fontSize: number
@@ -107,7 +119,7 @@ export class TypeTrainer extends React.Component<Props, State> {
         averages: { wpm: 0, mistakes: 0 },
       },
       pressed: new Set(),
-      paradigm: MachineState.Loaded,
+      machineState: MachineState.Loaded,
       settings: { ...defaultSettings },
     }
     this.routeEvent = this.routeEvent.bind(this)
@@ -130,7 +142,7 @@ export class TypeTrainer extends React.Component<Props, State> {
   }
 
   routeEvent(event: Event): void {
-    let paradigm = this.state.paradigm
+    let paradigm = this.state.machineState
     switch (event.type) {
       case "keydown":
         switch (paradigm) {
@@ -186,7 +198,7 @@ export class TypeTrainer extends React.Component<Props, State> {
 
     // Update state
     this.setState(state, () => {
-      if (this.state.paradigm === MachineState.SessionReady) {
+      if (this.state.machineState === MachineState.SessionReady) {
         this.startSession()
       }
     })
@@ -216,24 +228,24 @@ export class TypeTrainer extends React.Component<Props, State> {
   }
 
   logStatus(): void {
-    console.info("Status: " + this.state.paradigm)
+    console.info("Status: " + this.state.machineState)
   }
 
   startSession(): void {
     this.sessionTimer.start()
-    this.setState({ paradigm: MachineState.Training }, () => this.logStatus())
+    this.setState({ machineState: MachineState.Training }, () => this.logStatus())
   }
 
   pauseSession(): void {
     // Record pause start time
     if (this.sessionTimer != null) this.sessionTimer.pause()
-    this.setState({ pressed: new Set(), paradigm: MachineState.Paused }, () => this.logStatus())
+    this.setState({ pressed: new Set(), machineState: MachineState.Paused }, () => this.logStatus())
   }
 
   unPauseSession(event: Event): void {
     // Translate timer variable forward
     this.sessionTimer.unPause()
-    this.setState({ paradigm: MachineState.Training }, () => {
+    this.setState({ machineState: MachineState.Training }, () => {
       this.logStatus()
       this.routeEvent(event)
     })
@@ -272,9 +284,9 @@ export class TypeTrainer extends React.Component<Props, State> {
     this.setState(
       {
         cursor: 0,
-        trainingString: this.props.generator.generate(this.state.settings.session),
+        trainingString: this.props.generator.generate(this.state.settings.session).join(' '),
         mistakes: new Set(),
-        paradigm: MachineState.SessionReady,
+        machineState: MachineState.SessionReady,
       },
       () => this.logStatus()
     )
@@ -310,7 +322,7 @@ export class TypeTrainer extends React.Component<Props, State> {
     return (
       <ThemeContext.Provider value={{ theme: this.state.settings.UI.theme, toggleTheme: () => this.toggleTheme() }}>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
-          {/* <Toolbar
+          {<Toolbar
             left={<QuickStats sessionStats={this.state.sessionStats} />}
             right={[
               <CharacterCheckboxForm
@@ -320,20 +332,22 @@ export class TypeTrainer extends React.Component<Props, State> {
               <FontSizeSelect toggleFn={() => this.toggleFontSize()} />,
               <ThemeToggleSwitch />,
             ]}
-          ></Toolbar> */}
+          ></Toolbar>}
           <Container>
-           {/*  <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
+           { <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
               <FormattedText
-                greyed={this.state.paradigm === Paradigm.Paused}
+                greyed={this.state.machineState === MachineState.Paused}
                 cursor={this.state.cursor}
                 trainingString={this.state.trainingString}
                 mistakes={this.state.mistakes}
               />
-            </TextDisplay> */}
-            {/* <Keyboard
+            </TextDisplay>}
+            {<Keyboard
+              fullCharSet={this.state.settings.locale.charSet.fullCharSet}
               pressed={this.state.pressed}
-              keyZones={TrainingLevels[this.state.settings.session.trainingLevel]}
-            /> */}
+              active={this.state.settings.locale.charSet.charSetAtTrainingLevel(GuidedCourseLevels[this.state.settings.session.trainingLevelIndex]).uniqueKeyCodes}
+              current={this.state.settings.locale.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor])}
+            />}
           </Container>
         </Container>
       </ThemeContext.Provider>

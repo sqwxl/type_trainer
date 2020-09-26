@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, fireEvent, screen } from '../../utils/test-utils'
-import Toolbar from './Toolbar'
+import Toolbar from '../Toolbar/Toolbar'
 
 describe('toolbar', () => {
   it('renders without crashing', () => {
