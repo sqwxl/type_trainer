@@ -1,4 +1,4 @@
-import { KeyCode } from "./kb_types"
+import { KeyCode } from "./LayoutUtil"
 
 
 export type KeyboardPhysicalLayout = KeyCode[][]

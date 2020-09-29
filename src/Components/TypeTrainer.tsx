@@ -8,20 +8,15 @@ import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
 
 import FontSizeSelect from "./Toolbar/FontSizeSelet"
-import CharacterCheckboxForm from "./Toolbar/CharacterCheckboxForm"
+import StringOptionsForm from "./Toolbar/StringOptionsForm"
 import { isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import MarkovChain from "../utils/TrainingStringGenerator/MarkovChain"
-import { getCharactersPerFinger } from "../utils/training"
-import { GuidedCourseLevels, TrainingLevelFingers } from "../utils/models"
+import Courses, { Course, CourseLevel } from "../utils/Courses"
 import { TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
-import { Session } from "inspector"
-import CharSet from "../utils/CharSet"
-import { KeyboardVisualLayout } from "../utils/kb_types"
-import * as en_US from '../assets/Layouts/en_US'
-import { convertTypeAcquisitionFromJson } from "typescript"
-
+import LayoutUtil, { CharacterType, CharSet } from "../utils/LayoutUtil"
+import { enUsQwerty } from "../assets/Layouts/en_US"
+import { modifyRawTrainingWord } from "../utils/TrainingStringModifier/TrainingStringModifier"
 
 enum MachineState {
   Loaded = "LOADED",
@@ -32,67 +27,86 @@ enum MachineState {
 
 const FontSizes: { [key: number]: string } = { 0: "1rem", 1: "1.5rem", 2: "2rem" }
 
-
-export interface SessionOptions {
-  markov : { minLength: number, maxLength: number }
-  characters: {
-    letters: boolean
-    caps: boolean
-    punct: boolean
-    syms: boolean
-    nums: boolean
-    spaces: boolean
-  }
-  wordsPerString: number
-  trainingLevelIndex: number
+export interface WordModifierOptions {
+  caps: boolean
+  punct: boolean
+  syms: boolean
+  nums: boolean
 }
-export const defaultSessionOptions: SessionOptions = {
-  markov: { minLength: 3, maxLength: 12 },
-  characters: {
-    letters: true,
+
+export interface TrainingStringOptions {
+  wordLength: { minLength: number; maxLength: number }
+  letters: boolean
+  spaces: boolean
+  wordModifierOptions: WordModifierOptions,
+  modifyingLikelyhood: number
+  wordsPerString: number
+}
+export const defaultTrainingStringOptions: TrainingStringOptions = {
+  wordLength: { minLength: 3, maxLength: 12 },
+  letters: true,
+  spaces: true,
+  wordModifierOptions: {
     caps: false,
     punct: false,
     syms: false,
     nums: false,
-    spaces: true,
   },
+  modifyingLikelyhood: 0.8,
   wordsPerString: 6,
-  trainingLevelIndex: 0,
 }
-const defaultSettings = {
-  locale: {
-    keyLabels: en_US.QWERTY_labels,
-    charSet: new CharSet(en_US.QWERTY_CharSet)
-  },
+
+interface Settings {
+  layout: LayoutUtil
+  UI: {
+    theme: { [index: string]: CSSCustomProperties }
+    fontSize: number
+  }
+  course: Course
+  trainingStringOptions: TrainingStringOptions
+}
+const defaultSettings: Settings = {
   UI: { theme: themes.dark, fontSize: 1 },
-  session: defaultSessionOptions,
+  layout: new LayoutUtil(enUsQwerty),
+  course: Courses.fingers,
+  trainingStringOptions: defaultTrainingStringOptions,
 }
+
 interface State {
   pressed: Set<string>
   machineState: MachineState
+  trainingWords: string[]
   trainingString: string
   cursor: number
-  mistakes: Set<number> // todo: mistakenCharacterIndexes
-  sessionStats: {
-    wpm: number 
-    mistakes: number //todo: mistakeCount
+  mistakeCharIndexes: Set<number> // todo: mistakenCharacterIndexes
+  courseLevelIndex: 0
+  stats: {
+    wpm: number
+    mistakeCount: number
     totalSessions: number
     averages: {
       wpm: number
-      mistakes: number // mistakeCount
+      mistakeCount: number // mistakeCount
     }
   }
-  settings: {
-    locale: {
-      keyLabels: KeyboardVisualLayout
-      charSet: CharSet
-    }
-    UI: {
-      theme: { [index: string]: CSSCustomProperties }
-      fontSize: number
-    }
-    session: SessionOptions
-  }
+  settings: Settings
+}
+
+export const defaultState: State = {
+  trainingWords: [],
+  trainingString: "",
+  cursor: 0,
+  mistakeCharIndexes: new Set(),
+  courseLevelIndex: 0,
+  stats: {
+    wpm: 0,
+    mistakeCount: 0,
+    totalSessions: 0,
+    averages: { wpm: 0, mistakeCount: 0 },
+  },
+  pressed: new Set(),
+  machineState: MachineState.Loaded,
+  settings: { ...defaultSettings },
 }
 
 interface Props {
@@ -104,48 +118,35 @@ const inactivityDelay = 2000 //todo: mettre dans settings
 export class TypeTrainer extends React.Component<Props, State> {
   static contextType = ThemeContext
   sessionTimer = Timer()
-  inactivityTimer: number = 0
+  inactivityTimer = 0
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props)
-    this.state = {
-      trainingString: "",
-      cursor: 0,
-      mistakes: new Set(),
-      sessionStats: {
-        wpm: 0,
-        mistakes: 0,
-        totalSessions: 0,
-        averages: { wpm: 0, mistakes: 0 },
-      },
-      pressed: new Set(),
-      machineState: MachineState.Loaded,
-      settings: { ...defaultSettings },
-    }
+    this.state = defaultState
     this.routeEvent = this.routeEvent.bind(this)
   }
 
-  startInactivityTimer() {
+  startInactivityTimer(): number {
     return setTimeout(() => this.routeEvent(new Event("blur")), inactivityDelay)
   }
-  componentDidMount() {
+  componentDidMount(): void {
     document.addEventListener("keydown", this.routeEvent)
     document.addEventListener("keyup", this.routeEvent)
     document.addEventListener("blur", this.routeEvent)
     this.prepareNewSession()
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     document.removeEventListener("keydown", this.routeEvent)
     document.removeEventListener("keyup", this.routeEvent)
     document.removeEventListener("blur", this.routeEvent)
   }
 
   routeEvent(event: Event): void {
-    let paradigm = this.state.machineState
+    const machineState = this.state.machineState
     switch (event.type) {
       case "keydown":
-        switch (paradigm) {
+        switch (machineState) {
           case MachineState.Training:
           case MachineState.SessionReady:
             this.handleKeyDown(event as KeyboardEvent)
@@ -169,7 +170,7 @@ export class TypeTrainer extends React.Component<Props, State> {
     }
   }
 
-  private resetInactivityTimer() {
+  private resetInactivityTimer(): void {
     clearTimeout(this.inactivityTimer)
     this.inactivityTimer = this.startInactivityTimer()
   }
@@ -192,7 +193,7 @@ export class TypeTrainer extends React.Component<Props, State> {
           return
         }
       } else {
-        state.mistakes.add(state.cursor)
+        state.mistakeCharIndexes.add(state.cursor)
       }
     }
 
@@ -204,31 +205,32 @@ export class TypeTrainer extends React.Component<Props, State> {
     })
   }
 
-  private isEOF(state: State) {
+  private isEOF(state: State): boolean {
     return state.cursor === state.trainingString.length
   }
 
-  private goToNextChar(state: State) {
+  private goToNextChar(state: State): void {
     state.cursor += 1
   }
 
-  private isCorrectCharPressed(state: State, event: KeyboardEvent) {
+  private isCorrectCharPressed(state: State, event: KeyboardEvent): boolean {
     return state.trainingString[state.cursor] === event.key
   }
 
-  private shouldKeepKeyDownEvent(event: KeyboardEvent, state: State) {
+  private shouldKeepKeyDownEvent(event: KeyboardEvent, state: State): boolean {
     return !event.repeat && !state.pressed.has(event.code)
   }
 
   handleKeyUp(event: KeyboardEvent): void {
     event.preventDefault()
-    let pressed = this.state.pressed
+    const pressed = this.state.pressed
     pressed.delete(event.code)
     this.setState({ pressed: pressed })
   }
 
   logStatus(): void {
     console.info("Status: " + this.state.machineState)
+    console.info("Training string: " + this.state.trainingString)
   }
 
   startSession(): void {
@@ -253,101 +255,141 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   endSession(): void {
     // Computes sessions stats and passes baton to this.startNewSession
-    let sessionStats = { ...this.state.sessionStats }
-    let minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
+    const sessionStats = { ...this.state.stats }
+    const minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
 
     // Calculate words per minute
-    let words = this.state.trainingString.length / 5
-    let wpm = Math.round(words / minutes)
+    const words = this.state.trainingString.length / 5
+    const wpm = Math.round(words / minutes)
     sessionStats.wpm = wpm
 
-    sessionStats.mistakes = this.state.mistakes.size
+    sessionStats.mistakeCount = this.state.mistakeCharIndexes.size
     // Calculate mistakes per session
     sessionStats.totalSessions += 1
     sessionStats.averages.wpm = Math.round(
       (sessionStats.averages.wpm * (sessionStats.totalSessions - 1) + sessionStats.wpm) / sessionStats.totalSessions
     )
-    sessionStats.averages.mistakes = Math.round(
-      (sessionStats.averages.mistakes * (sessionStats.totalSessions - 1) + sessionStats.mistakes) /
+    sessionStats.averages.mistakeCount = Math.round(
+      (sessionStats.averages.mistakeCount * (sessionStats.totalSessions - 1) + sessionStats.mistakeCount) /
         sessionStats.totalSessions
     )
 
     this.setState(
       {
-        sessionStats: sessionStats,
+        stats: sessionStats,
       },
       () => this.prepareNewSession()
     )
   }
 
   prepareNewSession(): void {
+    const words = this.newTrainingWords()
+    const modifiedWords = words.map(word =>
+      modifyRawTrainingWord(
+        word,
+        this.state.settings.trainingStringOptions.wordModifierOptions,
+        this.state.settings.layout.charSet.subSet({ trainingLevel: this.getCurrentLevel() }),
+        this.state.settings.trainingStringOptions.modifyingLikelyhood
+      )
+    )
+    const string = modifiedWords.join(this.state.settings.trainingStringOptions.spaces ? " " : "")
     this.setState(
       {
         cursor: 0,
-        trainingString: this.props.generator.generate(this.state.settings.session).join(' '),
-        mistakes: new Set(),
+        trainingWords: words,
+        trainingString: string,
+        mistakeCharIndexes: new Set(),
         machineState: MachineState.SessionReady,
       },
       () => this.logStatus()
     )
   }
 
+  private getCurrentLevel(): CourseLevel {
+    return this.state.settings.course.levels[this.state.courseLevelIndex]
+  }
+
+  private newTrainingWords(): string[] {
+    return this.props.generator.generate(
+      this.state.settings.trainingStringOptions,
+      CharSet.uniqueChars(
+        this.state.settings.layout.charSet.subSet({
+          trainingLevel: this.getCurrentLevel(),
+          type: CharacterType.LOWERCASE_LETTER,
+        })
+      )
+    )
+  }
+
   toggleTheme(): void {
-    let settings = { ...this.state.settings }
+    const settings = { ...this.state.settings }
     settings.UI.theme = settings.UI.theme === themes.light ? themes.dark : themes.light
     this.setState({ settings: settings })
   }
 
   toggleFontSize(): void {
-    let settings = { ...this.state.settings }
+    const settings = { ...this.state.settings }
     settings.UI.fontSize = (settings.UI.fontSize + 1) % 3
     this.setState({ settings: settings })
   }
 
   setStringLength(length: string): void {
-    let settings = { ...this.state.settings }
-    settings.session.wordsPerString = parseInt(length)
+    const settings = { ...this.state.settings }
+    settings.trainingStringOptions.wordsPerString = parseInt(length)
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
-  changeSessionSettings(sessionSettings: any): void {
-    let session = { ...sessionSettings }
-    if (!session.characters.letters) session.characters.caps = false
-    let settings = { ...this.state.settings }
-    settings.session = session
+  changeTrainingStringOptions(trainingStringOptions: TrainingStringOptions): void {
+    const options = { ...trainingStringOptions }    
+    if (!options.letters) options.wordModifierOptions.caps = false
+    const settings = { ...this.state.settings }
+    settings.trainingStringOptions = options
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
-  render() {
+  render(): JSX.Element {
     return (
-      <ThemeContext.Provider value={{ theme: this.state.settings.UI.theme, toggleTheme: () => this.toggleTheme() }}>
+      <ThemeContext.Provider
+        value={{ theme: this.state.settings.UI.theme, toggleTheme: (): void => this.toggleTheme() }}
+      >
         <Container fluid className="App" style={this.state.settings.UI.theme}>
-          {<Toolbar
-            left={<QuickStats sessionStats={this.state.sessionStats} />}
-            right={[
-              <CharacterCheckboxForm
-                sessionSettings={this.state.settings.session}
-                updateFn={(settings: any) => this.changeSessionSettings(settings)}
-              />,
-              <FontSizeSelect toggleFn={() => this.toggleFontSize()} />,
-              <ThemeToggleSwitch />,
-            ]}
-          ></Toolbar>}
+          {
+            <Toolbar
+              left={<QuickStats sessionStats={this.state.stats} />}
+              right={[
+                <StringOptionsForm
+                  key={"optionsForm"}
+                  trainingStringOptions={this.state.settings.trainingStringOptions}
+                  updateFn={(updatedOptions: TrainingStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+                />,
+                <FontSizeSelect key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
+                <ThemeToggleSwitch key={"themeToggle"} />,
+              ]}
+            ></Toolbar>
+          }
           <Container>
-           { <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
-              <FormattedText
-                greyed={this.state.machineState === MachineState.Paused}
-                cursor={this.state.cursor}
-                trainingString={this.state.trainingString}
-                mistakes={this.state.mistakes}
+            {
+              <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
+                <FormattedText
+                  greyed={this.state.machineState === MachineState.Paused}
+                  cursor={this.state.cursor}
+                  trainingString={this.state.trainingString}
+                  mistakeCharIndexes={this.state.mistakeCharIndexes}
+                />
+              </TextDisplay>
+            }
+            {
+              <Keyboard
+                visualKB={this.state.settings.layout.visualKB}
+                pressed={this.state.pressed}
+                active={CharSet.uniqueKeyCodes(
+                  this.state.settings.layout.charSet.subSet({
+                    trainingLevel: this.getCurrentLevel(),
+                  })
+                )}
+                current={this.state.settings.layout.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor])}
               />
-            </TextDisplay>}
-            {<Keyboard
-              fullCharSet={this.state.settings.locale.charSet.fullCharSet}
-              pressed={this.state.pressed}
-              active={this.state.settings.locale.charSet.charSetAtTrainingLevel(GuidedCourseLevels[this.state.settings.session.trainingLevelIndex]).uniqueKeyCodes}
-              current={this.state.settings.locale.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor])}
-            />}
+            }
           </Container>
         </Container>
       </ThemeContext.Provider>

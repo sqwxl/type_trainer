@@ -1,59 +1,17 @@
-import { SessionOptions } from "../../Components/TypeTrainer"
-import { CharacterBehavior, CharacterSet, CharacterType } from "../kb_types"
+import { enUsQwerty } from "../../assets/Layouts/en_US"
+import { WordModifierOptions } from "../../Components/TypeTrainer"
+import { CharacterSet, CharacterBehavior, CharacterType } from "../LayoutUtil"
 
-export function modifyRawTrainingWord(word: string, options: SessionOptions, charSet: CharacterSet): string {
-  const modifyingLikelyhood = 0.8
-  let modificationShouldApply = () => Math.random() < modifyingLikelyhood
-
-  // CAPITALIZE
-  if (options.characters.caps && modificationShouldApply())
-    capitalize()
-
-  // ADD PUNCTUATION
-  if (options.characters.punct && modificationShouldApply())
-    punctuate()
-
-  // ADD SYMBOL
-  if (options.characters.syms && modificationShouldApply())
-    addSymbol()
-
-  // ADD NUMBER
-  if (options.characters.nums && modificationShouldApply())
-    addNumber()
-
-  return word
-
-  function addNumber() {
-    word = symbolize(
-      word,
-      charSet.filter(char => char.type === CharacterType.NUMBER)
-    )
-  }
-
-  function addSymbol() {
-    word = symbolize(
-      word,
-      charSet.filter(char => char.type === CharacterType.SYMBOL)
-    )
-  }
-
-  function punctuate() {
-    word = symbolize(
-      word,
-      charSet.filter(char => char.type === CharacterType.PUNCTUATION)
-    )
-  }
-
-  function capitalize() {
-    word = word.slice(0, 1).toUpperCase().concat(word.slice(1))
-  }
+function isVowel(char: string, vowels: string[] = enUsQwerty.vowels): boolean {
+  return vowels.includes(char)
 }
 
 function symbolize(str: string, charSet: CharacterSet): string {
   let symbolized = str
   const randomCharIdx = Math.floor(Math.random() * charSet.length)
   const randomChar = charSet[randomCharIdx]
-  const {glyph, behavior} = randomChar
+  const { glyph, behavior } = randomChar
+  let splitIndex
   switch (behavior) {
     case CharacterBehavior.PREPEND:
       symbolized = glyph.concat(str)
@@ -66,16 +24,12 @@ function symbolize(str: string, charSet: CharacterSet): string {
       symbolized = Math.random() < 0.5 ? glyph.concat(str) : str.concat(glyph)
       break
     case CharacterBehavior.BRACKET:
-      try {
-        symbolized = glyph.concat(str, randomChar.bracketPair!)
-      } catch (error) {
-        console.error(error)
-        throw new ReferenceError("Is bracketPair for " + glyph + " missing from character set?")
+      if (randomChar.bracketPair) {
+        symbolized = glyph.concat(str, randomChar.bracketPair as string)
       }
       break
     case CharacterBehavior.SPLIT:
-      if (str.length < 5 || typeof glyph !== 'string') break
-      let splitIndex = 0
+      if (str.length < 5 || typeof glyph !== "string") break
       // Try to split somewhere after 2nd and before 2nd-to-last letters -- not between two vowels
       for (let i = 2; i < str.length - 3; i++) {
         if (!isVowel(str[i]) && !isVowel(str[i + 1])) {
@@ -92,6 +46,49 @@ function symbolize(str: string, charSet: CharacterSet): string {
   return symbolized
 }
 
-function isVowel(char: string, vowels: string[] = en_US.Vowels): boolean {
-  return vowels.includes(char)
+export function modifyRawTrainingWord(
+  word: string,
+  options: WordModifierOptions,
+  charSet: CharacterSet,
+  likelyhood: number
+): string {
+  const modificationShouldApply = (): boolean => Math.random() < likelyhood
+
+  function addNumber(word: string): string {
+    const numbers = charSet.filter(char => char.type === CharacterType.NUMBER)
+    if (numbers.length === 0) return word
+    return symbolize(
+      word,
+      charSet.filter(char => char.type === CharacterType.NUMBER)
+    )
+  }
+
+  function addSymbol(word: string): string {
+    const symbols = charSet.filter(char => char.type === CharacterType.SYMBOL)
+    if (symbols.length === 0) return word
+    return symbolize(word, symbols)
+  }
+
+  function punctuate(word: string): string {
+    const punctuation = charSet.filter(char => char.type === CharacterType.PUNCTUATION)
+    if (punctuation.length === 0) return word
+    return symbolize(word, punctuation)
+  }
+
+  function capitalize(word: string): string {
+    return word.slice(0, 1).toUpperCase().concat(word.slice(1))
+  }
+  // CAPITALIZE
+  if (options.caps && modificationShouldApply()) word = capitalize(word)
+
+  // ADD PUNCTUATION
+  if (options.punct && modificationShouldApply()) word = punctuate(word)
+
+  // ADD SYMBOL
+  if (options.syms && modificationShouldApply()) word = addSymbol(word)
+
+  // ADD NUMBER
+  if (options.nums && modificationShouldApply()) word = addNumber(word)
+
+  return word
 }

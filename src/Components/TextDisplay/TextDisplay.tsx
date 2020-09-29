@@ -1,7 +1,11 @@
 import React from 'react';
 import './TextDisplay.css'
 
-export function TextDisplay(props: any) {
+type MyProps = {
+  style: React.CSSProperties
+}
+
+export function TextDisplay(props: React.PropsWithChildren<MyProps>): JSX.Element {
   return (
     <div className="textDisplay" style={props.style} role="textbox">
       {props.children}

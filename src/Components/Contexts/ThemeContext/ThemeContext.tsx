@@ -43,5 +43,5 @@ export const themes: { [index: string]: CSSCustomProperties } = {
 
 export const ThemeContext = React.createContext({
   theme: themes.light,
-  toggleTheme: () => { }
+  toggleTheme: (): void => { /* toggleFn() */ }
 })

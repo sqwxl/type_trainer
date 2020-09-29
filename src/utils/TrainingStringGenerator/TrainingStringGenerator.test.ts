@@ -1,53 +1,57 @@
-import { defaultSessionOptions } from "../../Components/TypeTrainer"
+import { defaultTrainingStringOptions } from "../../Components/TypeTrainer"
 import { MarkovTrainingStringGenerator } from "./TrainingStringGenerator"
-import dict from "../../assets/english_words_array.json"
-import { SessionOptions } from "../../Components/TypeTrainer"
-import CharSet from "../CharSet"
-import { QWERTY_CharSet } from "../../assets/Layouts/en_US"
-import { GuidedCourseLevels } from "../models"
-import { CharacterSet, CharacterType } from "../kb_types"
+import {dict as english}  from "../../assets/Dictionaries/english.json"
+import { TrainingStringOptions } from "../../Components/TypeTrainer"
+import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
+import Courses from "../Courses"
+import { enUsQwerty } from "../../assets/Layouts/en_US"
 
-const charSet = new CharSet(QWERTY_CharSet)
+const layout = new LayoutUtil(enUsQwerty)
+const generator = new MarkovTrainingStringGenerator(english)
+const course = Courses.guidedCourse
 
-describe("TrainingStringGenerator", () => {
-  it("should generate an array of strings", () => {
-    const generator = new MarkovTrainingStringGenerator(dict.dict)
-    const str = generator.generate(defaultSessionOptions)
-    expect(str.length).toBeTruthy()
-  })})
-describe("TrainingStringGenerator: Markov Chains", () => {
-  it("produces a string of words based on training level using markov chains", () => {
-    const options: SessionOptions = { ...defaultSessionOptions }
-    const generator = new MarkovTrainingStringGenerator(dict.dict)
-    for (let lvl = 0; lvl < GuidedCourseLevels.length; lvl++) {
-      options.trainingLevelIndex = lvl
-      const lvlCharSet = charSet.charSetAtTrainingLevel(GuidedCourseLevels[lvl])
-      testMarkovLevel(options, generator, lvlCharSet)
-    }
-  })
-})
-
-
-
-function testMarkovLevel(options: SessionOptions, generator: MarkovTrainingStringGenerator, charSet: CharSet) {
-  testStringAgainstAllowedLetters(generator.generate(options, charSet), newRegExpFromRestrictedSet(options))
-}
-
-function testStringAgainstAllowedLetters(str: string[], allowedLetters: RegExp) {
+function testStringAgainstAllowedLetters(str: string[], allowedLetters: RegExp): void {
   // console.log("generated markov string:" + str.join(' '))
-  for (let ltr of str.join('')) {
+  for (const ltr of str.join('')) {
     expect(allowedLetters.test(ltr)).toBe(true)
   }
 }
 
-function newRegExpFromRestrictedSet(options: SessionOptions) {
+function newRegExpFromRestrictedSet(options: TrainingStringOptions): RegExp {
   return new RegExp(
     "[".concat(
-      charSet.charSetAtTrainingLevel(GuidedCourseLevels[options.trainingLevelIndex])
-        .extractCharType(CharacterType.LOWERCASE_LETTER)
+      layout.charSet.subSet({ trainingLevel: course.levels[options.courseLevelIndex], type: CharacterType.LOWERCASE_LETTER })
+        .map(char => char.glyph)
         .join(""),
       "\\s]"
     )
   )
 }
+
+function testMarkovLevel(options: TrainingStringOptions, generator: MarkovTrainingStringGenerator, alphabet: string[]): void {
+  testStringAgainstAllowedLetters(generator.generate(options, alphabet), newRegExpFromRestrictedSet(options))
+}
+
+
+
+describe("TrainingStringGenerator", () => {
+  it("should generate an array of strings for a given set of characters", () => {
+    
+    const alphabet = CharSet.uniqueChars(layout.charSet.subSet({ type: CharacterType.LOWERCASE_LETTER }))
+    const str = generator.generate(defaultTrainingStringOptions, alphabet)
+    expect(str.length).toBeTruthy()
+  })})
+describe("TrainingStringGenerator: Markov Chains", () => {
+  // eslint-disable-next-line jest/expect-expect
+  it("produces a string of words based on a training level using markov chains", () => {
+    const options: TrainingStringOptions = { ...defaultTrainingStringOptions }
+    for (let lvl = 0; lvl < course.levels.length; lvl++) {
+      options.courseLevelIndex = lvl
+      const lvlCharSet = layout.charSet.subSet({ trainingLevel: course.levels[lvl], type: CharacterType.LOWERCASE_LETTER } )
+      const alphabet = CharSet.uniqueChars(lvlCharSet)
+      testMarkovLevel(options, generator, alphabet)
+    }
+  })
+})
+
 

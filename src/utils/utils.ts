@@ -1,8 +1,3 @@
-import { CharacterSet, characterSets as allCharacterSets, Kind } from "./kb_types"
-import MarkovChain from "./TrainingStringGenerator/MarkovChain"
-import {SessionOptions} from '../Components/TypeTrainer'
-
-
 
 export function isChar(code: string) {
   if (code.slice(0, 3) === "Key") return true
@@ -24,30 +19,6 @@ export function isChar(code: string) {
     default:
       return false
   }
-}
-
-
-
-export function applyMaskToCharSet(characterSets: { [set: string]: Array<CharacterSet> }, characterMask?: Array<string>) {
-  if (characterMask == null || characterMask.length === 0) return characterSets
-  const charSetsCopy = {...characterSets}
-  Object.keys(charSetsCopy).forEach(set => {
-    charSetsCopy[set] = charSetsCopy[set].map(kind => {
-      let masked = {...kind}
-      if (masked.kind === Kind.surrounding) {
-        for (let idx = 0; idx < kind.chars.length; idx++) {
-          if (!characterMask.includes(kind.chars[idx]) || !characterMask.includes(kind.closing![idx])) {
-            masked.chars = kind.chars.slice(0, idx).concat(kind.chars.slice(idx + 1))
-            masked.closing = kind.closing!.slice(0, idx).concat(kind.closing!.slice(idx + 1))
-          }
-        }
-      } else {
-        masked.chars = masked.chars.filter(ch => characterMask.includes(ch))
-      }
-      return masked
-    })
-  })
-  return charSetsCopy
 }
 
 export function Timer() {

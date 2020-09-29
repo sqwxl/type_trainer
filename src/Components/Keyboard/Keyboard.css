@@ -42,7 +42,8 @@
 }
 
 .highlight {
-  box-shadow: 5px 0 0 yellow ;
+  box-shadow: 0 0 5px yellow ;
+  color: yellow
 }
 
 #Delete, #Escape {
@@ -97,6 +98,6 @@
   flex-grow: 8;
 }
 
-.row-item-0, .row-item-1, .row-item-2, .row-item-3 {
+.row-item-0, .row-item-1, .row-item-2, .row-item-3, .row-item-4 {
   height: 3rem;
 }

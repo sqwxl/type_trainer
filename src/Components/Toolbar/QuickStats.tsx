@@ -40,11 +40,11 @@ export default function QuickStats(props: any) {
         <Avg>avg: {props.sessionStats.averages.wpm}</Avg>
       </SmallStack>
       <BigStat className="display-3" color={"var(--mistake)"}>
-        {props.sessionStats.mistakes}
+        {props.sessionStats.mistakeCount}
       </BigStat>
       <SmallStack>
         <SmallStackLabel> errors </SmallStackLabel> 
-        <Avg>avg: {props.sessionStats.averages.mistakes}</Avg>
+        <Avg>avg: {props.sessionStats.averages.mistakeCount}</Avg>
       </SmallStack>
     </Wrapper>
   )

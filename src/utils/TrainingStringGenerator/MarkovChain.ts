@@ -29,14 +29,14 @@ export default class MarkovChain {
     this.init(words);
   }
 
-  private init(words: Array<string>) {
+  private init(words: Array<string>): void {
     const map: {[key: string]: MarkovNode} = {};
     for (const word of words) {
       this.addToDuplicatesTrie(word.toLowerCase());
 
       let previous = this.start;
       let key = '';
-      for (var i = 0; i < word.length; ++i) {
+      for (let i = 0; i < word.length; ++i) {
         const ch = word[i];
         key += ch;
         if (key.length > this.order) {
@@ -63,14 +63,14 @@ export default class MarkovChain {
    * to efficiently search for these duplicates later without
    * having to do O(N) comparision checks over the entire dictionary
    */
-  private addToDuplicatesTrie(word: string) {
+  private addToDuplicatesTrie(word: string): void {
     if (word.length > 1) {
       this.addToDuplicatesTrie(word.substr(1));
     }
 
-    var currentNode = this.duplicates;
-    for (var i = 0; i < word.length; ++i) {
-      var childNode = currentNode.children[word[i]];
+    let currentNode = this.duplicates;
+    for (let i = 0; i < word.length; ++i) {
+      let childNode = currentNode.children[word[i]];
       if (!childNode) {
         childNode = {children: {}};
         currentNode.children[word[i]] = childNode;
@@ -88,9 +88,9 @@ export default class MarkovChain {
    */
   private isDuplicate(word: string): boolean {
     word = word.toLowerCase();
-    var currentNode = this.duplicates;
-    for (var i = 0; i < word.length; ++i) {
-      var childNode = currentNode.children[word[i]];
+    let currentNode = this.duplicates;
+    for (let i = 0; i < word.length; ++i) {
+      const childNode = currentNode.children[word[i]];
       if (!childNode) return false;
       currentNode = childNode;
     }

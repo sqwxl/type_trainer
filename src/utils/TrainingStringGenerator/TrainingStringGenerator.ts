@@ -1,17 +1,13 @@
-import { SessionOptions } from "../../Components/TypeTrainer"
-import * as en_US from "../../assets/Layouts/en_US"
+import { TrainingStringOptions } from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
-import { CharacterType } from "../kb_types"
-import CharSet from "../CharSet"
-import { modifyRawTrainingWord } from "../TrainingStringModifier/TrainingStringModifier"
 
 export interface TrainingStringGenerator {
-  generate(options: SessionOptions, charSet?: CharSet): string[]
+  generate(options: TrainingStringOptions, alphabet?: string[]): string[]
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
   constructor(private trainingString: string) {}
-  generate(options: SessionOptions): string[] {
+  generate(): string[] {
     return this.trainingString.split(' ')
   }
 }
@@ -19,38 +15,37 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 export class MarkovTrainingStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
-  generate(options: SessionOptions, charSet: CharSet = new CharSet(en_US.QWERTY_CharSet)): string[] {
+  generate(options: TrainingStringOptions, alphabet: string[]): string[] {
+    const nullSumOptions = !options.letters && Object.values(options.wordModifierOptions).every(v => !v)
     // Return empty string if all characters options are false
-    if (Object.values(options.characters).every(v => !v)) return [""]
-    let letters = charSet.extractCharType(CharacterType.LOWERCASE_LETTER)
+    if (nullSumOptions) return [""]
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
-    const chain = this.newMarkovChainFromLettersArray(letters)
+    const chain = this.newMarkovChainRestrictedToLetters(alphabet)
 
     
-    let words: Array<string> = []
+    const words: Array<string> = []
     while (words.length < options.wordsPerString) {
       let word = ''
       try {
-        word = chain.generate(options.markov)
+        word = chain.generate(options.wordLength)
       } catch (error) {
-        // console.log(error.message)
-        const { minLength, maxLength } = options.markov
+        console.error(error.message)
+        const { minLength, maxLength } = options.wordLength
         const length = minLength + Math.floor(Math.random() * (maxLength - minLength))
         for (let i = 0; i < length; i++ ) {
-          const letter = letters[Math.floor(Math.random() * letters.length)]
+          const letter = alphabet[Math.floor(Math.random() * alphabet.length)]
           word = word.concat(letter)
         }
       }
-      word = modifyRawTrainingWord(word, options, charSet.fullCharSet)
       words.push(word)
     }
 
     return words
   }
 
-  private newMarkovChainFromLettersArray(allowedLetters: string[]): MarkovChain {
+  private newMarkovChainRestrictedToLetters(allowedLetters: string[]): MarkovChain {
     const dict = this.dictionary.filter(word => {
-      for (let letter of word) {
+      for (const letter of word) {
         if (!allowedLetters.includes(letter)) return false
       }
       return true

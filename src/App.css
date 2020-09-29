@@ -1,24 +1,4 @@
-.theme-light {
-  --color-primary: #fff;
-  --text-primary: #0e0e0e;
-  
-  --color-secondary: #ddd;
-  --color-tertiary: #eee;
-  
-  --color-accent: #5e5e5e;
-  --text-accent: #eee; 
-}
 
-.theme-dark {
-  --color-primary: #333;
-  --text-primary: #eee ;
-  
-  --color-secondary: #444;
-  --color-tertiary: #555;
-  
-  --color-accent: #eee;
-  --text-accent: #111;
-}
 .App {
   text-align: center;
   padding: 2rem;
@@ -28,8 +8,4 @@
 
 html {
   font-size: 16px;
-}
-
-
-body {
 }

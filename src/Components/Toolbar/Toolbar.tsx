@@ -18,7 +18,7 @@ const ToolbarRight = styled.div`
   align-items: center;
 `
 
-export default function Toolbar(props: any) {
+export default function Toolbar(props: { left: JSX.Element | JSX.Element[], right: JSX.Element | JSX.Element[] }): JSX.Element {
   return (
     <Wrapper>
       <ToolbarLeft key="left">{props.left}</ToolbarLeft>

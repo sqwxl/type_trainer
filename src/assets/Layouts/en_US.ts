@@ -1,6 +1,6 @@
-import { CharacterBehavior, CharacterSet, CharacterType, KeyboardVisualLayout } from "../../utils/kb_types"
+import { KeyLabels, CharacterSet, CharacterType, CharacterBehavior, Layout } from "../../utils/LayoutUtil"
 
-export const QWERTY_labels: KeyboardVisualLayout = {
+const qwertyKeyLabels: KeyLabels = {
   NONE: { main: "" },
   Backquote: { main: "`", shift: "~" },
   Digit1: { main: "1", shift: "!" },
@@ -62,7 +62,7 @@ export const QWERTY_labels: KeyboardVisualLayout = {
   ControlRight: { main: "Ctrl" }
 }
 
-export const QWERTY_CharSet: CharacterSet = [
+const qwertyCharSet: CharacterSet = [
   { code: ["KeyA"], glyph: "a", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
   { code: ["KeyB"], glyph: "b", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
   { code: ["KeyC"], glyph: "c", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
@@ -151,4 +151,6 @@ export const QWERTY_CharSet: CharacterSet = [
   { code: ["Digit5"], glyph: "%", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR }
 ]
 
-export const Vowels = ['a', 'e', 'i', 'o', 'u']
+const Vowels = ['a', 'e', 'i', 'o', 'u']
+
+export const enUsQwerty: Layout = { charSet: qwertyCharSet, labels: qwertyKeyLabels, vowels: Vowels }
