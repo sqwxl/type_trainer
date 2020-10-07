@@ -1,0 +1,21 @@
+/* textarea { */
+.textDisplay {
+  display: block;
+  /* width: 100%; */
+  max-width: 55em;
+  margin: 0 auto;
+  resize: none;
+  overflow: hidden;
+  overflow-wrap: normal;
+  word-break: break-word;
+  background-color: var(--color-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--color-secondary);
+  border-radius: 0.5rem;
+
+  padding: 1rem;
+
+  /* font-size: 1.5rem; */
+  font-family: 'Courier New', Courier, monospace;
+}
+
