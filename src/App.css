@@ -1,0 +1,11 @@
+
+.App {
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--color-primary);
+  height: 100vh;
+}
+
+html {
+  font-size: 16px;
+}
