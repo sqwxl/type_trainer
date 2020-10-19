@@ -12,7 +12,7 @@ import { isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
 import Courses, { Course, CourseLevel } from "../utils/Courses"
-import { GuidedModeStringGenerator, PracticeModeStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
+import { CodeModeStringGenerator, GuidedModeStringGenerator, PracticeModeStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
 import LayoutUtil, { CharacterType, CharSet } from "../utils/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
 import { modifyWord } from "../utils/modifyWord/modifyWord"
@@ -320,10 +320,10 @@ export class TypeTrainer extends React.Component<{}, State> {
         break
       case TrainingMode.Practice:
         options = options as PracticeModeStringOptions
-        generator = new PracticeModeStringGenerator(options.source)
+        generator = new PracticeModeStringGenerator()
         break
       case TrainingMode.Code:
-        generator = new CodeModeStringGenerator(options)
+        generator = new CodeModeStringGenerator()
         break
     }
     return generator

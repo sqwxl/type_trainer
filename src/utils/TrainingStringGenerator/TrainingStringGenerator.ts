@@ -1,4 +1,4 @@
-import { GuidedModeStringOptions, PracticeModeStringOptions, StringOptions } from "../../Components/TypeTrainer"
+import { CodeModeStringOptions, GuidedModeStringOptions, PracticeModeStringOptions, StringOptions } from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
 
 export interface TrainingStringGenerator {
@@ -56,7 +56,7 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
 }
 
 export class PracticeModeStringGenerator implements TrainingStringGenerator {
-  constructor(private source: string, private textCursor: number = 0) {}
+  constructor(private textCursor: number = 0) {}
   generate(options: PracticeModeStringOptions) {
     let str: string
     if (options.fullSentences) {
@@ -68,43 +68,43 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
   }
   nextFullSentence(source: string): string {
     let start = this.textCursor
-    let end = this.advanceCursorByOne(start)
+    let end = this.advanceCursorByOne(source.length, start)
     while (/\s/.test(source[start])) {
-      start = this.advanceCursorByOne(start)
-      end = this.advanceCursorByOne(start)
+      start = this.advanceCursorByOne(source.length, start)
+      end = this.advanceCursorByOne(source.length, start)
       if (end < start) {
         start = end
-        end = this.advanceCursorByOne(start)
+        end = this.advanceCursorByOne(source.length, start)
       }
     }
     while(source[end] !== '.') {
-      end = this.advanceCursorByOne(end)
+      end = this.advanceCursorByOne(source.length, end)
     }
-    this.textCursor = this.advanceCursorByOne(end)
+    this.textCursor = this.advanceCursorByOne(source.length, end)
     return source.slice(start, end)
   }
-  advanceCursorByOne(pos?: number): number {
-    return pos != null ? (pos + 1) % this.source.length : (this.textCursor + 1) % this.source.length
+  advanceCursorByOne(max: number, pos?: number): number {
+    return pos != null ? (pos + 1) % max : (this.textCursor + 1) % max
   }
   advanceCursorByWords({ source, wordsPerString }: PracticeModeStringOptions): string {
     let count = 0
     let words: string[] = []
     let start = this.textCursor
-    let end = this.advanceCursorByOne(start)
+    let end = this.advanceCursorByOne(source.length, start)
     let getNextWord = (): string => {
       while(/\s/.test(source[start])) {
-        start = this.advanceCursorByOne(start)
-        end = this.advanceCursorByOne(start)
+        start = this.advanceCursorByOne(source.length, start)
+        end = this.advanceCursorByOne(source.length, start)
         if (end < start) {
           start = end
-          end = this.advanceCursorByOne(start)
+          end = this.advanceCursorByOne(source.length, start)
         }
       }
       while(!/\s/.test(source[end])) {
-        end = this.advanceCursorByOne(end)
+        end = this.advanceCursorByOne(source.length, end)
         if (end < start) throw new RangeError("Can't generate next word; perhaps the source string is too short?")
       }
-      return this.source.slice(start, end)
+      return source.slice(start, end)
     }
 
     while (count <= wordsPerString) {
@@ -114,6 +114,15 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
     return words.join(' ')
   }
 
+}
+
+export class CodeModeStringGenerator {
+  constructor() {}
+  generate(options: CodeModeStringOptions) {
+    let string = 'todo'
+    
+    return string
+  }
 }
 /* 
 export class GuidedCourseTrainingStringGenerator implements TrainingStringGenerator {
