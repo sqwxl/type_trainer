@@ -63,7 +63,7 @@ export const defaultWordModifierOptions: WordModifierOptions = {
   prog: false,
 }
 
-export interface TrainingStringOptions {
+export interface GuidedModeStringOptions {
   wordLength: { minLength: number; maxLength: number }
   letters: boolean
   spaces: boolean
@@ -72,13 +72,32 @@ export interface TrainingStringOptions {
   wordsPerString: number
 }
 
-export const defaultTrainingStringOptions: TrainingStringOptions = {
+export const defaultGuidedModeStringOptions: GuidedModeStringOptions = {
   wordLength: { minLength: 3, maxLength: 12 },
   letters: true,
   spaces: true,
   wordModifierOptions: defaultWordModifierOptions,
   modifyingLikelihood: 0.8,
   wordsPerString: 6,
+}
+
+export interface PracticeModeStringOptions {
+  source: string
+  fullSentences: boolean
+  wordsPerString: 6
+}
+
+export enum CodingLanguage {
+  'JS' = 'JavaScript',
+  'TS' = 'TypeScript',
+  'C' = 'C',
+  'Bash' = 'Bash',
+  'Python' = 'Python'
+}
+
+export interface CodeModeStringOptions {
+  language: CodingLanguage
+  lines: 5
 }
 
 interface Settings {
@@ -88,14 +107,14 @@ interface Settings {
     fontSize: number
   }
   course: Course
-  trainingStringOptions: TrainingStringOptions
+  stringOptions: GuidedModeStringOptions | PracticeModeStringOptions | CodeModeStringOptions
 }
 
 const defaultSettings: Settings = {
   UI: { theme: themes.dark, fontSize: 1 },
   layout: new LayoutUtil(enUsQwerty),
   course: Courses.guidedCourse,
-  trainingStringOptions: defaultTrainingStringOptions,
+  stringOptions: defaultGuidedModeStringOptions,
 }
 
 interface State {
@@ -330,7 +349,7 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   prepareNewSession(): void {
     const { trainingMode } = this.state
-    const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.trainingStringOptions
+    const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions
     const charSet = this.state.settings.layout.charSet
     let words: string[]
     let string: string
@@ -380,7 +399,7 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   private guidedCourseWords(): string[] {
     const words = this.props.generator.generate(
-      this.state.settings.trainingStringOptions,
+      this.state.settings.stringOptions,
       CharSet.uniqueChars(
         this.state.settings.layout.charSet.subSet({
           trainingLevel: this.getCurrentLevel(),
@@ -414,11 +433,11 @@ export class TypeTrainer extends React.Component<Props, State> {
     this.setState({ settings: settings })
   }
 
-  changeTrainingStringOptions(trainingStringOptions: TrainingStringOptions): void {
+  changeTrainingStringOptions(trainingStringOptions: GuidedModeStringOptions): void {
     const options = { ...trainingStringOptions }
     if (!options.letters) options.wordModifierOptions.caps = false
     const settings = { ...this.state.settings }
-    settings.trainingStringOptions = options
+    settings.stringOptions = options
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
@@ -449,8 +468,8 @@ export class TypeTrainer extends React.Component<Props, State> {
         <SettingsModal
           show={this.state.settingsModalShow}
           onHide={() => this.setSettingsModalShow(false)}
-          trainingStringOptions={this.state.settings.trainingStringOptions}
-          updateFn={(updatedOptions: TrainingStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+          trainingStringOptions={this.state.settings.stringOptions}
+          updateFn={(updatedOptions: GuidedModeStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
         ></SettingsModal>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {

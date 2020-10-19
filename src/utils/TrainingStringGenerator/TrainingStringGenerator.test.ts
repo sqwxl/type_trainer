@@ -1,14 +1,14 @@
-import { defaultTrainingStringOptions } from "../../Components/TypeTrainer"
+import { defaultGuidedModeStringOptions } from "../../Components/TypeTrainer"
 import { MarkovTrainingStringGenerator } from "./TrainingStringGenerator"
 import {dict as english}  from "../../assets/Dictionaries/english.json"
-import { TrainingStringOptions } from "../../Components/TypeTrainer"
+import { GuidedModeStringOptions } from "../../Components/TypeTrainer"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
 import Courses from "../Courses"
 import enUsQwerty from "../../assets/Layouts/en_US"
 
 const layout = new LayoutUtil(enUsQwerty)
 const generator = new MarkovTrainingStringGenerator(english)
-const options: TrainingStringOptions = { ...defaultTrainingStringOptions }
+const options: GuidedModeStringOptions = { ...defaultGuidedModeStringOptions }
 const course = Courses.guidedCourse
 
 function testStringAgainstAllowedLetters(str: string[], allowedLetters: RegExp): void {
@@ -22,7 +22,7 @@ function newRegExpFromStrArr(letters: string[]): RegExp {
   return new RegExp("[".concat(letters.join(''), "\\s]"))
 }
 
-function testMarkovLevel(options: TrainingStringOptions, generator: MarkovTrainingStringGenerator, alphabet: string[]): void {
+function testMarkovLevel(options: GuidedModeStringOptions, generator: MarkovTrainingStringGenerator, alphabet: string[]): void {
   testStringAgainstAllowedLetters(generator.generate(options, alphabet), newRegExpFromStrArr(alphabet))
 }
 
@@ -32,7 +32,7 @@ describe("TrainingStringGenerator", () => {
   it("should generate an array of strings for a given set of characters", () => {
     
     const alphabet = CharSet.uniqueChars(layout.charSet.subSet({ type: CharacterType.LOWERCASE_LETTER }))
-    const str = generator.generate(defaultTrainingStringOptions, alphabet)
+    const str = generator.generate(defaultGuidedModeStringOptions, alphabet)
     expect(str.length).toBeTruthy()
   })})
 describe("TrainingStringGenerator: Markov Chains", () => {

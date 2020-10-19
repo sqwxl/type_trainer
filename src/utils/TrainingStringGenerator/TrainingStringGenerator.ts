@@ -1,8 +1,8 @@
-import { TrainingStringOptions } from "../../Components/TypeTrainer"
+import { GuidedModeStringOptions } from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
 
 export interface TrainingStringGenerator {
-  generate(options: TrainingStringOptions, alphabet?: string[]): string[]
+  generate(options: GuidedModeStringOptions, alphabet?: string[]): string[]
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
@@ -15,7 +15,7 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 export class MarkovTrainingStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
-  generate(options: TrainingStringOptions, alphabet: string[]): string[] {
+  generate(options: GuidedModeStringOptions, alphabet: string[]): string[] {
     const nullSumOptions = !options.letters && Object.values(options.wordModifierOptions).every(v => !v)
     // Return empty string if all characters options are false
     if (nullSumOptions) return [""]
