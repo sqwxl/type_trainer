@@ -17,8 +17,9 @@ import { TrainingStringGenerator } from "../utils/TrainingStringGenerator/Traini
 import LayoutUtil, { CharacterType, CharSet } from "../utils/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
 import { modifyWord } from "../utils/modifyWord/modifyWord"
-import ModeSelectorModal from "./ModeSelectorModal/ModeSelectorModal"
+import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
+import SettingsModal from "./Modals/SettingsModal/SettingsModal"
 
 /*
 TODO:
@@ -436,16 +437,18 @@ export class TypeTrainer extends React.Component<Props, State> {
         <ModeSelectorModal
           show={this.state.modeSelectShow}
           onHide={() => this.setModeSelectShow(false)}
-          setmode={() => this.setTrainingMode}
+          setTrainingMode={(mode: TrainingMode): void => this.setTrainingMode(mode)}
         ></ModeSelectorModal>
+        <SettingsModal show={this.state.settingsModalShow} onHide={() => this.setSettingsModalShow(false)} updateFn={(updatedOptions: TrainingStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}}
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
             <Toolbar
               left={<QuickStats sessionStats={this.state.stats} />}
               right={[
-                <Button key="openModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
-                  Change Mode
+                <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
+                  Mode
                 </Button>,
+                <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>Settings</Button>,
                 <StringOptionsForm
                   key={"optionsForm"}
                   trainingStringOptions={this.state.settings.trainingStringOptions}
