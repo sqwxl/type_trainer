@@ -1,24 +1,24 @@
 import React from "react"
 import Keyboard from "./Keyboard/Keyboard"
-import {TextDisplay} from "./TextDisplay/TextDisplay"
-import {ThemeContext, themes} from "./Contexts/ThemeContext/ThemeContext"
+import { TextDisplay } from "./TextDisplay/TextDisplay"
+import { ThemeContext, themes } from "./Contexts/ThemeContext/ThemeContext"
 import Toolbar from "./Toolbar/Toolbar"
-import {Container, Form, FormControl, FormLabel} from "react-bootstrap"
+import { Container, Form, FormControl, FormLabel } from "react-bootstrap"
 import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
 
 import FontSizeSelect from "./Toolbar/FontSizeSelet"
 import StringOptionsForm from "./Toolbar/StringOptionsForm"
-import {isChar, Timer} from "../utils/utils"
+import { isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
-import {CSSCustomProperties} from "./Contexts/ThemeContext/css"
-import Courses, {Course, CourseLevel} from "../utils/Courses"
-import {TrainingStringGenerator} from "../utils/TrainingStringGenerator/TrainingStringGenerator"
-import LayoutUtil, {CharacterType, CharSet} from "../utils/LayoutUtil"
+import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
+import Courses, { Course, CourseLevel } from "../utils/Courses"
+import { TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
+import LayoutUtil, { CharacterType, CharSet } from "../utils/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
-import {modifyWord} from "../utils/modifyWord/modifyWord"
-import ModeSelectorModal from "./ModeSelectorModal/ModeSelectorModal";
-import Button from "react-bootstrap/Button";
+import { modifyWord } from "../utils/modifyWord/modifyWord"
+import ModeSelectorModal from "./ModeSelectorModal/ModeSelectorModal"
+import Button from "react-bootstrap/Button"
 
 /*
 TODO:
@@ -35,7 +35,17 @@ enum MachineState {
   Training = "TRAINING",
 }
 
-const FontSizes: { [key: number]: string } = {0: "1rem", 1: "1.5rem", 2: "2rem"}
+export enum TrainingMode {
+  Guided,
+  Practice,
+  Code,
+}
+
+const FontSizes: { [key: number]: string } = {
+  0: "1rem",
+  1: "1.5rem",
+  2: "2rem",
+}
 
 export interface WordModifierOptions {
   caps: boolean
@@ -50,7 +60,7 @@ export const defaultWordModifierOptions: WordModifierOptions = {
   punct: false,
   syms: false,
   nums: false,
-  prog: false
+  prog: false,
 }
 
 export interface TrainingStringOptions {
@@ -63,7 +73,7 @@ export interface TrainingStringOptions {
 }
 
 export const defaultTrainingStringOptions: TrainingStringOptions = {
-  wordLength: {minLength: 3, maxLength: 12},
+  wordLength: { minLength: 3, maxLength: 12 },
   letters: true,
   spaces: true,
   wordModifierOptions: defaultWordModifierOptions,
@@ -82,13 +92,15 @@ interface Settings {
 }
 
 const defaultSettings: Settings = {
-  UI: {theme: themes.dark, fontSize: 1},
+  UI: { theme: themes.dark, fontSize: 1 },
   layout: new LayoutUtil(enUsQwerty),
   course: Courses.guidedCourse,
   trainingStringOptions: defaultTrainingStringOptions,
 }
 
 interface State {
+  modeSelectShow: boolean
+  trainingMode: TrainingMode
   pressed: Set<string>
   machineState: MachineState
   trainingWords: string[]
@@ -109,6 +121,8 @@ interface State {
 }
 
 export const defaultState: State = {
+  modeSelectShow: false,
+  trainingMode: TrainingMode.Practice,
   trainingWords: [],
   trainingString: "",
   cursor: 0,
@@ -118,11 +132,11 @@ export const defaultState: State = {
     wpm: 0,
     mistakeCount: 0,
     totalSessions: 0,
-    averages: {wpm: 0, mistakeCount: 0},
+    averages: { wpm: 0, mistakeCount: 0 },
   },
   pressed: new Set(),
   machineState: MachineState.Loaded,
-  settings: {...defaultSettings},
+  settings: { ...defaultSettings },
 }
 
 interface Props {
@@ -194,7 +208,7 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   handleKeyDown(event: KeyboardEvent): void {
     event.preventDefault()
-    const state = {...this.state}
+    const state = { ...this.state }
     // Reject input
     if (!TypeTrainer.shouldKeepKeyDownEvent(event, state)) {
       return
@@ -222,8 +236,14 @@ export class TypeTrainer extends React.Component<Props, State> {
     })
   }
 
-  openModeSelectModal(): void {
-    this.setState({})
+  setModeSelectShow(value: boolean): void {
+    this.setState({ modeSelectShow: value }, () => {
+      if (value) this.pauseSession()
+    })
+  }
+
+  setTrainingMode(mode: TrainingMode): void {
+    this.setState({ modeSelectShow: false, trainingMode: mode }, () => this.prepareNewSession())
   }
 
   private static isEOF(state: State): boolean {
@@ -246,7 +266,7 @@ export class TypeTrainer extends React.Component<Props, State> {
     event.preventDefault()
     const pressed = this.state.pressed
     pressed.delete(event.code)
-    this.setState({pressed: pressed})
+    this.setState({ pressed: pressed })
   }
 
   logStatus(): void {
@@ -255,19 +275,19 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   startSession(): void {
     this.sessionTimer.start()
-    this.setState({machineState: MachineState.Training}, () => this.logStatus())
+    this.setState({ machineState: MachineState.Training }, () => this.logStatus())
   }
 
   pauseSession(): void {
     // Record pause start time
     if (this.sessionTimer != null) this.sessionTimer.pause()
-    this.setState({pressed: new Set(), machineState: MachineState.Paused}, () => this.logStatus())
+    this.setState({ pressed: new Set(), machineState: MachineState.Paused }, () => this.logStatus())
   }
 
   unPauseSession(event: Event): void {
     // Translate timer variable forward
     this.sessionTimer.unPause()
-    this.setState({machineState: MachineState.Training}, () => {
+    this.setState({ machineState: MachineState.Training }, () => {
       this.logStatus()
       this.routeEvent(event)
     })
@@ -276,8 +296,9 @@ export class TypeTrainer extends React.Component<Props, State> {
   endSession(): void {
     // Computes sessions stats and passes baton to this.startNewSession
     // Calculate words per minute
-    const sessionStats = {...this.state.stats}, minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60,
-      words = this.state.trainingString.length / 5;
+    const sessionStats = { ...this.state.stats },
+      minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60,
+      words = this.state.trainingString.length / 5
     sessionStats.wpm = Math.round(words / minutes)
 
     sessionStats.mistakeCount = this.state.mistakeCharIndexes.size
@@ -288,7 +309,7 @@ export class TypeTrainer extends React.Component<Props, State> {
     )
     sessionStats.averages.mistakeCount = Math.round(
       (sessionStats.averages.mistakeCount * (sessionStats.totalSessions - 1) + sessionStats.mistakeCount) /
-      sessionStats.totalSessions
+        sessionStats.totalSessions
     )
 
     this.setState(
@@ -300,16 +321,39 @@ export class TypeTrainer extends React.Component<Props, State> {
   }
 
   prepareNewSession(): void {
-    const words = this.newTrainingWords()
-    const modifiedWords = words.map(word =>
-      modifyWord(
-        word,
-        this.state.settings.trainingStringOptions.wordModifierOptions,
-        this.state.settings.layout.charSet.subSet({trainingLevel: this.getCurrentLevel()}),
-        this.state.settings.trainingStringOptions.modifyingLikelihood
-      )
-    )
-    const string = modifiedWords.join(this.state.settings.trainingStringOptions.spaces ? " " : "")
+    const {trainingMode} = this.state
+    const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.trainingStringOptions
+    const charSet = this.state.settings.layout.charSet
+    let words: string[]
+    let string: string
+    switch (trainingMode) {
+      case TrainingMode.Guided:
+        words = this.guidedCourseWords()
+        const modifiedWords = words.map((word) =>
+          modifyWord(
+            word,
+            wordModifierOptions,
+            charSet.subSet({
+              trainingLevel: this.getCurrentLevel(),
+            }),
+            modifyingLikelihood
+          )
+        )
+        string = modifiedWords.join(spaces ? " " : "")
+        break
+      case TrainingMode.Practice:
+        words = ['']
+        string = this.practiceText()
+        break
+      case TrainingMode.Code:
+        words = ['']
+        string = this.codeTextSample()
+        break
+      default:
+        words = ['']
+        string = ''
+        break
+    }
     this.setState(
       {
         cursor: 0,
@@ -326,8 +370,8 @@ export class TypeTrainer extends React.Component<Props, State> {
     return this.state.settings.course.levels[this.state.courseLevelIndex]
   }
 
-  private newTrainingWords(): string[] {
-    return this.props.generator.generate(
+  private guidedCourseWords(): string[] {
+    const words = this.props.generator.generate(
       this.state.settings.trainingStringOptions,
       CharSet.uniqueChars(
         this.state.settings.layout.charSet.subSet({
@@ -336,39 +380,72 @@ export class TypeTrainer extends React.Component<Props, State> {
         })
       )
     )
+
+    return words
+  }
+
+  private practiceText(): string {
+    const words = "Placeholder example sentence." // TODO: get training string from practice text
+    return words
+  }
+
+  private codeTextSample(): string {
+    const words = "const Placeholder = example(code).toBe('displayed')" // TODO: get training string from code type of choice
+    return words
   }
 
   toggleTheme(): void {
-    const settings = {...this.state.settings}
+    const settings = { ...this.state.settings }
     settings.UI.theme = settings.UI.theme === themes.light ? themes.dark : themes.light
-    this.setState({settings: settings})
+    this.setState({ settings: settings })
   }
 
   toggleFontSize(): void {
-    const settings = {...this.state.settings}
+    const settings = { ...this.state.settings }
     settings.UI.fontSize = (settings.UI.fontSize + 1) % 3
-    this.setState({settings: settings})
+    this.setState({ settings: settings })
   }
 
   changeTrainingStringOptions(trainingStringOptions: TrainingStringOptions): void {
-    const options = {...trainingStringOptions}
+    const options = { ...trainingStringOptions }
     if (!options.letters) options.wordModifierOptions.caps = false
-    const settings = {...this.state.settings}
+    const settings = { ...this.state.settings }
     settings.trainingStringOptions = options
-    this.setState({settings: settings}, () => this.prepareNewSession())
+    this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
   render(): JSX.Element {
+    let UI: JSX.Element
+    switch (this.state.trainingMode) {
+      case TrainingMode.Guided:
+        break
+      case TrainingMode.Practice:
+        break
+      case TrainingMode.Code:
+        break
+      default:
+        break
+    }
     return (
       <ThemeContext.Provider
-        value={{theme: this.state.settings.UI.theme, toggleTheme: (): void => this.toggleTheme()}}
+        value={{
+          theme: this.state.settings.UI.theme,
+          toggleTheme: (): void => this.toggleTheme(),
+        }}
       >
+        <ModeSelectorModal
+          show={this.state.modeSelectShow}
+          onHide={() => this.setModeSelectShow(false)}
+          setmode={() => this.setTrainingMode}
+        ></ModeSelectorModal>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
             <Toolbar
-              left={<QuickStats sessionStats={this.state.stats}/>}
+              left={<QuickStats sessionStats={this.state.stats} />}
               right={[
-                <Button key="openModalBtn" variant="primary" onClick={this.openModeSelectModal}>Change Mode</Button>,
+                <Button key="openModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
+                  Change Mode
+                </Button>,
                 <StringOptionsForm
                   key={"optionsForm"}
                   trainingStringOptions={this.state.settings.trainingStringOptions}
@@ -376,14 +453,14 @@ export class TypeTrainer extends React.Component<Props, State> {
                     this.changeTrainingStringOptions(updatedOptions)
                   }
                 />,
-                <FontSizeSelect key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()}/>,
-                <ThemeToggleSwitch key={"themeToggle"}/>,
+                <FontSizeSelect key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
+                <ThemeToggleSwitch key={"themeToggle"} />,
               ]}
             />
           }
           <Container>
             {
-              <TextDisplay style={{fontSize: FontSizes[this.state.settings.UI.fontSize]}}>
+              <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
                 <FormattedText
                   greyed={this.state.machineState === MachineState.Paused}
                   cursor={this.state.cursor}
@@ -415,10 +492,13 @@ export class TypeTrainer extends React.Component<Props, State> {
                   type="number"
                   size="sm"
                   name="wordsPerString"
-                  style={{width: "4rem", fontFamily: "'Courier New', Courier, monospace"}}
+                  style={{
+                    width: "4rem",
+                    fontFamily: "'Courier New', Courier, monospace",
+                  }}
                   defaultValue={this.state.courseLevelIndex}
-                  onChange={({target: {value}}): void =>
-                    this.setState({courseLevelIndex: parseInt(value)}, () => this.prepareNewSession())
+                  onChange={({ target: { value } }): void =>
+                    this.setState({ courseLevelIndex: parseInt(value) }, () => this.prepareNewSession())
                   }
                 />
               </Form>

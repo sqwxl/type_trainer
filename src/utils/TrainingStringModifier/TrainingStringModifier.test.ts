@@ -1,4 +1,5 @@
-import { enUsQwerty } from "../../assets/Layouts/en_US"
+import enUsQwerty from "../../assets/Layouts/en_US"
+import { defaultWordModifierOptions } from "../../Components/TypeTrainer"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
 import { modifyRawTrainingWord } from "./TrainingStringModifier"
 
@@ -14,14 +15,7 @@ function contains(word: string, charArr: string[]): boolean {
   return false
 }
 
-const options = {
-  letters: true,
-  caps: false,
-  punct: false,
-  syms: false,
-  nums: false,
-  spaces: true,
-}
+const options = defaultWordModifierOptions
 it("modifies strings according to options", () => {
   const testWord = "mouse"
   expect(modifyRawTrainingWord(testWord, options, charSet.charSet, 1)).toEqual(testWord)

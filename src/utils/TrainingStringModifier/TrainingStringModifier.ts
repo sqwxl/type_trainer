@@ -1,4 +1,4 @@
-import { enUsQwerty } from "../../assets/Layouts/en_US"
+import enUsQwerty from "../../assets/Layouts/en_US"
 import { WordModifierOptions } from "../../Components/TypeTrainer"
 import { CharacterSet, CharacterBehavior, CharacterType } from "../LayoutUtil"
 

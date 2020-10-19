@@ -1,8 +1,8 @@
-import React from 'react'
-import Modal from 'react-bootstrap/Modal'
-import {Button} from "react-bootstrap";
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import { TrainingMode } from "../TypeTrainer";
 
-export default function ModeSelectorModal() {
+export default function ModeSelectorModal(props: { onHide: () => void, show: boolean, setmode: (mode: TrainingMode) => void}) {
   return (
     <Modal
       {...props}
@@ -12,20 +12,20 @@ export default function ModeSelectorModal() {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Modal heading
+          Pick a training mode
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <h4>Centered Modal</h4>
-        <p>
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros.
-        </p>
+        <div onClick={() => props.setmode(TrainingMode.Guided)}>
+          Guided: choose this if you are learning to touch type
+        </div>
+        <div onClick={() => props.setmode(TrainingMode.Practice)}>
+          Practice: hone your skills
+        </div>
+        <div onClick={() => props.setmode(TrainingMode.Code)}>
+          Code: for programmers
+        </div>
       </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-      </Modal.Footer>
     </Modal>
-  )
+  );
 }
