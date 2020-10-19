@@ -37,9 +37,9 @@ enum MachineState {
 }
 
 export enum TrainingMode {
-  Guided,
-  Practice,
-  Code,
+  Guided = "Guided Mode",
+  Practice = "Practice Mode",
+  Code = "Code Mode",
 }
 
 const FontSizes: { [key: number]: string } = {
@@ -101,6 +101,7 @@ const defaultSettings: Settings = {
 
 interface State {
   modeSelectShow: boolean
+  settingsModalShow: boolean
   trainingMode: TrainingMode
   pressed: Set<string>
   machineState: MachineState
@@ -123,6 +124,7 @@ interface State {
 
 export const defaultState: State = {
   modeSelectShow: false,
+  settingsModalShow: false,
   trainingMode: TrainingMode.Practice,
   trainingWords: [],
   trainingString: "",
@@ -247,6 +249,12 @@ export class TypeTrainer extends React.Component<Props, State> {
     this.setState({ modeSelectShow: false, trainingMode: mode }, () => this.prepareNewSession())
   }
 
+  setSettingsModalShow(value: boolean): void {
+    this.setState({ settingsModalShow: value }, () => {
+      if (value) this.pauseSession()
+    })
+  }
+
   private static isEOF(state: State): boolean {
     return state.cursor === state.trainingString.length
   }
@@ -322,7 +330,7 @@ export class TypeTrainer extends React.Component<Props, State> {
   }
 
   prepareNewSession(): void {
-    const {trainingMode} = this.state
+    const { trainingMode } = this.state
     const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.trainingStringOptions
     const charSet = this.state.settings.layout.charSet
     let words: string[]
@@ -343,16 +351,16 @@ export class TypeTrainer extends React.Component<Props, State> {
         string = modifiedWords.join(spaces ? " " : "")
         break
       case TrainingMode.Practice:
-        words = ['']
+        words = [""]
         string = this.practiceText()
         break
       case TrainingMode.Code:
-        words = ['']
+        words = [""]
         string = this.codeTextSample()
         break
       default:
-        words = ['']
-        string = ''
+        words = [""]
+        string = ""
         break
     }
     this.setState(
@@ -439,23 +447,23 @@ export class TypeTrainer extends React.Component<Props, State> {
           onHide={() => this.setModeSelectShow(false)}
           setTrainingMode={(mode: TrainingMode): void => this.setTrainingMode(mode)}
         ></ModeSelectorModal>
-        <SettingsModal show={this.state.settingsModalShow} onHide={() => this.setSettingsModalShow(false)} updateFn={(updatedOptions: TrainingStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}}
+        <SettingsModal
+          show={this.state.settingsModalShow}
+          onHide={() => this.setSettingsModalShow(false)}
+          trainingStringOptions={this.state.settings.trainingStringOptions}
+          updateFn={(updatedOptions: TrainingStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+        ></SettingsModal>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
             <Toolbar
               left={<QuickStats sessionStats={this.state.stats} />}
               right={[
                 <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
-                  Mode
+                  {this.state.trainingMode}
                 </Button>,
-                <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>Settings</Button>,
-                <StringOptionsForm
-                  key={"optionsForm"}
-                  trainingStringOptions={this.state.settings.trainingStringOptions}
-                  updateFn={(updatedOptions: TrainingStringOptions): void =>
-                    this.changeTrainingStringOptions(updatedOptions)
-                  }
-                />,
+                <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>
+                  Settings
+                </Button>,
                 <FontSizeSelect key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
                 <ThemeToggleSwitch key={"themeToggle"} />,
               ]}
@@ -486,8 +494,8 @@ export class TypeTrainer extends React.Component<Props, State> {
                 )}
               />
             }
-            {
-              <Form inline>
+
+            {/* <Form inline>
                 <FormLabel htmlFor="courseLevelSelector">Level: </FormLabel>
                 <FormControl
                   id="courseLevelSelector"
@@ -504,8 +512,7 @@ export class TypeTrainer extends React.Component<Props, State> {
                     this.setState({ courseLevelIndex: parseInt(value) }, () => this.prepareNewSession())
                   }
                 />
-              </Form>
-            }
+              </Form> */}
           </Container>
         </Container>
       </ThemeContext.Provider>
