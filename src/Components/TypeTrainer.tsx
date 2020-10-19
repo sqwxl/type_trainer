@@ -19,6 +19,9 @@ import { modifyWord } from "../utils/modifyWord/modifyWord"
 import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
+import text from '../assets/Texts/state_and_revolution'
+
+const stateRev = text
 
 /*
 TODO:
@@ -84,6 +87,14 @@ export const defaultGuidedModeStringOptions: GuidedModeStringOptions = {
 export interface PracticeModeStringOptions {
   source: string
   fullSentences: boolean
+  wordsPerString: number
+}
+
+
+
+const defaultPracticeModeStringOptions: PracticeModeStringOptions = {
+  source: stateRev,
+  fullSentences: true,
   wordsPerString: 6
 }
 
@@ -100,6 +111,8 @@ export interface CodeModeStringOptions {
   lines: 5
 }
 
+export type StringOptions = GuidedModeStringOptions | PracticeModeStringOptions | CodeModeStringOptions
+
 interface Settings {
   layout: LayoutUtil
   UI: {
@@ -107,7 +120,7 @@ interface Settings {
     fontSize: number
   }
   course: Course
-  stringOptions: GuidedModeStringOptions | PracticeModeStringOptions | CodeModeStringOptions
+  stringOptions: StringOptions
 }
 
 const defaultSettings: Settings = {
@@ -349,12 +362,12 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   prepareNewSession(): void {
     const { trainingMode } = this.state
-    const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions
     const charSet = this.state.settings.layout.charSet
     let words: string[]
     let string: string
     switch (trainingMode) {
       case TrainingMode.Guided:
+        const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions as GuidedModeStringOptions
         words = this.guidedCourseWords()
         const modifiedWords = words.map((word) =>
           modifyWord(
@@ -399,7 +412,7 @@ export class TypeTrainer extends React.Component<Props, State> {
 
   private guidedCourseWords(): string[] {
     const words = this.props.generator.generate(
-      this.state.settings.stringOptions,
+      this.state.settings.stringOptions as GuidedModeStringOptions,
       CharSet.uniqueChars(
         this.state.settings.layout.charSet.subSet({
           trainingLevel: this.getCurrentLevel(),
@@ -412,7 +425,8 @@ export class TypeTrainer extends React.Component<Props, State> {
   }
 
   private practiceText(): string {
-    const words = "Placeholder example sentence." // TODO: get training string from practice text
+    const options = this.state.settings.stringOptions as PracticeModeStringOptions
+    const string = "Placeholder example sentence." // TODO: get training string from practice text
     return words
   }
 
