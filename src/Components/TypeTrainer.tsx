@@ -12,7 +12,7 @@ import { isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
 import Courses, { Course, CourseLevel } from "../utils/Courses"
-import { TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
+import { GuidedModeStringGenerator, PracticeModeStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
 import LayoutUtil, { CharacterType, CharSet } from "../utils/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
 import { modifyWord } from "../utils/modifyWord/modifyWord"
@@ -20,6 +20,7 @@ import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
 import text from '../assets/Texts/state_and_revolution'
+import { dict } from './assets/Dictionaries/english.json'
 
 const stateRev = text
 
@@ -108,7 +109,12 @@ export enum CodingLanguage {
 
 export interface CodeModeStringOptions {
   language: CodingLanguage
-  lines: 5
+  lines: number
+}
+
+export const defaultCodeModeStringOptions = {
+  language: CodingLanguage.JS,
+  lines: 6
 }
 
 export type StringOptions = GuidedModeStringOptions | PracticeModeStringOptions | CodeModeStringOptions
@@ -134,6 +140,7 @@ interface State {
   modeSelectShow: boolean
   settingsModalShow: boolean
   trainingMode: TrainingMode
+  generator: TrainingStringGenerator
   pressed: Set<string>
   machineState: MachineState
   trainingWords: string[]
@@ -153,10 +160,13 @@ interface State {
   settings: Settings
 }
 
+const defaultGenerator = new PracticeModeStringGenerator(defaultPracticeModeStringOptions.source)
+
 export const defaultState: State = {
   modeSelectShow: false,
   settingsModalShow: false,
   trainingMode: TrainingMode.Practice,
+  generator: defaultGenerator,
   trainingWords: [],
   trainingString: "",
   cursor: 0,
@@ -173,18 +183,15 @@ export const defaultState: State = {
   settings: { ...defaultSettings },
 }
 
-interface Props {
-  generator: TrainingStringGenerator
-}
 
 const inactivityDelay = 2000 //todo: mettre dans settings
 
-export class TypeTrainer extends React.Component<Props, State> {
+export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
   sessionTimer = Timer()
   inactivityTimer = 0
 
-  constructor(props: Props) {
+  constructor(props: any) {
     super(props)
     this.state = defaultState
     this.routeEvent = this.routeEvent.bind(this)
@@ -277,6 +284,8 @@ export class TypeTrainer extends React.Component<Props, State> {
   }
 
   setTrainingMode(mode: TrainingMode): void {
+    const options = this.newStringOptionsBasedOnMode(mode)
+    const generator = this.newGeneratorBasedOnMode(mode, options)
     this.setState({ modeSelectShow: false, trainingMode: mode }, () => this.prepareNewSession())
   }
 
@@ -284,6 +293,40 @@ export class TypeTrainer extends React.Component<Props, State> {
     this.setState({ settingsModalShow: value }, () => {
       if (value) this.pauseSession()
     })
+  }
+
+  newStringOptionsBasedOnMode(mode: TrainingMode): StringOptions {
+    let options: StringOptions
+    // TODO: check local storage for user options, else load defaults
+    switch (mode) {
+      case TrainingMode.Guided:
+        options = defaultGuidedModeStringOptions
+        break
+      case TrainingMode.Practice:
+        options = defaultPracticeModeStringOptions
+        break
+      case TrainingMode.Code:
+        options = defaultCodeModeStringOptions    
+        break
+    }
+    return options
+  }
+
+  newGeneratorBasedOnMode(mode: TrainingMode, options: StringOptions): TrainingStringGenerator {
+    let generator: TrainingStringGenerator
+    switch (mode) {
+      case TrainingMode.Guided:
+        generator = new GuidedModeStringGenerator(dict)
+        break
+      case TrainingMode.Practice:
+        options = options as PracticeModeStringOptions
+        generator = new PracticeModeStringGenerator(options.source)
+        break
+      case TrainingMode.Code:
+        generator = new CodeModeStringGenerator(options)
+        break
+    }
+    return generator
   }
 
   private static isEOF(state: State): boolean {

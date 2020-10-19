@@ -12,7 +12,7 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
   }
 }
 
-export class MarkovTrainingStringGenerator implements TrainingStringGenerator {
+export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
   generate(options: GuidedModeStringOptions, alphabet: string[]): string[] {
@@ -55,8 +55,8 @@ export class MarkovTrainingStringGenerator implements TrainingStringGenerator {
 
 }
 
-export class PracticeTextStringGenerator implements TrainingStringGenerator {
-  constructor(private source: string, private textCursor: number) {}
+export class PracticeModeStringGenerator implements TrainingStringGenerator {
+  constructor(private source: string, private textCursor: number = 0) {}
   generate(options: PracticeModeStringOptions) {
     let str: string
     if (options.fullSentences) {

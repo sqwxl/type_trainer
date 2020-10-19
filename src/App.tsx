@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { TypeTrainer } from './Components/TypeTrainer';
-import { MarkovTrainingStringGenerator } from './utils/TrainingStringGenerator/TrainingStringGenerator';
+import { GuidedModeStringGenerator } from './utils/TrainingStringGenerator/TrainingStringGenerator';
 import { dict } from './assets/Dictionaries/english.json'
 
 // let dict
@@ -11,7 +11,7 @@ import { dict } from './assets/Dictionaries/english.json'
 // console.log(dict)
 function App(): JSX.Element {
   return(
-    <TypeTrainer generator={new MarkovTrainingStringGenerator(dict)}/>
+    <TypeTrainer />
   )
 }
 export default App;

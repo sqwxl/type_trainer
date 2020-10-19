@@ -1,5 +1,5 @@
 import { defaultGuidedModeStringOptions } from "../../Components/TypeTrainer"
-import { MarkovTrainingStringGenerator } from "./TrainingStringGenerator"
+import { GuidedModeStringGenerator } from "./TrainingStringGenerator"
 import {dict as english}  from "../../assets/Dictionaries/english.json"
 import { GuidedModeStringOptions } from "../../Components/TypeTrainer"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
@@ -7,7 +7,7 @@ import Courses from "../Courses"
 import enUsQwerty from "../../assets/Layouts/en_US"
 
 const layout = new LayoutUtil(enUsQwerty)
-const generator = new MarkovTrainingStringGenerator(english)
+const generator = new GuidedModeStringGenerator(english)
 const options: GuidedModeStringOptions = { ...defaultGuidedModeStringOptions }
 const course = Courses.guidedCourse
 
@@ -22,7 +22,7 @@ function newRegExpFromStrArr(letters: string[]): RegExp {
   return new RegExp("[".concat(letters.join(''), "\\s]"))
 }
 
-function testMarkovLevel(options: GuidedModeStringOptions, generator: MarkovTrainingStringGenerator, alphabet: string[]): void {
+function testMarkovLevel(options: GuidedModeStringOptions, generator: GuidedModeStringGenerator, alphabet: string[]): void {
   testStringAgainstAllowedLetters(generator.generate(options, alphabet), newRegExpFromStrArr(alphabet))
 }
 
