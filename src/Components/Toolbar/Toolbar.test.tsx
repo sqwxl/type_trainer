@@ -5,6 +5,6 @@ import Toolbar from './Toolbar'
 
 describe('toolbar', () => {
   it('renders without crashing', () => {
-  render(<Toolbar left={<div/>} right={<div />} />, {})
+  render(<Toolbar stats={<div/>} buttons={<div />} />, {})
   })
 })

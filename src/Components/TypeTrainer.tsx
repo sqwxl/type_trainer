@@ -3,12 +3,11 @@ import Keyboard from "./Keyboard/Keyboard"
 import { TextDisplay } from "./TextDisplay/TextDisplay"
 import { ThemeContext, themes } from "./Contexts/ThemeContext/ThemeContext"
 import Toolbar from "./Toolbar/Toolbar"
-import { Container, Form, FormControl, FormLabel } from "react-bootstrap"
+import { Container } from "react-bootstrap"
 import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
 
-import FontSizeSelect from "./Toolbar/FontSizeSelet"
-import StringOptionsForm from "./Toolbar/StringOptionsForm"
+import FontSizeToggle from "./Toolbar/FontSizeSelet"
 import { isChar, Timer } from "../utils/utils"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
@@ -456,15 +455,18 @@ export class TypeTrainer extends React.Component<Props, State> {
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
             <Toolbar
-              left={<QuickStats sessionStats={this.state.stats} />}
-              right={[
+              stats={<QuickStats sessionStats={this.state.stats} />}
+              buttons={[
                 <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
                   {this.state.trainingMode}
                 </Button>,
+                <div style={{ margin: "0 0.5rem" }}/>,
                 <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>
                   Settings
                 </Button>,
-                <FontSizeSelect key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
+                <div style={{ margin: "0 0.5rem" }}/>,
+                <FontSizeToggle key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
+                <div style={{ margin: "0 0.5rem" }}/>,
                 <ThemeToggleSwitch key={"themeToggle"} />,
               ]}
             />
