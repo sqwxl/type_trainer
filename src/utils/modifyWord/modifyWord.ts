@@ -1,5 +1,5 @@
 import enUsQwerty from "../../assets/Layouts/en_US"
-import { WordModifierOptions } from "../../Components/TypeTrainer"
+import { GuidedModeStringOptions, WordModifierOptions } from "../../Components/TypeTrainer"
 import { CharacterSet, CharacterBehavior, CharacterType } from "../LayoutUtil"
 
 function isVowel(char: string, vowels: string[] = enUsQwerty.vowels): boolean {
@@ -53,10 +53,10 @@ function symbolize(str: string, charSet: CharacterSet): string {
 
 export function modifyWord (
   word: string,
-  wordModifierOptions: WordModifierOptions,
+  options: GuidedModeStringOptions,
   characterSet: CharacterSet,
-  likelihood: number
 ): string {
+  const { wordModifierOptions, modifyingLikelihood: likelihood } = options
   const modificationShouldApply = (): boolean => Math.random() < likelihood
 
   function addNumber(word: string): string {

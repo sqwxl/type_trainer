@@ -20,7 +20,7 @@ import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
 import text from '../assets/Texts/state_and_revolution'
-import { dict } from './assets/Dictionaries/english.json'
+import { dict } from '../assets/Dictionaries/english.json'
 
 const stateRev = text
 
@@ -160,7 +160,7 @@ interface State {
   settings: Settings
 }
 
-const defaultGenerator = new PracticeModeStringGenerator(defaultPracticeModeStringOptions.source)
+const defaultGenerator = new PracticeModeStringGenerator()
 
 export const defaultState: State = {
   modeSelectShow: false,
@@ -406,42 +406,24 @@ export class TypeTrainer extends React.Component<{}, State> {
 
   prepareNewSession(): void {
     const { trainingMode } = this.state
-    const charSet = this.state.settings.layout.charSet
-    let words: string[]
     let string: string
     switch (trainingMode) {
       case TrainingMode.Guided:
-        const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions as GuidedModeStringOptions
-        words = this.guidedModeText()
-        const modifiedWords = words.map((word) =>
-          modifyWord(
-            word,
-            wordModifierOptions,
-            charSet.subSet({
-              trainingLevel: this.getCurrentLevel(),
-            }),
-            modifyingLikelihood
-          )
-        )
-        string = modifiedWords.join(spaces ? " " : "")
+        string = this.guidedModeText()
         break
       case TrainingMode.Practice:
-        words = [""]
         string = this.practiceModeText()
         break
       case TrainingMode.Code:
-        words = [""]
         string = this.codeModeText()
         break
       default:
-        words = [""]
         string = ""
         break
     }
     this.setState(
       {
         cursor: 0,
-        trainingWords: words,
         trainingString: string,
         mistakeCharIndexes: new Set(),
         machineState: MachineState.SessionReady,
@@ -454,29 +436,22 @@ export class TypeTrainer extends React.Component<{}, State> {
     return this.state.settings.course.levels[this.state.courseLevelIndex]
   }
 
-  private guidedModeText(): string[] {
-    const words = this.state.generator.generate(
-      this.state.settings.stringOptions as GuidedModeStringOptions,
-      CharSet.uniqueChars(
-        this.state.settings.layout.charSet.subSet({
-          trainingLevel: this.getCurrentLevel(),
-          type: CharacterType.LOWERCASE_LETTER,
-        })
-      )
-    )
-
-    return words
+  private guidedModeText(): string {
+    const generator = this.state.generator as GuidedModeStringGenerator
+    const options = this.state.settings.stringOptions as GuidedModeStringOptions
+    return generator.generate(options, this.state.settings.layout, this.getCurrentLevel())
   }
 
   private practiceModeText(): string {
+    const generator = this.state.generator as PracticeModeStringGenerator
     const options = this.state.settings.stringOptions as PracticeModeStringOptions
-    const string = "Placeholder example sentence." // TODO: get training string from practice text
-    return words
+    return generator.generate(options)
   }
 
   private codeModeText(): string {
-    const words = "const Placeholder = example(code).toBe('displayed')" // TODO: get training string from code type of choice
-    return words
+    const generator = this.state.generator as CodeModeStringGenerator
+    const options = this.state.settings.stringOptions as CodeModeStringOptions
+    return generator.generate(options)
   }
 
   toggleTheme(): void {

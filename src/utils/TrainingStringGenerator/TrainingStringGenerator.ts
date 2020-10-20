@@ -1,11 +1,16 @@
-import { CodeModeStringOptions, GuidedModeStringOptions, PracticeModeStringOptions, StringOptions } from "../../Components/TypeTrainer"
+import {
+  CodeModeStringOptions,
+  GuidedModeStringOptions,
+  PracticeModeStringOptions,
+  StringOptions,
+} from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
-import { modifyWord } from '../modifyWord/modifyWord'
-import { CharacterSet, Layout } from "../LayoutUtil"
+import { modifyWord } from "../modifyWord/modifyWord"
+import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
 import { CourseLevel } from "../Courses"
 
 export interface TrainingStringGenerator {
-  generate(options: StringOptions, alphabet?: string[]): string
+  generate(options: StringOptions, layout?: LayoutUtil, lvl?: CourseLevel): string
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
@@ -14,7 +19,6 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
     return this.trainingString
   }
 }
-
 
 /*
 const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions as GuidedModeStringOptions
@@ -49,45 +53,41 @@ const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
-  generate(options: GuidedModeStringOptions, layout: Layout, lvl: CourseLevel): string {
+  generate(options: GuidedModeStringOptions, layout: LayoutUtil, lvl: CourseLevel): string {
+    const alphabet = CharSet.uniqueChars(
+      layout.charSet.subSet({ trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER })
+    )
     function modifyWords(words: string[]): string[] {
-      return words.map(word => modifyWord(
-        word,
-        options.wordModifierOptions,
-        charSetAtLevel),
-        modifyingLikelihood
-      )
+      return words.map((word) => modifyWord(word, options, layout.charSet.subSet({ trainingLevel: lvl })))
     }
-    const nullSumOptions = !options.letters && Object.values(options.wordModifierOptions).every(v => !v)
+    const nullSumOptions = !options.letters && Object.values(options.wordModifierOptions).every((v) => !v)
     // Return empty string if all characters options are false
-    if (nullSumOptions) return ''
+    if (nullSumOptions) return ""
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
     const chain = this.newMarkovChainRestrictedToLetters(alphabet)
 
-    
-    const words: Array<string> = []
+    let words: Array<string> = []
     while (words.length < options.wordsPerString) {
-      let word = ''
+      let word = ""
       try {
         word = chain.generate(options.wordLength)
       } catch (error) {
         console.error(error.message)
         const { minLength, maxLength } = options.wordLength
         const length = minLength + Math.floor(Math.random() * (maxLength - minLength))
-        for (let i = 0; i < length; i++ ) {
+        for (let i = 0; i < length; i++) {
           const letter = alphabet[Math.floor(Math.random() * alphabet.length)]
           word = word.concat(letter)
         }
       }
       words.push(word)
     }
-    let string = 
-  )
-  string = modifiedWords.join(spaces ? " " : "")
+    words = modifyWords(words)
+    return words.join(" ")
   }
 
   private newMarkovChainRestrictedToLetters(allowedLetters: string[]): MarkovChain {
-    const dict = this.dictionary.filter(word => {
+    const dict = this.dictionary.filter((word) => {
       for (const letter of word) {
         if (!allowedLetters.includes(letter)) return false
       }
@@ -95,9 +95,6 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     })
     return new MarkovChain(3, dict)
   }
-
-  
-
 }
 
 export class PracticeModeStringGenerator implements TrainingStringGenerator {
@@ -122,7 +119,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
         end = this.advanceCursorByOne(source.length, start)
       }
     }
-    while(source[end] !== '.') {
+    while (source[end] !== ".") {
       end = this.advanceCursorByOne(source.length, end)
     }
     this.textCursor = this.advanceCursorByOne(source.length, end)
@@ -137,7 +134,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
     let start = this.textCursor
     let end = this.advanceCursorByOne(source.length, start)
     let getNextWord = (): string => {
-      while(/\s/.test(source[start])) {
+      while (/\s/.test(source[start])) {
         start = this.advanceCursorByOne(source.length, start)
         end = this.advanceCursorByOne(source.length, start)
         if (end < start) {
@@ -145,7 +142,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
           end = this.advanceCursorByOne(source.length, start)
         }
       }
-      while(!/\s/.test(source[end])) {
+      while (!/\s/.test(source[end])) {
         end = this.advanceCursorByOne(source.length, end)
         if (end < start) throw new RangeError("Can't generate next word; perhaps the source string is too short?")
       }
@@ -156,16 +153,15 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
       words.push(getNextWord())
       count++
     }
-    return words.join(' ')
+    return words.join(" ")
   }
-
 }
 
 export class CodeModeStringGenerator {
   constructor() {}
   generate(options: CodeModeStringOptions) {
-    let string = 'todo'
-    
+    let string = "todo"
+
     return string
   }
 }
@@ -177,5 +173,3 @@ export class GuidedCourseTrainingStringGenerator implements TrainingStringGenera
     return str
   }
 } */
-
-

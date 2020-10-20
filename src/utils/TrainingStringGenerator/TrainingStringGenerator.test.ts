@@ -3,7 +3,7 @@ import { GuidedModeStringGenerator } from "./TrainingStringGenerator"
 import {dict as english}  from "../../assets/Dictionaries/english.json"
 import { GuidedModeStringOptions } from "../../Components/TypeTrainer"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
-import Courses from "../Courses"
+import Courses, { CourseLevel } from "../Courses"
 import enUsQwerty from "../../assets/Layouts/en_US"
 
 const layout = new LayoutUtil(enUsQwerty)
@@ -11,9 +11,9 @@ const generator = new GuidedModeStringGenerator(english)
 const options: GuidedModeStringOptions = { ...defaultGuidedModeStringOptions }
 const course = Courses.guidedCourse
 
-function testStringAgainstAllowedLetters(str: string[], allowedLetters: RegExp): void {
+function testStringAgainstAllowedLetters(str: string, allowedLetters: RegExp): void {
   // console.log("generated markov string:" + str.join(' '))
-  for (const ltr of str.join('')) {
+  for (const ltr of str) {
     expect(allowedLetters.test(ltr)).toBe(true)
   }
 }
@@ -22,25 +22,22 @@ function newRegExpFromStrArr(letters: string[]): RegExp {
   return new RegExp("[".concat(letters.join(''), "\\s]"))
 }
 
-function testMarkovLevel(options: GuidedModeStringOptions, generator: GuidedModeStringGenerator, alphabet: string[]): void {
-  testStringAgainstAllowedLetters(generator.generate(options, alphabet), newRegExpFromStrArr(alphabet))
+function testMarkovLevel(options: GuidedModeStringOptions, generator: GuidedModeStringGenerator, lvl: CourseLevel): void {
+  testStringAgainstAllowedLetters(generator.generate(options, layout, lvl), newRegExpFromStrArr(CharSet.uniqueChars(layout.charSet.subSet({trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER})).concat([' '])))
 }
 
 
 
 describe("TrainingStringGenerator", () => {
-  it("should generate an array of strings for a given set of characters", () => {
+  it("should generate a string for a given set of characters", () => {
     
-    const alphabet = CharSet.uniqueChars(layout.charSet.subSet({ type: CharacterType.LOWERCASE_LETTER }))
-    const str = generator.generate(defaultGuidedModeStringOptions, alphabet)
+    const str = generator.generate(options, layout, course.levels[0])
     expect(str.length).toBeTruthy()
   })})
 describe("TrainingStringGenerator: Markov Chains", () => {
   it("produces a string of words based on a training level using markov chains", () => {
     for (let lvl = 0; lvl < course.levels.length; lvl++) {
-      const lvlCharSet = layout.charSet.subSet({ trainingLevel: course.levels[lvl], type: CharacterType.LOWERCASE_LETTER } )
-      const alphabet = CharSet.uniqueChars(lvlCharSet)
-      testMarkovLevel(options, generator, alphabet)
+      testMarkovLevel(options, generator, course.levels[lvl])
     }
   })
 })
