@@ -1,24 +1,66 @@
 import { CodeModeStringOptions, GuidedModeStringOptions, PracticeModeStringOptions, StringOptions } from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
+import { modifyWord } from '../modifyWord/modifyWord'
+import { CharacterSet, Layout } from "../LayoutUtil"
+import { CourseLevel } from "../Courses"
 
 export interface TrainingStringGenerator {
-  generate(options: StringOptions, alphabet?: string[]): string[] | string
+  generate(options: StringOptions, alphabet?: string[]): string
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
   constructor(private trainingString: string) {}
-  generate(): string[] {
-    return this.trainingString.split(' ')
+  generate(): string {
+    return this.trainingString
   }
 }
 
+
+/*
+const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions as GuidedModeStringOptions
+        words = this.guidedModeText()
+        const modifiedWords = words.map((word) =>
+          modifyWord(
+            word,
+            wordModifierOptions,
+            charSet.subSet({
+              trainingLevel: this.getCurrentLevel(),
+            }),
+            modifyingLikelihood
+          )
+        )
+        string = modifiedWords.join(spaces ? " " : "")
+
+  
+  private guidedModeText(): { words: string[], string: string } {
+    const words = this.state.generator.generate(
+      this.state.settings.stringOptions as GuidedModeStringOptions,
+      CharSet.uniqueChars(
+        this.state.settings.layout.charSet.subSet({
+          trainingLevel: this.getCurrentLevel(),
+          type: CharacterType.LOWERCASE_LETTER,
+        })
+      )
+    )
+
+    return { words, string }
+  }
+*/
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
-  generate(options: GuidedModeStringOptions, alphabet: string[]): string[] {
+  generate(options: GuidedModeStringOptions, layout: Layout, lvl: CourseLevel): string {
+    function modifyWords(words: string[]): string[] {
+      return words.map(word => modifyWord(
+        word,
+        options.wordModifierOptions,
+        charSetAtLevel),
+        modifyingLikelihood
+      )
+    }
     const nullSumOptions = !options.letters && Object.values(options.wordModifierOptions).every(v => !v)
     // Return empty string if all characters options are false
-    if (nullSumOptions) return [""]
+    if (nullSumOptions) return ''
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
     const chain = this.newMarkovChainRestrictedToLetters(alphabet)
 
@@ -39,8 +81,9 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
       }
       words.push(word)
     }
-
-    return words
+    let string = 
+  )
+  string = modifiedWords.join(spaces ? " " : "")
   }
 
   private newMarkovChainRestrictedToLetters(allowedLetters: string[]): MarkovChain {
@@ -52,6 +95,8 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     })
     return new MarkovChain(3, dict)
   }
+
+  
 
 }
 

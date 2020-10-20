@@ -53,29 +53,29 @@ function symbolize(str: string, charSet: CharacterSet): string {
 
 export function modifyWord (
   word: string,
-  options: WordModifierOptions,
-  charSet: CharacterSet,
-  likelyhood: number
+  wordModifierOptions: WordModifierOptions,
+  characterSet: CharacterSet,
+  likelihood: number
 ): string {
-  const modificationShouldApply = (): boolean => Math.random() < likelyhood
+  const modificationShouldApply = (): boolean => Math.random() < likelihood
 
   function addNumber(word: string): string {
-    const numbers = charSet.filter(char => char.type === CharacterType.NUMBER)
+    const numbers = characterSet.filter(char => char.type === CharacterType.NUMBER)
     if (numbers.length === 0) return word
     return symbolize(
       word,
-      charSet.filter(char => char.type === CharacterType.NUMBER)
+      characterSet.filter(char => char.type === CharacterType.NUMBER)
     )
   }
 
   function addSymbol(word: string): string {
-    const symbols = charSet.filter(char => char.type === CharacterType.SYMBOL)
+    const symbols = characterSet.filter(char => char.type === CharacterType.SYMBOL)
     if (symbols.length === 0) return word
     return symbolize(word, symbols)
   }
 
   function punctuate(word: string): string {
-    const punctuation = charSet.filter(char => char.type === CharacterType.PUNCTUATION)
+    const punctuation = characterSet.filter(char => char.type === CharacterType.PUNCTUATION)
     if (punctuation.length === 0) return word
     return symbolize(word, punctuation)
   }
@@ -85,24 +85,24 @@ export function modifyWord (
   }
 
   function addProgrammingSymbol(word: string): string {
-    const symbols = charSet.filter(char => char.type === CharacterType.PROGRAMMING)
+    const symbols = characterSet.filter(char => char.type === CharacterType.PROGRAMMING)
     if (symbols.length === 0) return word
     return symbolize(word, symbols)
   }
   // CAPITALIZE
-  if (options.caps && modificationShouldApply()) word = capitalize(word)
+  if (wordModifierOptions.caps && modificationShouldApply()) word = capitalize(word)
 
   // ADD PUNCTUATION
-  if (options.punct && modificationShouldApply()) word = punctuate(word)
+  if (wordModifierOptions.punct && modificationShouldApply()) word = punctuate(word)
 
   // ADD SYMBOL
-  if (options.syms && modificationShouldApply()) word = addSymbol(word)
+  if (wordModifierOptions.syms && modificationShouldApply()) word = addSymbol(word)
 
   // ADD NUMBER
-  if (options.nums && modificationShouldApply()) word = addNumber(word)
+  if (wordModifierOptions.nums && modificationShouldApply()) word = addNumber(word)
 
   // ADD PROGRAMMING SYMBOL
-  if (options.prog && modificationShouldApply()) word = addProgrammingSymbol(word)
+  if (wordModifierOptions.prog && modificationShouldApply()) word = addProgrammingSymbol(word)
 
   return word
 }

@@ -284,9 +284,11 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   setTrainingMode(mode: TrainingMode): void {
-    const options = this.newStringOptionsBasedOnMode(mode)
-    const generator = this.newGeneratorBasedOnMode(mode, options)
-    this.setState({ modeSelectShow: false, trainingMode: mode }, () => this.prepareNewSession())
+    const newStringOptions = this.newStringOptionsBasedOnMode(mode)
+    const newSettings = this.state.settings
+    newSettings.stringOptions = newStringOptions
+    const newGenerator = this.newGeneratorBasedOnMode(mode)
+    this.setState({ modeSelectShow: false, trainingMode: mode, generator: newGenerator, settings: newSettings }, () => this.prepareNewSession())
   }
 
   setSettingsModalShow(value: boolean): void {
@@ -312,14 +314,13 @@ export class TypeTrainer extends React.Component<{}, State> {
     return options
   }
 
-  newGeneratorBasedOnMode(mode: TrainingMode, options: StringOptions): TrainingStringGenerator {
+  newGeneratorBasedOnMode(mode: TrainingMode): TrainingStringGenerator {
     let generator: TrainingStringGenerator
     switch (mode) {
       case TrainingMode.Guided:
         generator = new GuidedModeStringGenerator(dict)
         break
       case TrainingMode.Practice:
-        options = options as PracticeModeStringOptions
         generator = new PracticeModeStringGenerator()
         break
       case TrainingMode.Code:
@@ -411,7 +412,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     switch (trainingMode) {
       case TrainingMode.Guided:
         const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions as GuidedModeStringOptions
-        words = this.guidedCourseWords()
+        words = this.guidedModeText()
         const modifiedWords = words.map((word) =>
           modifyWord(
             word,
@@ -426,11 +427,11 @@ export class TypeTrainer extends React.Component<{}, State> {
         break
       case TrainingMode.Practice:
         words = [""]
-        string = this.practiceText()
+        string = this.practiceModeText()
         break
       case TrainingMode.Code:
         words = [""]
-        string = this.codeTextSample()
+        string = this.codeModeText()
         break
       default:
         words = [""]
@@ -453,8 +454,8 @@ export class TypeTrainer extends React.Component<{}, State> {
     return this.state.settings.course.levels[this.state.courseLevelIndex]
   }
 
-  private guidedCourseWords(): string[] {
-    const words = this.props.generator.generate(
+  private guidedModeText(): string[] {
+    const words = this.state.generator.generate(
       this.state.settings.stringOptions as GuidedModeStringOptions,
       CharSet.uniqueChars(
         this.state.settings.layout.charSet.subSet({
@@ -467,13 +468,13 @@ export class TypeTrainer extends React.Component<{}, State> {
     return words
   }
 
-  private practiceText(): string {
+  private practiceModeText(): string {
     const options = this.state.settings.stringOptions as PracticeModeStringOptions
     const string = "Placeholder example sentence." // TODO: get training string from practice text
     return words
   }
 
-  private codeTextSample(): string {
+  private codeModeText(): string {
     const words = "const Placeholder = example(code).toBe('displayed')" // TODO: get training string from code type of choice
     return words
   }
