@@ -1,7 +1,15 @@
 import React from "react"
 import { Form, FormCheck, FormControl, FormLabel } from "react-bootstrap"
 import styled from "styled-components"
-import { CodeModeStringOptions, defaultGuidedModeStringOptions, GuidedModeStringOptions, PracticeModeStringOptions, StringOptions, WordModifierOptions } from "../TypeTrainer"
+import {
+  CodeModeStringOptions,
+  defaultGuidedModeStringOptions,
+  GuidedModeStringOptions,
+  PracticeModeStringOptions,
+  StringOptions,
+  TrainingMode,
+  WordModifierOptions,
+} from "../../TypeTrainer"
 // import Range from './Range.tsx'
 
 const StyledFormCheck = styled(FormCheck)`
@@ -17,6 +25,7 @@ const labels: { [key: string]: string } = {
   spaces: "␣​",
 }
 export default function StringOptionsForm(props: {
+  mode: TrainingMode
   stringOptions: StringOptions
   updateFn: (updatedOptions: StringOptions) => void
 }): JSX.Element {
@@ -49,61 +58,67 @@ export default function StringOptionsForm(props: {
     props.updateFn(options)
   }
   let jsx: JSX.Element
-  if (isGuideModeStringOptions(props.stringOptions)) {
-    const stringOptions = props.stringOptions as GuidedModeStringOptions
-    jsx = (
-      <Form inline>
-        <StyledFormCheck
-          key={"cb-letters"}
-          type="checkbox"
-          label={labels.letters}
-          inline
-          name={"letters"}
-          checked={stringOptions.letters}
-          onClick={handleClick}
-        ></StyledFormCheck>
-        <StyledFormCheck
-          key={"cb-spaces"}
-          type="checkbox"
-          label={labels.spaces}
-          inline
-          name={"spaces"}
-          checked={stringOptions.spaces}
-          onClick={handleClick}
-        ></StyledFormCheck>
-        {Object.keys(stringOptions.wordModifierOptions).map((wordModifierOption: string, index: number) => (
+  switch (props.mode) {
+    case TrainingMode.Guided:
+      const stringOptions = props.stringOptions as GuidedModeStringOptions
+      jsx = (
+        <Form inline>
           <StyledFormCheck
-            key={"cb-" + index}
+            key={"cb-letters"}
             type="checkbox"
-            label={labels[wordModifierOption]}
+            label={labels.letters}
             inline
-            name={wordModifierOption}
-            checked={stringOptions.wordModifierOptions[wordModifierOption as keyof WordModifierOptions]}
+            name={"letters"}
+            checked={stringOptions.letters}
             onClick={handleClick}
           ></StyledFormCheck>
-        ))}
-        <FormLabel htmlFor="wordsPerStringSelector">Words per sentence: </FormLabel>
-        <FormControl
-          id="wordsPerStringSelector"
-          key="wps-select"
-          type="number"
-          size="sm"
-          name="wordsPerString"
-          style={{ width: "4rem", fontFamily: "'Courier New', Courier, monospace" }}
-          defaultValue={stringOptions.wordsPerString}
-          onChange={handleChange}
-        ></FormControl>
+          <StyledFormCheck
+            key={"cb-spaces"}
+            type="checkbox"
+            label={labels.spaces}
+            inline
+            name={"spaces"}
+            checked={stringOptions.spaces}
+            onClick={handleClick}
+          ></StyledFormCheck>
+          {Object.keys(stringOptions.wordModifierOptions).map((wordModifierOption: string, index: number) => (
+            <StyledFormCheck
+              key={"cb-" + index}
+              type="checkbox"
+              label={labels[wordModifierOption]}
+              inline
+              name={wordModifierOption}
+              checked={stringOptions.wordModifierOptions[wordModifierOption as keyof WordModifierOptions]}
+              onClick={handleClick}
+            ></StyledFormCheck>
+          ))}
+          <FormLabel htmlFor="wordsPerStringSelector">Words per sentence: </FormLabel>
+          <FormControl
+            id="wordsPerStringSelector"
+            key="wps-select"
+            type="number"
+            size="sm"
+            name="wordsPerString"
+            style={{ width: "4rem", fontFamily: "'Courier New', Courier, monospace" }}
+            defaultValue={stringOptions.wordsPerString}
+            onChange={handleChange}
+          ></FormControl>
 
-        {/* <FormLabel htmlFor="wordLengthRangeSelector">Word length: </FormLabel>
+          {/* <FormLabel htmlFor="wordLengthRangeSelector">Word length: </FormLabel>
         <Range></Range> */}
-      </Form>
-    ) 
-  } else if (isPracticeModeStringOptions(props.stringOptions)) {
-    jsx = (<></>) // TODO
-  } else if (isCodeModeStringOptions(props.stringOptions)) {
-    jsx = (<></>) // TODO
+        </Form>
+      )
+      break
+    case TrainingMode.Practice:
+      jsx = <></> // TODO
+      break
+    case TrainingMode.Code:
+      jsx = <></> // TODO
+      break
+    default:
+      jsx = <></>
   }
-    return jsx
+  return jsx
 }
 
 function isGuideModeStringOptions(options: any): options is GuidedModeStringOptions {

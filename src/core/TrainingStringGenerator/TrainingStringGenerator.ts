@@ -20,36 +20,6 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
   }
 }
 
-/*
-const { wordModifierOptions, modifyingLikelihood, spaces } = this.state.settings.stringOptions as GuidedModeStringOptions
-        words = this.guidedModeText()
-        const modifiedWords = words.map((word) =>
-          modifyWord(
-            word,
-            wordModifierOptions,
-            charSet.subSet({
-              trainingLevel: this.getCurrentLevel(),
-            }),
-            modifyingLikelihood
-          )
-        )
-        string = modifiedWords.join(spaces ? " " : "")
-
-  
-  private guidedModeText(): { words: string[], string: string } {
-    const words = this.state.generator.generate(
-      this.state.settings.stringOptions as GuidedModeStringOptions,
-      CharSet.uniqueChars(
-        this.state.settings.layout.charSet.subSet({
-          trainingLevel: this.getCurrentLevel(),
-          type: CharacterType.LOWERCASE_LETTER,
-        })
-      )
-    )
-
-    return { words, string }
-  }
-*/
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
@@ -164,11 +134,3 @@ export class CodeModeStringGenerator {
     return string
   }
 }
-/* 
-export class GuidedCourseTrainingStringGenerator implements TrainingStringGenerator {
-  constructor(private charSet: CharacterSet) {}
-  generate(options:SessionOptions) {
-    let str = ""
-    return str
-  }
-} */

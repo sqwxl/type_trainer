@@ -127,7 +127,7 @@ const defaultSettings: Settings = {
   UI: { theme: themes.dark, fontSize: 1 },
   layout: new LayoutUtil(enUsQwerty),
   course: Courses.guidedCourse,
-  stringOptions: { mode: TrainingMode.Guided, options: defaultGuidedModeStringOptions }
+  stringOptions: defaultPracticeModeStringOptions
 }
 
 interface State {
@@ -137,7 +137,6 @@ interface State {
   generator: TrainingStringGenerator
   pressed: Set<string>
   machineState: MachineState
-  trainingWords: string[]
   trainingString: string
   cursor: number
   mistakeCharIndexes: Set<number>
@@ -161,7 +160,6 @@ export const defaultState: State = {
   settingsModalShow: false,
   trainingMode: TrainingMode.Practice,
   generator: defaultGenerator,
-  trainingWords: [],
   trainingString: "",
   cursor: 0,
   mistakeCharIndexes: new Set(),
@@ -495,6 +493,7 @@ export class TypeTrainer extends React.Component<{}, State> {
         <SettingsModal
           show={this.state.settingsModalShow}
           onHide={() => this.setSettingsModalShow(false)}
+          mode={this.state.trainingMode}
           trainingStringOptions={this.state.settings.stringOptions}
           updateFn={(updatedOptions: StringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
         ></SettingsModal>
