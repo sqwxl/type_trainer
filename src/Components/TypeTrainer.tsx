@@ -42,6 +42,10 @@ const FontSizes: { [key: number]: string } = {
   2: "2rem",
 }
 
+export interface StringOptions {
+
+}
+
 export interface WordModifierOptions {
   caps: boolean
   punct: boolean
@@ -58,7 +62,7 @@ export const defaultWordModifierOptions: WordModifierOptions = {
   prog: false,
 }
 
-export interface GuidedModeStringOptions {
+export interface GuidedModeStringOptions extends StringOptions {
   wordLength: { minLength: number; maxLength: number }
   letters: boolean
   spaces: boolean
@@ -76,7 +80,7 @@ export const defaultGuidedModeStringOptions: GuidedModeStringOptions = {
   wordsPerString: 6,
 }
 
-export interface PracticeModeStringOptions {
+export interface PracticeModeStringOptions extends StringOptions {
   source: string
   fullSentences: boolean
   wordsPerString: number
@@ -98,7 +102,7 @@ export enum CodingLanguage {
   'Python' = 'Python'
 }
 
-export interface CodeModeStringOptions {
+export interface CodeModeStringOptions extends StringOptions {
   language: CodingLanguage
   lines: number
 }
@@ -108,7 +112,6 @@ export const defaultCodeModeStringOptions = {
   lines: 6
 }
 
-export type StringOptions = GuidedModeStringOptions | PracticeModeStringOptions | CodeModeStringOptions
 
 interface Settings {
   layout: LayoutUtil
@@ -124,7 +127,7 @@ const defaultSettings: Settings = {
   UI: { theme: themes.dark, fontSize: 1 },
   layout: new LayoutUtil(enUsQwerty),
   course: Courses.guidedCourse,
-  stringOptions: defaultGuidedModeStringOptions,
+  stringOptions: { mode: TrainingMode.Guided, options: defaultGuidedModeStringOptions }
 }
 
 interface State {
@@ -299,7 +302,7 @@ export class TypeTrainer extends React.Component<{}, State> {
         options = defaultPracticeModeStringOptions
         break
       case TrainingMode.Code:
-        options = defaultCodeModeStringOptions    
+        options = defaultCodeModeStringOptions
         break
     }
     return options
@@ -457,11 +460,22 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ settings: settings })
   }
 
-  changeTrainingStringOptions(trainingStringOptions: GuidedModeStringOptions): void {
-    const options = { ...trainingStringOptions }
-    if (!options.letters) options.wordModifierOptions.caps = false
+  changeTrainingStringOptions(trainingStringOptions: StringOptions): void {
+    let stringOptions
+    switch (this.state.trainingMode) {
+      case TrainingMode.Guided:
+        stringOptions = { ...trainingStringOptions } as GuidedModeStringOptions
+        if (stringOptions.letters != null && !stringOptions.letters) stringOptions.wordModifierOptions.caps = false
+        break
+      case TrainingMode.Practice:
+        stringOptions = { ...trainingStringOptions } as PracticeModeStringGenerator
+        break
+      case TrainingMode.Code:
+        stringOptions = { ...trainingStringOptions } as CodeModeStringGenerator
+        break
+    }
     const settings = { ...this.state.settings }
-    settings.stringOptions = options
+    settings.stringOptions = stringOptions
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
@@ -482,7 +496,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           show={this.state.settingsModalShow}
           onHide={() => this.setSettingsModalShow(false)}
           trainingStringOptions={this.state.settings.stringOptions}
-          updateFn={(updatedOptions: GuidedModeStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+          updateFn={(updatedOptions: StringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
         ></SettingsModal>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
