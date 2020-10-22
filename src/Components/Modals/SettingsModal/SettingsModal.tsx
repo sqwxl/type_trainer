@@ -1,13 +1,13 @@
 import React from "react"
 import { Button, Modal } from "react-bootstrap"
 import StringOptionsForm from "../../Toolbar/StringOptionsForm"
-import { GuidedModeStringOptions } from "../../TypeTrainer"
+import { GuidedModeStringOptions, StringOptions } from "../../TypeTrainer"
 
 export default function SettingsModal(props: {
   onHide: () => void
   show: boolean
-  trainingStringOptions: GuidedModeStringOptions
-  updateFn: (updatedOptions: GuidedModeStringOptions) => void
+  trainingStringOptions: StringOptions
+  updateFn: (updatedOptions: StringOptions) => void
 }): JSX.Element {
   return (
     <Modal {...props} size="lg" aria-labelledby="contained-modal-title-vcenter" centered>
@@ -18,7 +18,7 @@ export default function SettingsModal(props: {
         <StringOptionsForm
           key={"optionsForm"}
           stringOptions={props.trainingStringOptions}
-          updateFn={(updatedOptions: GuidedModeStringOptions): void => props.updateFn(updatedOptions)}
+          updateFn={(updatedOptions: StringOptions): void => props.updateFn(updatedOptions)}
         />
       </Modal.Body>
       <Modal.Footer>

@@ -3,7 +3,7 @@ import { GuidedModeStringGenerator } from "./TrainingStringGenerator"
 import {dict as english}  from "../../assets/Dictionaries/english.json"
 import { GuidedModeStringOptions } from "../../Components/TypeTrainer"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
-import Courses, { CourseLevel } from "../Courses"
+import Courses, { CourseLevel } from "../../assets/Courses/Courses"
 import enUsQwerty from "../../assets/Layouts/en_US"
 
 const layout = new LayoutUtil(enUsQwerty)

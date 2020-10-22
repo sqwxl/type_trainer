@@ -1,9 +1,9 @@
 import React from "react"
 import Keyboard from "./Keyboard"
 import { render, screen } from "../../utils/test-utils"
-import LayoutUtil, { CharSet } from "../../utils/LayoutUtil"
+import LayoutUtil, { CharSet } from "../../core/LayoutUtil"
 import enUsQwerty from "../../assets/Layouts/en_US"
-import Courses from "../../utils/Courses"
+import Courses from "../../assets/Courses/Courses"
 
 const layout = new LayoutUtil(enUsQwerty)
 const course = Courses.guidedCourse

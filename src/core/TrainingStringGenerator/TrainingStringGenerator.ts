@@ -5,9 +5,9 @@ import {
   StringOptions,
 } from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
-import { modifyWord } from "../modifyWord/modifyWord"
+import { modifyWord } from "./modifyWord/modifyWord"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
-import { CourseLevel } from "../Courses"
+import { CourseLevel } from "../../assets/Courses/Courses"
 
 export interface TrainingStringGenerator {
   generate(options: StringOptions, layout?: LayoutUtil, lvl?: CourseLevel): string
@@ -158,7 +158,6 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
 }
 
 export class CodeModeStringGenerator {
-  constructor() {}
   generate(options: CodeModeStringOptions) {
     let string = "todo"
 

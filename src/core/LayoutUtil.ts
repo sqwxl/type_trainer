@@ -1,5 +1,5 @@
 import * as PhysicalKB from "./PhysicalKeyboard"
-import { CourseLevel } from "./Courses"
+import { CourseLevel } from "../assets/Courses/Courses"
 
 // Standard KeyboardEvent codes
 export type KeyCode =

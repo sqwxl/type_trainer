@@ -1,7 +1,7 @@
 import React from "react"
 import { Form, FormCheck, FormControl, FormLabel } from "react-bootstrap"
 import styled from "styled-components"
-import { defaultGuidedModeStringOptions, GuidedModeStringOptions, WordModifierOptions } from "../TypeTrainer"
+import { CodeModeStringOptions, defaultGuidedModeStringOptions, GuidedModeStringOptions, PracticeModeStringOptions, StringOptions, WordModifierOptions } from "../TypeTrainer"
 // import Range from './Range.tsx'
 
 const StyledFormCheck = styled(FormCheck)`
@@ -17,7 +17,7 @@ const labels: { [key: string]: string } = {
   spaces: "␣​",
 }
 export default function StringOptionsForm(props: {
-  stringOptions: GuidedModeStringOptions
+  stringOptions: StringOptions
   updateFn: (updatedOptions: StringOptions) => void
 }): JSX.Element {
   function setOption(object: any, property: any, value: string | number | boolean): void {
@@ -48,8 +48,10 @@ export default function StringOptionsForm(props: {
     setOption(options, target.name, target.checked)
     props.updateFn(options)
   }
+  let jsx: JSX.Element
   if (isGuideModeStringOptions(props.stringOptions)) {
-    return (
+    const stringOptions = props.stringOptions as GuidedModeStringOptions
+    jsx = (
       <Form inline>
         <StyledFormCheck
           key={"cb-letters"}
@@ -57,7 +59,7 @@ export default function StringOptionsForm(props: {
           label={labels.letters}
           inline
           name={"letters"}
-          checked={props.stringOptions.letters}
+          checked={stringOptions.letters}
           onClick={handleClick}
         ></StyledFormCheck>
         <StyledFormCheck
@@ -66,17 +68,17 @@ export default function StringOptionsForm(props: {
           label={labels.spaces}
           inline
           name={"spaces"}
-          checked={props.stringOptions.spaces}
+          checked={stringOptions.spaces}
           onClick={handleClick}
         ></StyledFormCheck>
-        {Object.keys(props.stringOptions.wordModifierOptions).map((wordModifierOption: string, index: number) => (
+        {Object.keys(stringOptions.wordModifierOptions).map((wordModifierOption: string, index: number) => (
           <StyledFormCheck
             key={"cb-" + index}
             type="checkbox"
             label={labels[wordModifierOption]}
             inline
             name={wordModifierOption}
-            checked={props.stringOptions.wordModifierOptions[wordModifierOption as keyof WordModifierOptions]}
+            checked={stringOptions.wordModifierOptions[wordModifierOption as keyof WordModifierOptions]}
             onClick={handleClick}
           ></StyledFormCheck>
         ))}
@@ -88,15 +90,20 @@ export default function StringOptionsForm(props: {
           size="sm"
           name="wordsPerString"
           style={{ width: "4rem", fontFamily: "'Courier New', Courier, monospace" }}
-          defaultValue={props.stringOptions.wordsPerString}
+          defaultValue={stringOptions.wordsPerString}
           onChange={handleChange}
         ></FormControl>
 
         {/* <FormLabel htmlFor="wordLengthRangeSelector">Word length: </FormLabel>
         <Range></Range> */}
       </Form>
-    )
+    ) 
+  } else if (isPracticeModeStringOptions(props.stringOptions)) {
+    jsx = (<></>) // TODO
+  } else if (isCodeModeStringOptions(props.stringOptions)) {
+    jsx = (<></>) // TODO
   }
+    return jsx
 }
 
 function isGuideModeStringOptions(options: any): options is GuidedModeStringOptions {

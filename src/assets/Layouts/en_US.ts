@@ -1,4 +1,4 @@
-import { KeyLabels, CharacterSet, CharacterType, CharacterBehavior, Layout } from "../../utils/LayoutUtil"
+import { KeyLabels, CharacterSet, CharacterType, CharacterBehavior, Layout } from "../../core/LayoutUtil"
 
 const qwertyKeyLabels: KeyLabels = {
   NONE: { main: "" },

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import LayoutUtil, { CharSet } from "./LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
-import Courses from "./Courses"
+import Courses from "../assets/Courses/Courses"
 
 const layout = new LayoutUtil(enUsQwerty)
 

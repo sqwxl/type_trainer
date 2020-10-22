@@ -1,6 +1,6 @@
-import enUsQwerty from "../../assets/Layouts/en_US"
-import { GuidedModeStringOptions, WordModifierOptions } from "../../Components/TypeTrainer"
-import { CharacterSet, CharacterBehavior, CharacterType } from "../LayoutUtil"
+import enUsQwerty from "../../../assets/Layouts/en_US"
+import { GuidedModeStringOptions, WordModifierOptions } from "../../../Components/TypeTrainer"
+import { CharacterSet, CharacterBehavior, CharacterType } from "../../LayoutUtil"
 
 function isVowel(char: string, vowels: string[] = enUsQwerty.vowels): boolean {
   return vowels.includes(char)

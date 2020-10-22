@@ -1,6 +1,6 @@
-import enUsQwerty from "../../assets/Layouts/en_US"
-import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
-import {defaultWordModifierOptions} from '../../Components/TypeTrainer'
+import enUsQwerty from "../../../assets/Layouts/en_US"
+import LayoutUtil, { CharacterType, CharSet } from "../../LayoutUtil"
+import {defaultWordModifierOptions} from '../../../Components/TypeTrainer'
 import { modifyWord } from "./modifyWord"
 
 const layout = new LayoutUtil(enUsQwerty)

@@ -6,31 +6,22 @@ import Toolbar from "./Toolbar/Toolbar"
 import { Container } from "react-bootstrap"
 import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
-
 import FontSizeToggle from "./Toolbar/FontSizeSelet"
-import { isChar, Timer } from "../utils/utils"
+import { isChar } from "../utils/isChar"
+import { Timer } from "../utils/Timer"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import Courses, { Course, CourseLevel } from "../utils/Courses"
-import { CodeModeStringGenerator, GuidedModeStringGenerator, PracticeModeStringGenerator, TrainingStringGenerator } from "../utils/TrainingStringGenerator/TrainingStringGenerator"
-import LayoutUtil, { CharacterType, CharSet } from "../utils/LayoutUtil"
+import Courses, { Course, CourseLevel } from "../assets/Courses/Courses"
+import { CodeModeStringGenerator, GuidedModeStringGenerator, PracticeModeStringGenerator, TrainingStringGenerator } from "../core/TrainingStringGenerator/TrainingStringGenerator"
+import LayoutUtil, { CharSet } from "../core/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
-import { modifyWord } from "../utils/modifyWord/modifyWord"
 import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
 import text from '../assets/Texts/state_and_revolution'
 import { dict } from '../assets/Dictionaries/english.json'
 
-const stateRev = text
-
-/*
-TODO:
- 3 main options:
-  - Guided course: for complete beginners
-  - Custom text practice: for users who just want to practice
-  - Code: for programmers
- */
+const stateRev = text // TODO: Make generic
 
 enum MachineState {
   Loaded = "LOADED",
@@ -475,17 +466,6 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   render(): JSX.Element {
-    let UI: JSX.Element
-    switch (this.state.trainingMode) {
-      case TrainingMode.Guided:
-        break
-      case TrainingMode.Practice:
-        break
-      case TrainingMode.Code:
-        break
-      default:
-        break
-    }
     return (
       <ThemeContext.Provider
         value={{

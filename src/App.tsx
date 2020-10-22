@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { TypeTrainer } from './Components/TypeTrainer';
-import { GuidedModeStringGenerator } from './utils/TrainingStringGenerator/TrainingStringGenerator';
+import { GuidedModeStringGenerator } from './core/TrainingStringGenerator/TrainingStringGenerator';
 import { dict } from './assets/Dictionaries/english.json'
 
 // let dict

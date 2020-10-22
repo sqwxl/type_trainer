@@ -1,6 +1,6 @@
 import "./Keyboard.css"
 import React from "react"
-import { KeyCode, KeyLabel, VisualKB } from "../../utils/LayoutUtil"
+import { KeyCode, KeyLabel, VisualKB } from "../../core/LayoutUtil"
 
 
 
