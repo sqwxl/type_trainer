@@ -89,6 +89,7 @@ const qwertyCharSet: CharacterSet = [
   { code: ["KeyX"], glyph: "x", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
   { code: ["KeyY"], glyph: "y", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
   { code: ["KeyZ"], glyph: "z", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
+  { code: ["Enter"], glyph: '\n', type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.SEQUENTIAL },
 
   // DIGITS
   { code: ["Digit0"], glyph: "0", type: CharacterType.NUMBER, behavior: CharacterBehavior.SEQUENTIAL },

@@ -1,9 +1,9 @@
 
 export function Timer() {
   let paused: boolean;
-  let startMark: number;
+  let startMark: number = Date.now();
   let pauseMark: number;
-  let pausedLength: number;
+  let pausedLength: number = 0;
   return {
     start: () => {
       startMark = Date.now();

@@ -5,7 +5,7 @@ import {
   StringOptions,
 } from "../../Components/TypeTrainer"
 import MarkovChain from "./MarkovChain"
-import { modifyWord } from "./modifyWord/modifyWord"
+import { wordModifier } from "./wordModifier/wordModifier"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
 import { CourseLevel } from "../../assets/Courses/Courses"
 
@@ -28,11 +28,9 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
       layout.charSet.subSet({ trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER })
     )
     function modifyWords(words: string[]): string[] {
-      return words.map((word) => modifyWord(word, options, layout.charSet.subSet({ trainingLevel: lvl })))
+      return words.map((word) => wordModifier(word, options, layout.charSet.subSet({ trainingLevel: lvl })))
     }
-    const nullSumOptions = !options.letters && Object.values(options.wordModifierOptions).every((v) => !v)
-    // Return empty string if all characters options are false
-    if (nullSumOptions) return ""
+    
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
     const chain = this.newMarkovChainRestrictedToLetters(alphabet)
 

@@ -12,14 +12,19 @@ import { Timer } from "../utils/Timer"
 import QuickStats from "./Toolbar/QuickStats"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
 import Courses, { Course, CourseLevel } from "../assets/Courses/Courses"
-import { CodeModeStringGenerator, GuidedModeStringGenerator, PracticeModeStringGenerator, TrainingStringGenerator } from "../core/TrainingStringGenerator/TrainingStringGenerator"
+import {
+  CodeModeStringGenerator,
+  GuidedModeStringGenerator,
+  PracticeModeStringGenerator,
+  TrainingStringGenerator,
+} from "../core/TrainingStringGenerator/TrainingStringGenerator"
 import LayoutUtil, { CharSet } from "../core/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
 import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
-import text from '../assets/Texts/state_and_revolution'
-import { dict } from '../assets/Dictionaries/english.json'
+import text from "../assets/Texts/state_and_revolution"
+import { dict } from "../assets/Dictionaries/english.json"
 
 const stateRev = text // TODO: Make generic
 
@@ -42,9 +47,7 @@ const FontSizes: { [key: number]: string } = {
   2: "2rem",
 }
 
-export interface StringOptions {
-
-}
+export interface StringOptions {}
 
 export interface WordModifierOptions {
   caps: boolean
@@ -64,8 +67,6 @@ export const defaultWordModifierOptions: WordModifierOptions = {
 
 export interface GuidedModeStringOptions extends StringOptions {
   wordLength: { minLength: number; maxLength: number }
-  letters: boolean
-  spaces: boolean
   wordModifierOptions: WordModifierOptions
   modifyingLikelihood: number
   wordsPerString: number
@@ -73,8 +74,6 @@ export interface GuidedModeStringOptions extends StringOptions {
 
 export const defaultGuidedModeStringOptions: GuidedModeStringOptions = {
   wordLength: { minLength: 3, maxLength: 12 },
-  letters: true,
-  spaces: true,
   wordModifierOptions: defaultWordModifierOptions,
   modifyingLikelihood: 0.8,
   wordsPerString: 6,
@@ -86,20 +85,18 @@ export interface PracticeModeStringOptions extends StringOptions {
   wordsPerString: number
 }
 
-
-
 const defaultPracticeModeStringOptions: PracticeModeStringOptions = {
   source: stateRev,
   fullSentences: true,
-  wordsPerString: 6
+  wordsPerString: 6,
 }
 
 export enum CodingLanguage {
-  'JS' = 'JavaScript',
-  'TS' = 'TypeScript',
-  'C' = 'C',
-  'Bash' = 'Bash',
-  'Python' = 'Python'
+  "JS" = "JavaScript",
+  "TS" = "TypeScript",
+  "C" = "C",
+  "Bash" = "Bash",
+  "Python" = "Python",
 }
 
 export interface CodeModeStringOptions extends StringOptions {
@@ -109,9 +106,8 @@ export interface CodeModeStringOptions extends StringOptions {
 
 export const defaultCodeModeStringOptions = {
   language: CodingLanguage.JS,
-  lines: 6
+  lines: 6,
 }
-
 
 interface Settings {
   layout: LayoutUtil
@@ -127,7 +123,7 @@ const defaultSettings: Settings = {
   UI: { theme: themes.dark, fontSize: 1 },
   layout: new LayoutUtil(enUsQwerty),
   course: Courses.guidedCourse,
-  stringOptions: defaultPracticeModeStringOptions
+  stringOptions: defaultPracticeModeStringOptions,
 }
 
 interface State {
@@ -174,7 +170,6 @@ export const defaultState: State = {
   machineState: MachineState.Loaded,
   settings: { ...defaultSettings },
 }
-
 
 const inactivityDelay = 2000 //todo: mettre dans settings
 
@@ -247,7 +242,7 @@ export class TypeTrainer extends React.Component<{}, State> {
       return
     }
     state.pressed.add(event.code)
-
+    console.log('code: ', event.code, 'key: ', event.key)
     // Validate
     if (isChar(event.code)) {
       if (TypeTrainer.isCorrectCharPressed(state, event)) {
@@ -257,6 +252,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           return
         }
       } else {
+        console.log(`${this.state.trainingString[this.state.cursor]}`, this.state.settings.layout.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor]))
         state.mistakeCharIndexes.add(state.cursor)
       }
     }
@@ -280,7 +276,9 @@ export class TypeTrainer extends React.Component<{}, State> {
     const newSettings = this.state.settings
     newSettings.stringOptions = newStringOptions
     const newGenerator = this.newGeneratorBasedOnMode(mode)
-    this.setState({ modeSelectShow: false, trainingMode: mode, generator: newGenerator, settings: newSettings }, () => this.prepareNewSession())
+    this.setState({ modeSelectShow: false, trainingMode: mode, generator: newGenerator, settings: newSettings }, () =>
+      this.prepareNewSession()
+    )
   }
 
   setSettingsModalShow(value: boolean): void {
@@ -463,7 +461,6 @@ export class TypeTrainer extends React.Component<{}, State> {
     switch (this.state.trainingMode) {
       case TrainingMode.Guided:
         stringOptions = { ...trainingStringOptions } as GuidedModeStringOptions
-        if (stringOptions.letters != null && !stringOptions.letters) stringOptions.wordModifierOptions.caps = false
         break
       case TrainingMode.Practice:
         stringOptions = { ...trainingStringOptions } as PracticeModeStringGenerator
@@ -505,13 +502,13 @@ export class TypeTrainer extends React.Component<{}, State> {
                 <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
                   {this.state.trainingMode}
                 </Button>,
-                <div style={{ margin: "0 0.5rem" }}/>,
+                <div style={{ margin: "0 0.5rem" }} />,
                 <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>
                   Settings
                 </Button>,
-                <div style={{ margin: "0 0.5rem" }}/>,
+                <div style={{ margin: "0 0.5rem" }} />,
                 <FontSizeToggle key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
-                <div style={{ margin: "0 0.5rem" }}/>,
+                <div style={{ margin: "0 0.5rem" }} />,
                 <ThemeToggleSwitch key={"themeToggle"} />,
               ]}
             />

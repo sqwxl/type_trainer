@@ -51,7 +51,7 @@ function symbolize(str: string, charSet: CharacterSet): string {
   return symbolized
 }
 
-export function modifyWord (
+export function wordModifier (
   word: string,
   options: GuidedModeStringOptions,
   characterSet: CharacterSet,

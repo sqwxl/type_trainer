@@ -16,6 +16,7 @@ export function isChar(code: string) {
     case "Comma":
     case "Period":
     case "Slash":
+    case 'Enter':
       return true;
     default:
       return false;

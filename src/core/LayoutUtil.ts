@@ -170,7 +170,9 @@ export class CharSet {
   }
 
   keyCodeFromChar(char: string): KeyCode {
-    const charObj = this._charSet.find(charObj => charObj.code.length === 1 && charObj.glyph === char)
+    if (char == null) return 'NONE'
+    const lowerChar = char.toLowerCase()
+    const charObj = this._charSet.find(charObj => charObj.code.length === 1 && charObj.glyph === lowerChar)
     if (charObj != null) return charObj.code[0]
     return "NONE"
   }

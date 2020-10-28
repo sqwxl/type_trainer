@@ -1,7 +1,7 @@
 import enUsQwerty from "../../../assets/Layouts/en_US"
 import LayoutUtil, { CharacterType, CharSet } from "../../LayoutUtil"
 import {defaultWordModifierOptions} from '../../../Components/TypeTrainer'
-import { modifyWord } from "./modifyWord"
+import { wordModifier } from "./wordModifier"
 
 const layout = new LayoutUtil(enUsQwerty)
 const charSet = layout.charSet
@@ -18,24 +18,24 @@ function contains(word: string, charArr: string[]): boolean {
 const options = defaultWordModifierOptions
 it("modifies strings according to options", () => {
   const testWord = "mouse"
-  expect(modifyWord(testWord, options, charSet.charSet, 1)).toEqual(testWord)
+  expect(wordModifier(testWord, options, charSet.charSet, 1)).toEqual(testWord)
   options.caps = true
-  expect(modifyWord(testWord, options, charSet.charSet, 1)).toEqual(
+  expect(wordModifier(testWord, options, charSet.charSet, 1)).toEqual(
     testWord.slice(0, 1).toUpperCase().concat(testWord.slice(1))
   )
   options.caps = false
   options.punct = true
-  let mod = modifyWord(testWord, options, charSet.charSet, 1)
+  let mod = wordModifier(testWord, options, charSet.charSet, 1)
   let moded = contains(mod, punctuationChars)
   expect(moded).toBe(true)
   options.punct = false
   options.nums = true
-  mod = modifyWord(testWord, options, charSet.charSet, 1)
+  mod = wordModifier(testWord, options, charSet.charSet, 1)
   moded = contains(mod, numbersChars)
   expect(moded).toBe(true)
   options.nums = false
   options.syms = true
-  mod = modifyWord(testWord, options, charSet.charSet, 1)
+  mod = wordModifier(testWord, options, charSet.charSet, 1)
   moded = contains(mod, symbolsChars)
   expect(moded).toBe(true)
 })
