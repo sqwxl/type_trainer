@@ -5,12 +5,12 @@ import {
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import LayoutUtil, { CharSet } from "../core/LayoutUtil"
+import LayoutUtil, { CharacterType, CharSet } from "../core/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
 import text from "../assets/Texts/state_and_revolution"
 import formatText from "../utils/formatText"
 
-const stateRev = text // TODO: Make generic
+const stateRev = text // TODO: Make generic lol
 
 export enum MachineState {
   Loaded = "LOADED",
@@ -39,7 +39,7 @@ export enum FormType {
 }
 
 export class UserStringOption {
-  value: boolean | number | string | UserStringOption | UserStringOptions
+  value: boolean | number | string | UserStringOptions
   formLabel: string
   formType: FormType
   min: number
@@ -47,7 +47,7 @@ export class UserStringOption {
   step: number
   values: string[]
   constructor(
-    init: {value: boolean | number | string | UserStringOption | UserStringOptions,
+    init: {value: boolean | number | string | UserStringOptions,
     formLabel: string,
     formType: FormType,
     min?: number,
@@ -64,17 +64,17 @@ export class UserStringOption {
     this.step = step == null ? 1 : step
     this.values = values == null ? [] : values
   }
-  static setOption(option: UserStringOption | UserStringOptions, name: string, value: boolean | number | string | UserStringOption | UserStringOptions): boolean {
-    if (isUserStringOptions(option)) {
-      if (name in option) {
-        option[name].value = value
+  setNestedOption(name: string, value: boolean | number | string | UserStringOptions): boolean {
+    if (isUserStringOptions(this.value)) {
+      if (name in this.value) {
+        this.value[name].value = value
         return true
       } else {
-        Object.values(option).forEach(userStringOption => UserStringOption.setOption(userStringOption, name, value))
+        Object.values(this.value).forEach(userStringOption => userStringOption.setNestedOption(name, value))
       }
     }
     return false
-    function isUserStringOptions(value: UserStringOption | UserStringOptions): value is UserStringOptions {
+    function isUserStringOptions(value: boolean | number | string | UserStringOptions): value is UserStringOptions {
       return value as UserStringOptions !== undefined && Object.values(value as UserStringOptions).some(val => val.value !== undefined || isUserStringOptions(val.value))
     }
   }
@@ -107,7 +107,7 @@ export const defaultGuidedModeStringOptions: UserStringOptions = {
   wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
 }
 export const defaultLayout = new LayoutUtil(enUsQwerty)
-export const formattedSource = formatText(stateRev, CharSet.uniqueChars(defaultLayout.charSet.charSet))
+export const formattedSource = formatText(stateRev, CharSet.uniqueChars(defaultLayout.charSet.subSet({ invert: true, type: CharacterType.PROGRAMMING})))
 
 export const defaultPracticeModeStringOptions: UserStringOptions = {
   sourceText: new UserStringOption({ value: formattedSource, formLabel: "Source text", formType: FormType.Text}),

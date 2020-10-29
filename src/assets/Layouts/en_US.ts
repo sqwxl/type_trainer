@@ -127,11 +127,20 @@ const qwertyCharSet: CharacterSet = [
   { code: ["Digit3"], glyph: "#", type: CharacterType.SYMBOL, behavior: CharacterBehavior.PREPEND },
   { code: ["Digit4"], glyph: "$", type: CharacterType.SYMBOL, behavior: CharacterBehavior.APPEND },
   { code: ["Digit5"], glyph: "%", type: CharacterType.SYMBOL, behavior: CharacterBehavior.APPEND },
+  { code: ["Digit6"], glyph: "^", type: CharacterType.SYMBOL, behavior: CharacterBehavior.OPERATOR },
   { code: ["Digit7"], glyph: "&", type: CharacterType.SYMBOL, behavior: CharacterBehavior.OPERATOR },
   { code: ["Digit8"], glyph: "*", type: CharacterType.SYMBOL, behavior: CharacterBehavior.APPEND },
   { code: ["Slash"], glyph: "/", type: CharacterType.SYMBOL, behavior: CharacterBehavior.SPLIT },
   { code: ["Backquote"], glyph: "~", type: CharacterType.SYMBOL, behavior: CharacterBehavior.PREPEND },
-  
+  { code: ["Backquote"], glyph: "`", type: CharacterType.SYMBOL, behavior: CharacterBehavior.BRACKET },
+  { code: ["Backslash"], glyph: "\\", type: CharacterType.SYMBOL, behavior: CharacterBehavior.PREPEND },
+  { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: CharacterType.SYMBOL, behavior: CharacterBehavior.BRACKET },
+  { code: ["BracketLeft", "BracketRight"], glyph: "{", bracketPair: "}", type: CharacterType.SYMBOL, behavior: CharacterBehavior.BRACKET },
+  { code: ["Comma", "Period"], glyph: "<", bracketPair: ">", type: CharacterType.SYMBOL, behavior: CharacterBehavior.BRACKET },
+  { code: ["Minus"], glyph: "_", type: CharacterType.SYMBOL, behavior: CharacterBehavior.SPLIT },
+  { code: ["Equal"], glyph: "=", type: CharacterType.SYMBOL, behavior: CharacterBehavior.OPERATOR },
+  { code: ["Equal"], glyph: "+", type: CharacterType.SYMBOL, behavior: CharacterBehavior.OPERATOR },
+
   /// PROGRAMMING CHARACTERS
   { code: ["Backquote"], glyph: "`", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
   { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },

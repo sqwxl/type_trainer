@@ -15,6 +15,42 @@ function contains(word: string, charArr: string[]): boolean {
   return false
 }
 
+type IWordModifier2 = (str: string) => string
+
+export interface IWordModifier {
+    process(word: string): string;
+}
+
+class MinLengthWordModifier implements IWordModifier{
+  process(word: string): string{  
+    return ""
+  }
+}
+
+class CapsWordModifier implements IWordModifier  {
+  constructor(private enabled: boolean){
+
+  }
+  process(word: string): string{
+    if (!this.enabled){
+      return word;
+    }
+    return ""
+  }
+}
+
+class WordProcessor {
+  private wordModifiers : IWordModifier[] = []
+  process(word: string): string{
+    for (const wordMod of this.wordModifiers) {
+      word = wordMod.process(word)
+    }
+    return word
+  }
+}
+
+
+
 const options = {
   wordLength: new UserStringOption({value:
     {
@@ -37,26 +73,55 @@ const options = {
   modifyingLikelihood: new UserStringOption({ value: 1, formLabel: "% modified", formType: FormType.Number, min: 0, max: 1, step: 0.1 }),
   wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
 }
+
+const NOOP_OPTIONS = {
+  wordModifierOptions: new UserStringOption({value:
+    {
+      caps: new UserStringOption({ value: false, formLabel: "Aa", formType: FormType.Switch }),
+      punct: new UserStringOption({ value: false, formLabel:  "Punctuation", formType: FormType.Switch}),
+      syms: new UserStringOption({  value: false, formLabel: "Symbols", formType:  FormType.Switch }),
+      nums: new UserStringOption({ value: false, formLabel: "0-9", formType: FormType.Switch}),
+    },
+    formLabel: "Options",
+    formType: FormType.Parent},
+  ),
+  modifyingLikelihood: new UserStringOption({ value: 1, formLabel: "% modified", formType: FormType.Number, min: 0, max: 1, step: 0.1 }),
+}
+
+
+describe("CapsWordModifier", ()=>{
+  it("should keep the string as is if not enabled", () => {
+    const wm = new CapsWordModifier(false)
+    expect(wm.process("Word"))
+  })
+})
+
+it("should not change the input string if ...", ( ) => {
+  expect(wordModifier("mouse", NOOP_OPTIONS, charSet.charSet)).toEqual("mouse")
+})
+
+
+
 it("modifies strings according to options", () => {
   const testWord = "mouse"
   expect(wordModifier(testWord, options, charSet.charSet)).toEqual(testWord)
 
-  console.log(UserStringOption.setOption(options.wordModifierOptions, 'caps', true))
+  console.log(options.wordModifierOptions.setNestedOption('caps', true))
   expect(wordModifier(testWord, options, charSet.charSet)).toEqual(
     testWord.slice(0, 1).toUpperCase().concat(testWord.slice(1))
   )
-  options.wordModifierOptions.value.caps.value = false
-  options.wordModifierOptions.value.punct.value = true
+  options.wordModifierOptions.setNestedOption('caps', false)
+  options.wordModifierOptions.setNestedOption('punct', true)
   let mod = wordModifier(testWord, options, charSet.charSet)
   let moded = contains(mod, punctuationChars)
   expect(moded).toBe(true)
-  options.punct.value = false
-  options.nums.value = true
+  options.wordModifierOptions.setNestedOption('punct', false)
+  options.wordModifierOptions.setNestedOption('nums', true)
   mod = wordModifier(testWord, options, charSet.charSet)
   moded = contains(mod, numbersChars)
   expect(moded).toBe(true)
-  options.nums.value = false
-  options.syms.value = true
+  options.wordModifierOptions.setNestedOption('nums', false)
+  options.wordModifierOptions.setNestedOption('syms', true)
   mod = wordModifier(testWord, options, charSet.charSet)
   moded = contains(mod, symbolsChars)
   expect(moded).toBe(true)

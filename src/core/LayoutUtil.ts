@@ -151,7 +151,7 @@ export class CharSet {
 
   static uniqueChars(charSet: CharacterSet): string[] {
     return charSet.reduce((chars: string[], { glyph, bracketPair }) => {
-      if (chars.includes(glyph)) return chars
+      if (chars.includes(glyph) || glyph.length > 1) return chars
       chars = chars.concat(glyph)
       if (bracketPair == null || chars.includes(bracketPair)) return chars
       return chars.concat(bracketPair)
@@ -177,17 +177,22 @@ export class CharSet {
     return "NONE"
   }
 
-  subSet(options?: { trainingLevel?: CourseLevel; type?: CharacterType }): CharacterSet {
+  subSet(options?: { trainingLevel?: CourseLevel; type?: CharacterType | CharacterType[], invert?: boolean }): CharacterSet {
     let subSet = this._charSet
     if (!options) return subSet
     if (options.trainingLevel != null) {
       subSet = this.charSetAtCourseLevel(options.trainingLevel)
     }
     if (options.type != null) {
-      subSet = subSet.filter(char => char.type === options.type)
+      if (options.type instanceof Array) {
+        subSet = subSet.filter(char => options.invert ? (options.type as CharacterType[]).every(type => type !== char.type) : char.type === options.type)
+      } else {
+        subSet = subSet.filter(char => options.invert ? char.type !== options.type : char.type === options.type)
+      }
     }
     return subSet
   }
+
 
 charSetAtCourseLevel(courseLevel: CourseLevel): CharacterSet {
     let filteredSet: CharacterSet = [...this._charSet]
