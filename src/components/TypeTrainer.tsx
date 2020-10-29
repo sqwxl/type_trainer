@@ -10,168 +10,30 @@ import FontSizeToggle from "./Toolbar/FontSizeSelet"
 import { isChar } from "../utils/isChar"
 import { Timer } from "../utils/Timer"
 import QuickStats from "./Toolbar/QuickStats"
-import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import Courses, { Course, CourseLevel } from "../assets/Courses/Courses"
+import { CourseLevel } from "../assets/Courses/Courses"
 import {
   CodeModeStringGenerator,
   GuidedModeStringGenerator,
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import LayoutUtil, { CharSet } from "../core/LayoutUtil"
-import enUsQwerty from "../assets/Layouts/en_US"
+import { CharSet } from "../core/LayoutUtil"
 import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
-import text from "../assets/Texts/state_and_revolution"
 import { dict } from "../assets/Dictionaries/english.json"
-
-const stateRev = text // TODO: Make generic
-
-enum MachineState {
-  Loaded = "LOADED",
-  SessionReady = "READY",
-  Paused = "PAUSED",
-  Training = "TRAINING",
-}
-
-export enum TrainingMode {
-  Guided = "Guided Mode",
-  Practice = "Practice Mode",
-  Code = "Code Mode",
-}
-
-const FontSizes: { [key: number]: string } = {
-  0: "1rem",
-  1: "1.5rem",
-  2: "2rem",
-}
-
-export interface StringOptions {}
-
-export interface WordModifierOptions {
-  caps: boolean
-  punct: boolean
-  syms: boolean
-  nums: boolean
-  prog: boolean
-}
-
-export const defaultWordModifierOptions: WordModifierOptions = {
-  caps: false,
-  punct: false,
-  syms: false,
-  nums: false,
-  prog: false,
-}
-
-export interface GuidedModeStringOptions extends StringOptions {
-  wordLength: { minLength: number; maxLength: number }
-  wordModifierOptions: WordModifierOptions
-  modifyingLikelihood: number
-  wordsPerString: number
-}
-
-export const defaultGuidedModeStringOptions: GuidedModeStringOptions = {
-  wordLength: { minLength: 3, maxLength: 12 },
-  wordModifierOptions: defaultWordModifierOptions,
-  modifyingLikelihood: 0.8,
-  wordsPerString: 6,
-}
-
-export interface PracticeModeStringOptions extends StringOptions {
-  source: string
-  fullSentences: boolean
-  wordsPerString: number
-}
-
-const defaultPracticeModeStringOptions: PracticeModeStringOptions = {
-  source: stateRev,
-  fullSentences: true,
-  wordsPerString: 6,
-}
-
-export enum CodingLanguage {
-  "JS" = "JavaScript",
-  "TS" = "TypeScript",
-  "C" = "C",
-  "Bash" = "Bash",
-  "Python" = "Python",
-}
-
-export interface CodeModeStringOptions extends StringOptions {
-  language: CodingLanguage
-  lines: number
-}
-
-export const defaultCodeModeStringOptions = {
-  language: CodingLanguage.JS,
-  lines: 6,
-}
-
-interface Settings {
-  layout: LayoutUtil
-  UI: {
-    theme: { [index: string]: CSSCustomProperties }
-    fontSize: number
-  }
-  course: Course
-  stringOptions: StringOptions
-}
-
-const defaultSettings: Settings = {
-  UI: { theme: themes.dark, fontSize: 1 },
-  layout: new LayoutUtil(enUsQwerty),
-  course: Courses.guidedCourse,
-  stringOptions: defaultPracticeModeStringOptions,
-}
-
-interface State {
-  modeSelectShow: boolean
-  settingsModalShow: boolean
-  trainingMode: TrainingMode
-  generator: TrainingStringGenerator
-  pressed: Set<string>
-  machineState: MachineState
-  trainingString: string
-  cursor: number
-  mistakeCharIndexes: Set<number>
-  courseLevelIndex: number
-  stats: {
-    wpm: number
-    mistakeCount: number
-    totalSessions: number
-    averages: {
-      wpm: number
-      mistakeCount: number // mistakeCount
-    }
-  }
-  settings: Settings
-}
-
-const defaultGenerator = new PracticeModeStringGenerator()
-
-export const defaultState: State = {
-  modeSelectShow: false,
-  settingsModalShow: false,
-  trainingMode: TrainingMode.Practice,
-  generator: defaultGenerator,
-  trainingString: "",
-  cursor: 0,
-  mistakeCharIndexes: new Set(),
-  courseLevelIndex: 33,
-  stats: {
-    wpm: 0,
-    mistakeCount: 0,
-    totalSessions: 0,
-    averages: { wpm: 0, mistakeCount: 0 },
-  },
-  pressed: new Set(),
-  machineState: MachineState.Loaded,
-  settings: { ...defaultSettings },
-}
-
-const inactivityDelay = 2000 //todo: mettre dans settings
+import {
+  State,
+  defaultState,
+  inactivityDelay,
+  MachineState,
+  TrainingMode,
+  UserStringOptions,
+  defaultGuidedModeStringOptions,
+  defaultPracticeModeStringOptions,
+  defaultCodeModeStringOptions,
+  FontSizes,
+} from "./defaultState"
 
 export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
@@ -242,7 +104,7 @@ export class TypeTrainer extends React.Component<{}, State> {
       return
     }
     state.pressed.add(event.code)
-    console.log('code: ', event.code, 'key: ', event.key)
+    console.log("code: ", event.code, "key: ", event.key)
     // Validate
     if (isChar(event.code)) {
       if (TypeTrainer.isCorrectCharPressed(state, event)) {
@@ -252,7 +114,10 @@ export class TypeTrainer extends React.Component<{}, State> {
           return
         }
       } else {
-        console.log(`${this.state.trainingString[this.state.cursor]}`, this.state.settings.layout.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor]))
+        console.log(
+          `${this.state.trainingString[this.state.cursor]}`,
+          this.state.settings.layout.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor])
+        )
         state.mistakeCharIndexes.add(state.cursor)
       }
     }
@@ -287,8 +152,8 @@ export class TypeTrainer extends React.Component<{}, State> {
     })
   }
 
-  newStringOptionsBasedOnMode(mode: TrainingMode): StringOptions {
-    let options: StringOptions
+  newStringOptionsBasedOnMode(mode: TrainingMode): UserStringOptions {
+    let options: UserStringOptions
     // TODO: check local storage for user options, else load defaults
     switch (mode) {
       case TrainingMode.Guided:
@@ -329,6 +194,7 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   private static isCorrectCharPressed(state: State, event: KeyboardEvent): boolean {
+    if (event.key === "Enter") return state.trainingString[state.cursor] === "\n"
     return state.trainingString[state.cursor] === event.key
   }
 
@@ -370,10 +236,9 @@ export class TypeTrainer extends React.Component<{}, State> {
   endSession(): void {
     // Computes sessions stats and passes baton to this.startNewSession
     // Calculate words per minute
-    const sessionStats = { ...this.state.stats },
-      minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60,
-      words = this.state.trainingString.length / 5
-    sessionStats.wpm = Math.round(words / minutes)
+    const sessionStats = { ...this.state.stats }
+
+    sessionStats.wpm = this.wordsPerMinute(sessionStats)
 
     sessionStats.mistakeCount = this.state.mistakeCharIndexes.size
     // Calculate mistakes per session
@@ -392,6 +257,13 @@ export class TypeTrainer extends React.Component<{}, State> {
       },
       () => this.prepareNewSession()
     )
+  }
+
+  private wordsPerMinute(sessionStats: { wpm: number; mistakeCount: number; totalSessions: number; averages: { wpm: number; mistakeCount: number } }) {
+    const minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
+    const conventionalWordLength = 5
+    const words = this.state.trainingString.length / conventionalWordLength
+    return Math.round(words / minutes)
   }
 
   prepareNewSession(): void {
@@ -428,19 +300,19 @@ export class TypeTrainer extends React.Component<{}, State> {
 
   private guidedModeText(): string {
     const generator = this.state.generator as GuidedModeStringGenerator
-    const options = this.state.settings.stringOptions as GuidedModeStringOptions
+    const options = this.state.settings.stringOptions
     return generator.generate(options, this.state.settings.layout, this.getCurrentLevel())
   }
 
   private practiceModeText(): string {
     const generator = this.state.generator as PracticeModeStringGenerator
-    const options = this.state.settings.stringOptions as PracticeModeStringOptions
+    const options = this.state.settings.stringOptions
     return generator.generate(options)
   }
 
   private codeModeText(): string {
     const generator = this.state.generator as CodeModeStringGenerator
-    const options = this.state.settings.stringOptions as CodeModeStringOptions
+    const options = this.state.settings.stringOptions
     return generator.generate(options)
   }
 
@@ -456,21 +328,9 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ settings: settings })
   }
 
-  changeTrainingStringOptions(trainingStringOptions: StringOptions): void {
-    let stringOptions
-    switch (this.state.trainingMode) {
-      case TrainingMode.Guided:
-        stringOptions = { ...trainingStringOptions } as GuidedModeStringOptions
-        break
-      case TrainingMode.Practice:
-        stringOptions = { ...trainingStringOptions } as PracticeModeStringGenerator
-        break
-      case TrainingMode.Code:
-        stringOptions = { ...trainingStringOptions } as CodeModeStringGenerator
-        break
-    }
+  changeTrainingStringOptions(trainingStringOptions: UserStringOptions): void {
     const settings = { ...this.state.settings }
-    settings.stringOptions = stringOptions
+    settings.stringOptions = { ...trainingStringOptions }
     this.setState({ settings: settings }, () => this.prepareNewSession())
   }
 
@@ -492,7 +352,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           onHide={() => this.setSettingsModalShow(false)}
           mode={this.state.trainingMode}
           trainingStringOptions={this.state.settings.stringOptions}
-          updateFn={(updatedOptions: StringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+          updateFn={(updatedOptions: UserStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
         ></SettingsModal>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {

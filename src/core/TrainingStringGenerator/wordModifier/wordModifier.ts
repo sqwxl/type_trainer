@@ -1,5 +1,5 @@
 import enUsQwerty from "../../../assets/Layouts/en_US"
-import { GuidedModeStringOptions, WordModifierOptions } from "../../../Components/TypeTrainer"
+import { UserStringOptions } from "../../../components/defaultState"
 import { CharacterSet, CharacterBehavior, CharacterType } from "../../LayoutUtil"
 
 function isVowel(char: string, vowels: string[] = enUsQwerty.vowels): boolean {
@@ -53,11 +53,11 @@ function symbolize(str: string, charSet: CharacterSet): string {
 
 export function wordModifier (
   word: string,
-  options: GuidedModeStringOptions,
+  options: UserStringOptions,
   characterSet: CharacterSet,
 ): string {
-  const { wordModifierOptions, modifyingLikelihood: likelihood } = options
-  const modificationShouldApply = (): boolean => Math.random() < likelihood
+  const wordModifierOptions = options.wordModifierOptions.value as UserStringOptions
+  const modificationShouldApply = (): boolean => Math.random() < options.modifyingLikelihood.value
 
   function addNumber(word: string): string {
     const numbers = characterSet.filter(char => char.type === CharacterType.NUMBER)
@@ -84,25 +84,19 @@ export function wordModifier (
     return word.slice(0, 1).toUpperCase().concat(word.slice(1))
   }
 
-  function addProgrammingSymbol(word: string): string {
-    const symbols = characterSet.filter(char => char.type === CharacterType.PROGRAMMING)
-    if (symbols.length === 0) return word
-    return symbolize(word, symbols)
-  }
+
   // CAPITALIZE
-  if (wordModifierOptions.caps && modificationShouldApply()) word = capitalize(word)
+  if (wordModifierOptions.caps.value as boolean && modificationShouldApply()) word = capitalize(word)
 
   // ADD PUNCTUATION
-  if (wordModifierOptions.punct && modificationShouldApply()) word = punctuate(word)
+  if (wordModifierOptions.punct.value as boolean && modificationShouldApply()) word = punctuate(word)
 
   // ADD SYMBOL
-  if (wordModifierOptions.syms && modificationShouldApply()) word = addSymbol(word)
+  if (wordModifierOptions.syms.value as boolean && modificationShouldApply()) word = addSymbol(word)
 
   // ADD NUMBER
-  if (wordModifierOptions.nums && modificationShouldApply()) word = addNumber(word)
+  if (wordModifierOptions.nums.value as boolean && modificationShouldApply()) word = addNumber(word)
 
-  // ADD PROGRAMMING SYMBOL
-  if (wordModifierOptions.prog && modificationShouldApply()) word = addProgrammingSymbol(word)
 
   return word
 }

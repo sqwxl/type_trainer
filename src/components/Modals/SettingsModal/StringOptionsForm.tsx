@@ -1,32 +1,13 @@
 import React from "react"
-import { Form, FormCheck, FormControl, FormLabel } from "react-bootstrap"
-import styled from "styled-components"
-import {
-  CodeModeStringOptions,
-  GuidedModeStringOptions,
-  PracticeModeStringOptions,
-  StringOptions,
-  TrainingMode,
-  WordModifierOptions,
-} from "../../TypeTrainer"
+import { Form, FormCheck, FormControl, FormFile, FormGroup, FormLabel } from "react-bootstrap"
+import { UserStringOptions, TrainingMode, FormType } from "../../defaultState"
 // import Range from './Range.tsx'
 
-const StyledFormCheck = styled(FormCheck)`
-  margin: 0 0.5rem;
-`
-const labels: { [key: string]: string } = {
-  caps: "A",
-  punct: "Punctuation",
-  syms: "Symbols",
-  prog: "</>",
-  nums: "0-9",
-}
 export default function StringOptionsForm(props: {
   mode: TrainingMode
-  stringOptions: StringOptions
-  updateFn: (updatedOptions: StringOptions) => void
+  stringOptions: UserStringOptions
+  updateFn: (updatedOptions: UserStringOptions) => void
 }): JSX.Element {
-
   function setOption(object: any, property: any, value: string | number | boolean): void {
     if (object[property] != null) {
       console.log(`setting ${property} on ${object} to ${value}`)
@@ -54,8 +35,65 @@ export default function StringOptionsForm(props: {
     setOption(options, target.name, target.checked)
     props.updateFn(options)
   }
-  let stringOptions: any
-  switch (props.mode) {
+
+  const formElements: JSX.Element[] = []
+
+  ;(function populate(options: UserStringOptions): void {
+    let label, section, group
+    for (let [key, option] of Object.entries(options)) {
+      label = <FormLabel>{option.formLabel + ": "}</FormLabel>
+      switch (option.formType) {
+        case FormType.Parent:
+          section = populate(option.value as UserStringOptions)
+          break
+        case FormType.Number:
+          section = (
+            <FormControl
+              key={key + "-key"}
+              name={key}
+              defaultValue={option.value as number}
+              onChange={handleChange}
+              min={option.min || 1}
+              max={option.max}
+              step={option.step || 1}
+            ></FormControl>
+          )
+          break
+        case FormType.Switch:
+          section = (
+            <FormCheck
+              id={key + "-form"}
+              key={key + "-key"}
+              name={key}
+              type="switch"
+              role="switch"
+              checked={option.value as boolean}
+              onClick={handleClick}
+            ></FormCheck>
+          )
+          break
+        case FormType.Select:
+          section = (
+            <FormControl as="select" custom>
+              {option.values!.map((value) => (
+                <option>{value}</option>
+              ))}
+            </FormControl>
+          )
+          break
+        case FormType.Text:
+          section = <FormFile custom></FormFile>
+          break
+      }
+      group = <FormGroup controlId={key + "-form"}>{[label, section]}</FormGroup>
+    }
+    if (group != null) formElements.push(group)
+  })(props.stringOptions)
+
+  return <Form>{formElements}</Form>
+
+  /*switch (props.mode) {
+
     case TrainingMode.Guided:
       stringOptions = props.stringOptions as GuidedModeStringOptions
       return (
@@ -91,6 +129,5 @@ export default function StringOptionsForm(props: {
       stringOptions = props.stringOptions as CodeModeStringOptions
       return (<></>) // TODO
     default:
-      return (<></>)
-  }
+      return (<></>) */
 }

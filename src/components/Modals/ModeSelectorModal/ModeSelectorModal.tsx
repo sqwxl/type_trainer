@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
-import { TrainingMode } from "../../TypeTrainer";
+import { TrainingMode } from "../../defaultState";
 
 export default function ModeSelectorModal(props: { onHide: () => void, show: boolean, setTrainingMode: (mode: TrainingMode) => void}): JSX.Element {
   return (

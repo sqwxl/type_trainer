@@ -6,9 +6,11 @@ const testId = "formattedString"
 export function FormattedText(props: { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndexes: Set<number> }): JSX.Element {
   const { cursor, trainingString, mistakeCharIndexes } = props
 
+  let uniquekey = 0
   function replaceSpaces(str: string): string {
+    const lineFeed = `&crarr;<br>`
     const blankAndInvisibleSpace = `&blank;&#8203;`
-    return str.replace(/\s/g, blankAndInvisibleSpace)
+    return str.replace(/\n/g, lineFeed).replace(/\s/g, blankAndInvisibleSpace)
   }
   function escapeHtml(unsafe: string): string {
     const text = document.createTextNode(unsafe);
@@ -26,7 +28,7 @@ export function FormattedText(props: { greyed: boolean, cursor: number, training
   }
   function tag(str: string, className: string): JSX.Element {
     const retStr = format(str)
-    return (<span className={className} dangerouslySetInnerHTML={{__html: retStr}}></span>)
+    return (<span key={className+uniquekey++} className={className} dangerouslySetInnerHTML={{__html: retStr}}></span>)
   }
 
   //edge case (easter egg)

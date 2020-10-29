@@ -1,8 +1,8 @@
 
 import React from 'react'
 import { render } from '@testing-library/react'
-import {KeyboardLayoutContext} from '../Components/Contexts/KeyboardLayoutContext/KeyboardLayoutContext'
-import {ThemeContext, themes} from '../Components/Contexts/ThemeContext/ThemeContext'
+import {KeyboardLayoutContext} from '../components/Contexts/KeyboardLayoutContext/KeyboardLayoutContext'
+import {ThemeContext, themes} from '../components/Contexts/ThemeContext/ThemeContext'
 import enUsQwerty from '../assets/Layouts/en_US'
 
 const AllProviders = ({ children }: any) => {
