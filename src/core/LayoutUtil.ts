@@ -75,11 +75,10 @@ export enum CharacterType {
   LOWERCASE_LETTER,
   NUMBER,
   PUNCTUATION,
-  SYMBOL,
+  SPECIAL,
   PROGRAMMING,
 }
 export enum CharacterBehavior {
-  SEQUENTIAL,
   PREPEND,
   APPEND,
   PREPEND_OR_APPEND,
@@ -88,15 +87,15 @@ export enum CharacterBehavior {
   OPERATOR,
 }
 
-type Character = string
-
-export type CharacterSet = Array<{
+export type Character = {
   code: KeyCode[]
-  glyph: Character
-  bracketPair?: Character
+  glyph: string
+  bracketPair?: string
   type: CharacterType
   behavior: CharacterBehavior
-}>
+}
+
+export type CharacterSet = Character[]
 
 
 export interface Layout {

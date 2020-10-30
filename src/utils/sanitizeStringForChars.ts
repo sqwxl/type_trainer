@@ -1,5 +1,5 @@
 
-export default function formatText(str: string, chars: string[]): string {
+export default function sanitizeStringForChars(str: string, chars: string[]): string {
     let formatted = str
 
     // console.log(chars)

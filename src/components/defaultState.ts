@@ -8,7 +8,7 @@ import {
 import LayoutUtil, { CharacterType, CharSet } from "../core/LayoutUtil"
 import enUsQwerty from "../assets/Layouts/en_US"
 import text from "../assets/Texts/state_and_revolution"
-import formatText from "../utils/formatText"
+import sanitizeStringForChars from "../utils/sanitizeStringForChars"
 
 const stateRev = text // TODO: Make generic lol
 
@@ -107,7 +107,7 @@ export const defaultGuidedModeStringOptions: UserStringOptions = {
   wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
 }
 export const defaultLayout = new LayoutUtil(enUsQwerty)
-export const formattedSource = formatText(stateRev, CharSet.uniqueChars(defaultLayout.charSet.subSet({ invert: true, type: CharacterType.PROGRAMMING})))
+export const formattedSource = sanitizeStringForChars(stateRev, CharSet.uniqueChars(defaultLayout.charSet.subSet({ invert: true, type: CharacterType.PROGRAMMING})))
 
 export const defaultPracticeModeStringOptions: UserStringOptions = {
   sourceText: new UserStringOption({ value: formattedSource, formLabel: "Source text", formType: FormType.Text}),

@@ -1,6 +1,6 @@
 import { UserStringOptions } from "../../components/defaultState"
 import MarkovChain from "./MarkovChain"
-import { wordModifier } from "./wordModifier/wordModifier"
+import { wordModifier } from "./wordModifier"
 import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
 import { CourseLevel } from "../../assets/Courses/Courses"
 
