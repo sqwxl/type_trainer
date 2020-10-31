@@ -1,7 +1,6 @@
-import enUsQwerty from "../../assets/Layouts/en_US"
-import { defaultGuidedModeStringOptions, FormType, UserStringOption } from "../../components/defaultState"
-import LayoutUtil, { CharacterBehavior, CharacterType, CharSet } from "../LayoutUtil"
-import { CapsWordModifier, NumsWordModifier, PunctWordModifier, wordModifier } from "./wordModifier"
+import { FormType, UserStringOption } from "../../components/defaultState"
+import { CharacterBehavior, CharacterType, Language } from "../LayoutUtil"
+import { CapsWordModifier, NumsWordModifier, PunctWordModifier } from "./wordModifier"
 
 const NOOP_OPTIONS = {
   wordModifierOptions: new UserStringOption({
@@ -55,29 +54,10 @@ const mockCharacterSet = [
   { code: ["Backquote"], glyph: "`", type: CharacterType.SPECIAL, behavior: CharacterBehavior.BRACKET },
   { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: CharacterType.SPECIAL, behavior: CharacterBehavior.BRACKET },
 
-  /* /// PROGRAMMING CHARACTERS
-  { code: ["Backquote"], glyph: "`", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
-  { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
-  { code: ["BracketLeft", "BracketRight"], glyph: "{", bracketPair: "}", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
-  { code: ["Slash"], glyph: "/", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.SPLIT },
-  { code: ["Backslash"], glyph: "\\", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.PREPEND },
-  { code: ["Comma", "Period"], glyph: "<", bracketPair: ">", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
-  { code: ["Minus"], glyph: "_", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.SPLIT },
-  { code: ["Minus"], glyph: "-", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Equal"], glyph: "+", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Digit8"], glyph: "*", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Equal"], glyph: "=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Digit1","Equal"], glyph: "!=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Equal"], glyph: "==", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Equal"], glyph: "++", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.PREPEND_OR_APPEND },
-  { code: ["Comma","Period"], glyph: "<=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Comma","Period"], glyph: ">=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Digit5"], glyph: "%", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR } */
 ]
 
 describe("NumsWordModifier", () => {
-
-  it("should not alter string when not enabled", () => {
+ it("should not alter string when not enabled", () => {
     expect(new NumsWordModifier(false, mockCharacterSet).modify("word")).toEqual("word")
   })
   
@@ -89,7 +69,6 @@ describe("NumsWordModifier", () => {
 
 
 describe("CapsWordModifier", () => {
-  
   it("should not alter string when not enabled", () => {
     expect(new CapsWordModifier(false).modify("word")).toEqual("word")
   })

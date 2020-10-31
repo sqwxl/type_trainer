@@ -41,6 +41,5 @@ describe('Formats strings properly', () => {
 
 function assertReplaces(expected: string, actual: string){
     const frmt = sanitizeStringForChars(actual, aCharset)
-    console.log(`expected : "${expected}", actual: "${actual}", formatted: "${frmt}"`)
     expect(frmt).toEqual(expected)
 }

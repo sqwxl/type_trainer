@@ -72,6 +72,7 @@ export type KeyLabel = { main: string; shift?: string; opt?: string }
 export type KeyLabels = { [code in KeyCode]: KeyLabel }
 
 export enum CharacterType {
+  NONE,
   LOWERCASE_LETTER,
   NUMBER,
   PUNCTUATION,
@@ -79,6 +80,7 @@ export enum CharacterType {
   PROGRAMMING,
 }
 export enum CharacterBehavior {
+  NONE,
   PREPEND,
   APPEND,
   PREPEND_OR_APPEND,
@@ -134,7 +136,7 @@ export class VisualKB {
   }
 }
 
-export class CharSet {
+export class Language {
   private _charSet: CharacterSet
   private _vowels: string[]
   constructor(layout: Layout) {
@@ -238,14 +240,14 @@ charSetAtCourseLevel(courseLevel: CourseLevel): CharacterSet {
 }
 
 export default class LayoutUtil implements LayoutUtil {
-  private _charSet: CharSet
+  private _charSet: Language
   private _visualKB: VisualKB
   constructor(layout: Layout) {
-    this._charSet = new CharSet(layout)
+    this._charSet = new Language(layout)
     this._visualKB = new VisualKB(layout.labels)
   }
   
-  get charSet(): CharSet {
+  get charSet(): Language {
     return this._charSet
   }
   get visualKB(): VisualKB {

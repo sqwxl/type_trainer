@@ -1,7 +1,7 @@
 import { UserStringOptions } from "../../components/defaultState"
 import MarkovChain from "./MarkovChain"
 import { wordModifier } from "./wordModifier"
-import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
+import LayoutUtil, { CharacterType, Language } from "../LayoutUtil"
 import { CourseLevel } from "../../assets/Courses/Courses"
 
 export interface TrainingStringGenerator {
@@ -19,7 +19,7 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
   generate(options: GuidedModeStringOptions, layout: LayoutUtil, lvl: CourseLevel): string {
-    const alphabet = CharSet.uniqueChars(
+    const alphabet = Language.uniqueChars(
       layout.charSet.subSet({ trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER })
     )
     function modifyWords(words: string[]): string[] {

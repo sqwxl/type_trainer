@@ -1,7 +1,7 @@
 import { defaultGuidedModeStringOptions, UserStringOptions } from "../../components/defaultState"
 import { GuidedModeStringGenerator } from "./TrainingStringGenerator"
 import {dict as english}  from "../../assets/Dictionaries/english.json"
-import LayoutUtil, { CharacterType, CharSet } from "../LayoutUtil"
+import LayoutUtil, { CharacterType, Language } from "../LayoutUtil"
 import Courses, { CourseLevel } from "../../assets/Courses/Courses"
 import enUsQwerty from "../../assets/Layouts/en_US"
 
@@ -22,7 +22,7 @@ function newRegExpFromStrArr(letters: string[]): RegExp {
 }
 
 function testMarkovLevel(options: UserStringOptions, generator: GuidedModeStringGenerator, lvl: CourseLevel): void {
-  testStringAgainstAllowedLetters(generator.generate(options, layout, lvl), newRegExpFromStrArr(CharSet.uniqueChars(layout.charSet.subSet({trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER})).concat([' '])))
+  testStringAgainstAllowedLetters(generator.generate(options, layout, lvl), newRegExpFromStrArr(Language.uniqueChars(layout.charSet.subSet({trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER})).concat([' '])))
 }
 
 
