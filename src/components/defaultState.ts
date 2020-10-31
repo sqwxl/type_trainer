@@ -5,7 +5,8 @@ import {
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import LayoutUtil, { CharacterType, Language } from "../core/LayoutUtil"
+import Layout, { CharacterType } from "../core/KeyboardLayout"
+import { Language } from "../core/Language"
 import enUsQwerty from "../assets/Layouts/en_US"
 import text from "../assets/Texts/state_and_revolution"
 import sanitizeStringForChars from "../utils/sanitizeStringForChars"
@@ -106,7 +107,7 @@ export const defaultGuidedModeStringOptions: UserStringOptions = {
   modifyingLikelihood: new UserStringOption({ value: 0.8, formLabel: "% modified", formType: FormType.Number, min: 0, max: 1, step: 0.1 }),
   wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
 }
-export const defaultLayout = new LayoutUtil(enUsQwerty)
+export const defaultLayout = new Layout(enUsQwerty)
 export const formattedSource = sanitizeStringForChars(stateRev, Language.uniqueChars(defaultLayout.charSet.subSet({ invert: true, type: CharacterType.PROGRAMMING})))
 
 export const defaultPracticeModeStringOptions: UserStringOptions = {
@@ -134,7 +135,7 @@ export const defaultCodeModeStringOptions: UserStringOptions = {
 }
 
 interface Settings {
-  layout: LayoutUtil
+  layout: Layout
   UI: {
     theme: { [index: string]: CSSCustomProperties }
     fontSize: number

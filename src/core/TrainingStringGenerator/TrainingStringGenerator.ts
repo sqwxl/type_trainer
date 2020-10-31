@@ -1,11 +1,12 @@
 import { UserStringOptions } from "../../components/defaultState"
 import MarkovChain from "./MarkovChain"
-import { wordModifier } from "./wordModifier"
-import LayoutUtil, { CharacterType, Language } from "../LayoutUtil"
+import { wordModifier } from "./WordModifiers"
+import Layout, { CharacterType } from "../KeyboardLayout"
+import { Language } from "../Language"
 import { CourseLevel } from "../../assets/Courses/Courses"
 
 export interface TrainingStringGenerator {
-  generate(options: UserStringOptions, layout?: LayoutUtil, lvl?: CourseLevel): string
+  generate(options: UserStringOptions, layout?: Layout, lvl?: CourseLevel): string
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
@@ -18,7 +19,7 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private dictionary: string[]) {}
 
-  generate(options: GuidedModeStringOptions, layout: LayoutUtil, lvl: CourseLevel): string {
+  generate(options: UserStringOptions, layout: Layout, lvl: CourseLevel): string {
     const alphabet = Language.uniqueChars(
       layout.charSet.subSet({ trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER })
     )

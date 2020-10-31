@@ -17,7 +17,7 @@ import {
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import { Language } from "../core/LayoutUtil"
+import { Language } from "../core/Language"
 import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
@@ -386,7 +386,7 @@ export class TypeTrainer extends React.Component<{}, State> {
             }
             {
               <Keyboard
-                visualKB={this.state.settings.layout.visualKB}
+                layout={this.state.settings.layout}
                 pressed={this.state.pressed}
                 active={Language.uniqueKeyCodes(
                   this.state.settings.layout.charSet.subSet({

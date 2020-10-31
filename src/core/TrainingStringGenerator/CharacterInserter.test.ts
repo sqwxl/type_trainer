@@ -1,5 +1,5 @@
-import { Character, CharacterBehavior, CharacterType } from '../LayoutUtil'
-import CharacterInserter, { AppendCharacterInserter, BracketCharacterInserter, OperatorCharacterInserter, PrependCharacterInserter, PrependOrAppendCharacterInserter, SplitCharacterInserter } from './CharacterInserter'
+import { Character, CharacterType, CharacterBehavior } from '../CharacterSet'
+import { AppendCharacterInserter, BracketCharacterInserter, ICharacterInserter, OperatorCharacterInserter, PrependCharacterInserter, PrependOrAppendCharacterInserter, SplitCharacterInserter } from './CharacterInserter'
 
 const nullCharacter: Character = { code: ['NONE'], glyph: '', type: CharacterType.NONE, behavior: CharacterBehavior.NONE }
 const prependingCharacter: Character = { code: ["Digit3"], glyph: "#", type: CharacterType.SPECIAL, behavior: CharacterBehavior.PREPEND }
@@ -22,7 +22,7 @@ const mockVowels = 'aeiou'.split('')
 describe('PrependCharacterInserter', () => {
     const prepend = new PrependCharacterInserter()
     it('should ignore an incompatible character and return the str unchanged', () => {
-        expect(prepend.apply(testStr, appendingCharacter)).toEqual(testStr)
+        assertIncompatible(prepend)
     })
     it('should prepend a compatible character to the str', () => {
         expect(prepend.apply(testStr, prependingCharacter)).toEqual(prependingCharacter.glyph + testStr)
@@ -32,7 +32,7 @@ describe('PrependCharacterInserter', () => {
 describe('AppendCharacterInserter', () => {
     const append = new AppendCharacterInserter()
     it('should ignore an incompatible character and return the str unchanged', () => {
-        expect(append.apply(testStr, prependingCharacter)).toEqual(testStr)
+        assertIncompatible(append)
     })
     it('should append a compatible character to the str', () => {
         expect(append.apply(testStr, appendingCharacter)).toEqual(testStr + appendingCharacter.glyph)
@@ -42,7 +42,7 @@ describe('AppendCharacterInserter', () => {
 describe('PrependOrAppendCharacterInserter', () => {
     const preOrAppend = new PrependOrAppendCharacterInserter()
     it('should ignore an incompatible character and return the str unchanged', () => {
-        expect(preOrAppend.apply(testStr, prependingCharacter)).toEqual(testStr)
+        assertIncompatible(preOrAppend)
     })
     it('should prepend or append a compatible character', () => {
         const mod = preOrAppend.apply(testStr, prependOrAppendCharacter)
@@ -54,7 +54,7 @@ describe('PrependOrAppendCharacterInserter', () => {
 describe('BracketCharacterInserter', () => {
     const bracket = new BracketCharacterInserter()
     it('should ignore an incompatible character and return the str unchanged', () => {
-        expect(bracket.apply(testStr, appendingCharacter)).toEqual(testStr)
+        assertIncompatible(bracket)
     })
     it('should bracket a str with an unpaired bracket character', () => {
         expect(bracket.apply(testStr, unpairedBracketingCharacter)).toEqual(unpairedBracketingCharacter.glyph + testStr + unpairedBracketingCharacter.glyph)
@@ -67,7 +67,7 @@ describe('BracketCharacterInserter', () => {
 describe('SplitCharacterInserter', () => {
     const split = new SplitCharacterInserter(mockVowels)
     it('should ignore an incompatible character and return the str unchanged', () => {
-        expect(split.apply(testStr, appendingCharacter)).toEqual(testStr)
+        assertIncompatible(split)
     })
     it('should ignore words shorted than 5 letters', () => {
         expect(split.apply('four', splittingCharacter)).toEqual('four')
@@ -85,10 +85,13 @@ describe('SplitCharacterInserter', () => {
 describe('OperatorCharacterInserter', () => {
     const operator = new OperatorCharacterInserter()
     it('should ignore an incompatible character and return the str unchanged', () => {
-        expect(operator.apply(testStr, appendingCharacter)).toEqual(testStr)
+        assertIncompatible(operator)
     })
     it('should add a space and the character to the end of the word', () => {
         expect(operator.apply(testStr, operatorCharacter)).toEqual(testStr + ' ' + operatorCharacter.glyph)
     })
 })
 
+function assertIncompatible(inserter: ICharacterInserter) {
+    expect(inserter.apply(testStr, nullCharacter)).toEqual(testStr)
+}

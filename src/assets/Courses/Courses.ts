@@ -1,4 +1,4 @@
-import { Finger, Hand } from "../../core/PhysicalKeyboard"
+import { Finger, Hand } from "../../core/Keyboard"
 
 export interface CourseLevel {
   description: string

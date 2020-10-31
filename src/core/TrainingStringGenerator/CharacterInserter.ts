@@ -1,6 +1,6 @@
-import { CharacterBehavior, Character } from "../LayoutUtil"
+import { Character, CharacterBehavior } from "../CharacterSet"
 
-interface ICharacterInserter {
+export interface ICharacterInserter {
   apply(str: string, character: Character): string
 }
 

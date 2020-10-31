@@ -1,33 +1,35 @@
 import "./Keyboard.css"
 import React from "react"
-import { KeyCode, KeyLabel, VisualKB } from "../../core/LayoutUtil"
+import { KeyboardLayout } from "../../core/KeyboardLayout"
+import { KeyCode } from "../../core/KeyCode"
+import { KeyCapLabel } from "../../core/Keyboard"
 
 
 
-export default function Keyboard(props: { visualKB: VisualKB; pressed: Set<string>; active: KeyCode[]; current: KeyCode }): JSX.Element {
+export default function Keyboard(props: { layout: KeyboardLayout; pressed: Set<string>; active: KeyCode[]; current: KeyCode }): JSX.Element {
   // const { keyLabels } = useContext(KeyboardLayoutContext)
 
-  function generateLabelHtml({ labels }: { labels: KeyLabel }): JSX.Element {
+  function generateLabelHtml(keyCapLabel: KeyCapLabel): JSX.Element {
     let label: JSX.Element
-    switch (Object.keys(labels).length) {
+    switch (Object.keys(keyCapLabel).length) {
       case 1:
-        label = <p>{labels.main}</p>
+        label = <p>{keyCapLabel.main}</p>
         break
       case 2:
         label = (
           <p>
-            {labels.shift}
+            {keyCapLabel.shift}
             <br />
-            {labels.main}
+            {keyCapLabel.main}
           </p>
         )
         break
       case 3:
         label = (
           <p>
-            {labels.shift}
+            {keyCapLabel.shift}
             <br />
-            {labels.main} {labels.opt}
+            {keyCapLabel.main} {keyCapLabel.opt}
           </p>
         )
         break
@@ -40,7 +42,7 @@ export default function Keyboard(props: { visualKB: VisualKB; pressed: Set<strin
 
   return (
     <div className={"keyboard"} id="keyboard" data-testid="keyboard">
-      {props.visualKB.keyboard.map((row, rowIdx) => (
+      {props.layout.keyboard.map((row, rowIdx) => (
         <ul key={"row-" + rowIdx} className={"keyboard-flex-row row-" + rowIdx}>
           {row.map(keyBtn => {
             // Determine style classes to apply to each btn
@@ -58,7 +60,7 @@ export default function Keyboard(props: { visualKB: VisualKB; pressed: Set<strin
             if (keyIsCurrent) classes.push("highlight")
 
             // Generate label html
-            const labelHtml: JSX.Element = generateLabelHtml(keyBtn)
+            const labelHtml: JSX.Element = generateLabelHtml(keyBtn.label)
 
             return (
               <li id={keyBtn.code} data-testid={keyBtn.code} key={keyBtn.code} className={classes.join(" ")}>

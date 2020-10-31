@@ -1,9 +1,14 @@
-import { KeyCode } from "../core/LayoutUtil"
+import { KeyCode } from "./KeyCode"
+
+//
+// Virtual Keyboard
+//
+
+export type KeyCapLabel = { main: string; shift?: string; opt?: string }
+export type KeyCapLabelMap = { [code in KeyCode]: KeyCapLabel }
 
 
-export type KeyboardPhysicalLayout = KeyCode[][]
-
-export const Layout: KeyboardPhysicalLayout = [
+export const PhysicalLayout = [
   ['Backquote','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal','Backspace'],
   ['Tab','KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight','Backslash'],
   ['CapsLock','KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote','Enter'],
@@ -16,9 +21,9 @@ export const Layout: KeyboardPhysicalLayout = [
 // Physiological Types
 //
 export enum Hand {
-  LEFT,
-  RIGHT,
-  ANY,
+  ANY = 'any',
+  LEFT = 'left',
+  RIGHT = 'right',
 }
 export enum Finger {
   ANY = "any",
@@ -29,12 +34,15 @@ export enum Finger {
   PINKY = "pinky",
 }
 
-export type KeyboardFingerMap = {
-  [code in KeyCode]: { hand: Hand, finger: Finger }
+export type KeyBtn = {
+  code: KeyCode
+  label: KeyCapLabel
+  fingerHand: { hand: Hand; finger: Finger }
 }
 
+export type VisualKeyboard = KeyBtn[][]
 
-export const FingerMap: KeyboardFingerMap = {
+export const KeyboardFingerMap = {
   NONE: { hand: Hand.ANY, finger: Finger.ANY },
   Backquote: { hand: Hand.LEFT, finger: Finger.PINKY },
   Digit1: { hand: Hand.LEFT, finger: Finger.PINKY },

@@ -8,7 +8,7 @@ import enUsQwerty from '../assets/Layouts/en_US'
 const AllProviders = ({ children }: any) => {
   return (
     <ThemeContext.Provider value={{ theme: themes.dark, toggleTheme: () => { }}}>
-      <KeyboardLayoutContext.Provider value={{keyLabels: enUsQwerty.labels, charset: enUsQwerty.charSet}}>
+      <KeyboardLayoutContext.Provider value={{keyLabels: enUsQwerty.labels, charset: enUsQwerty.characters}}>
         {children}
       </KeyboardLayoutContext.Provider>
     </ThemeContext.Provider>

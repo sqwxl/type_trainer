@@ -1,6 +1,9 @@
-import { KeyLabels, CharacterSet, CharacterType, CharacterBehavior, Layout } from "../../core/LayoutUtil"
+import { KeyCapLabelMap } from "../../core/Keyboard"
+import { Character, CharacterType, CharacterBehavior } from "../../core/Language"
+import { CharacterSet } from "../../core/CharacterSet"
+import { Layout } from "../../core/KeyboardLayout"
 
-const qwertyKeyLabels: KeyLabels = {
+const keyCapLabelMap: KeyCapLabelMap = {
   NONE: { main: "" },
   Backquote: { main: "`", shift: "~" },
   Digit1: { main: "1", shift: "!" },
@@ -62,7 +65,7 @@ const qwertyKeyLabels: KeyLabels = {
   ControlRight: { main: "Ctrl" }
 }
 
-const qwertyCharSet: CharacterSet = [
+const characterSet = new CharacterSet([
   { code: ["KeyA"], glyph: "a", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
   { code: ["KeyB"], glyph: "b", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
   { code: ["KeyC"], glyph: "c", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
@@ -159,10 +162,10 @@ const qwertyCharSet: CharacterSet = [
   { code: ["Comma","Period"], glyph: "<=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
   { code: ["Comma","Period"], glyph: ">=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
   { code: ["Digit5"], glyph: "%", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR }
-]
+])
 
-const Vowels = ['a', 'e', 'i', 'o', 'u']
+const vowels = ['a', 'e', 'i', 'o', 'u']
 
-const enUsQwerty: Layout = { charSet: qwertyCharSet, labels: qwertyKeyLabels, vowels: Vowels }
+const enUsQwerty = { characterSet: characterSet, labels: keyCapLabelMap, vowels: vowels }
 
 export default enUsQwerty
