@@ -1,7 +1,6 @@
+import CharacterSet, { CharacterType, CharacterBehavior } from "../../core/CharacterSet"
 import { KeyCapLabelMap } from "../../core/Keyboard"
-import { Character, CharacterType, CharacterBehavior } from "../../core/Language"
-import { CharacterSet } from "../../core/CharacterSet"
-import { Layout } from "../../core/KeyboardLayout"
+
 
 const keyCapLabelMap: KeyCapLabelMap = {
   NONE: { main: "" },
@@ -143,7 +142,7 @@ const characterSet = new CharacterSet([
   { code: ["Minus"], glyph: "_", type: CharacterType.SPECIAL, behavior: CharacterBehavior.SPLIT },
   { code: ["Equal"], glyph: "=", type: CharacterType.SPECIAL, behavior: CharacterBehavior.OPERATOR },
   { code: ["Equal"], glyph: "+", type: CharacterType.SPECIAL, behavior: CharacterBehavior.OPERATOR },
-
+/* 
   /// PROGRAMMING CHARACTERS
   { code: ["Backquote"], glyph: "`", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
   { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.BRACKET },
@@ -161,11 +160,11 @@ const characterSet = new CharacterSet([
   { code: ["Equal"], glyph: "++", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.PREPEND_OR_APPEND },
   { code: ["Comma","Period"], glyph: "<=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
   { code: ["Comma","Period"], glyph: ">=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Digit5"], glyph: "%", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR }
+  { code: ["Digit5"], glyph: "%", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR } */
 ])
 
 const vowels = ['a', 'e', 'i', 'o', 'u']
 
-const enUsQwerty = { characterSet: characterSet, labels: keyCapLabelMap, vowels: vowels }
+const enUsQwerty = { characterSet: characterSet, keyCapLabelMap: keyCapLabelMap, vowels: vowels }
 
 export default enUsQwerty

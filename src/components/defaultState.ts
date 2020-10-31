@@ -5,11 +5,12 @@ import {
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import Layout, { CharacterType } from "../core/KeyboardLayout"
 import { Language } from "../core/Language"
 import enUsQwerty from "../assets/Layouts/en_US"
 import text from "../assets/Texts/state_and_revolution"
 import sanitizeStringForChars from "../utils/sanitizeStringForChars"
+import { KeyboardLayout } from "../core/KeyboardLayout"
+import { CharacterType } from "../core/CharacterSet"
 
 const stateRev = text // TODO: Make generic lol
 
@@ -107,8 +108,9 @@ export const defaultGuidedModeStringOptions: UserStringOptions = {
   modifyingLikelihood: new UserStringOption({ value: 0.8, formLabel: "% modified", formType: FormType.Number, min: 0, max: 1, step: 0.1 }),
   wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
 }
-export const defaultLayout = new Layout(enUsQwerty)
-export const formattedSource = sanitizeStringForChars(stateRev, Language.uniqueChars(defaultLayout.charSet.subSet({ invert: true, type: CharacterType.PROGRAMMING})))
+export const defaultLayout = new KeyboardLayout(enUsQwerty.keyCapLabelMap)
+export const defaultLanguage = new Language(enUsQwerty.characterSet, enUsQwerty.vowels)
+export const formattedSource = sanitizeStringForChars(stateRev, defaultLanguage.characterSet.uniqueGlyphs()) // TODO MAKE GENERIC
 
 export const defaultPracticeModeStringOptions: UserStringOptions = {
   sourceText: new UserStringOption({ value: formattedSource, formLabel: "Source text", formType: FormType.Text}),

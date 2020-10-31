@@ -1,4 +1,4 @@
-import { Character, CharacterSet } from "./CharacterSet";
+import CharacterSet, { Character} from "./CharacterSet";
 
 export class Language {
   private _characters: Character[]

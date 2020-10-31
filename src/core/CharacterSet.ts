@@ -60,7 +60,7 @@ export default class CharacterSet {
     return "NONE"
   }
 
-  ofType(type: CharacterType | CharacterType[], invert?: boolean): Character[] {
+  ofType(type: CharacterType | CharacterType[], invert?: boolean): CharacterSet {
     let restricted = [...this._characters]
     if (type instanceof Array) {
       restricted = restricted.filter((char) =>
@@ -69,6 +69,6 @@ export default class CharacterSet {
     } else {
       restricted = restricted.filter((char) => (invert ? char.type !== type : char.type === type))
     }
-    return restricted
+    return new CharacterSet(restricted)
   }
 }
