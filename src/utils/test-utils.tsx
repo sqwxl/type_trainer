@@ -3,7 +3,7 @@ import React from 'react'
 import { render } from '@testing-library/react'
 import {KeyboardLayoutContext} from '../components/Contexts/KeyboardLayoutContext/KeyboardLayoutContext'
 import {ThemeContext, themes} from '../components/Contexts/ThemeContext/ThemeContext'
-import enUsQwerty from '../assets/Layouts/en_US'
+import enUsQwerty from '../assets/keyboard_layouts/en_qwerty'
 
 const AllProviders = ({ children }: any) => {
   return (

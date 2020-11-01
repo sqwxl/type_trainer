@@ -1,4 +1,4 @@
-import { Characters, Character } from "../KeyboardLayout"
+import { Character } from "../CharacterSet"
 
 export interface IWordModifier {
   modify(word: string): string
@@ -16,14 +16,14 @@ export class CapsWordModifier implements IWordModifier {
 }
 
 export class PunctWordModifier implements IWordModifier {
-  constructor(private enabled: boolean, private chars: Characters) {}
+  constructor(private enabled: boolean, private chars: Character[]) {}
   modify(word: string): string {
     return ""
   }
 }
 
 export class NumsWordModifier implements IWordModifier {
-  constructor(private enabled: boolean, private numbers: Characters) {}
+  constructor(private enabled: boolean, private numbers: Character[]) {}
   modify(word: string): string {
     if (!this.enabled || this.numbers.length === 0) return word
     return  'TODO'

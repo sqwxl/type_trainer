@@ -1,5 +1,5 @@
 import React from "react"
-import Keyboard from "./Keyboard/Keyboard"
+import VirtualKeyboard from "./Keyboard/VirtualKeyboard"
 import { TextDisplay } from "./TextDisplay/TextDisplay"
 import { ThemeContext, themes } from "./Contexts/ThemeContext/ThemeContext"
 import Toolbar from "./Toolbar/Toolbar"
@@ -10,30 +10,36 @@ import FontSizeToggle from "./Toolbar/FontSizeSelet"
 import { isChar } from "../utils/isChar"
 import { Timer } from "../utils/Timer"
 import QuickStats from "./Toolbar/QuickStats"
-import { CourseLevel } from "../assets/Courses/Courses"
+import { CourseLevel } from "../assets/courses/Courses"
 import {
   CodeModeStringGenerator,
   GuidedModeStringGenerator,
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import { Language } from "../core/Language"
 import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
 import Button from "react-bootstrap/Button"
 import SettingsModal from "./Modals/SettingsModal/SettingsModal"
-import { dict } from "../assets/Dictionaries/english.json"
 import {
   State,
   defaultState,
   inactivityDelay,
-  MachineState,
-  TrainingMode,
-  UserStringOptions,
-  defaultGuidedModeStringOptions,
+  defaultGuidedModeStringGeneratorOptions,
   defaultPracticeModeStringOptions,
   defaultCodeModeStringOptions,
   FontSizes,
 } from "./defaultState"
+import { StringGeneratorOptions } from "../core/TrainingStringGenerator/StringGeneratorOption"
+import { KeyCode } from "../core/KeyCode"
+import { Finger, Hand } from "../core/Keyboard"
+
+export type MachineState = "LOADED" | "READY" | "PAUSED" | "TRAINING"
+
+export enum TrainingMode {
+  Guided = "Guided Mode",
+  Practice = "Practice Mode",
+  Code = "Code Mode",
+}
 
 export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
@@ -68,12 +74,12 @@ export class TypeTrainer extends React.Component<{}, State> {
     switch (event.type) {
       case "keydown":
         switch (machineState) {
-          case MachineState.Training:
-          case MachineState.SessionReady:
+          case "TRAINING":
+          case "READY":
             this.handleKeyDown(event as KeyboardEvent)
             this.resetInactivityTimer()
             break
-          case MachineState.Paused:
+          case "PAUSED":
             this.unPauseSession(event)
             break
           default:
@@ -114,17 +120,13 @@ export class TypeTrainer extends React.Component<{}, State> {
           return
         }
       } else {
-        console.log(
-          `${this.state.trainingString[this.state.cursor]}`,
-          this.state.settings.layout.charSet.keyCodeFromChar(this.state.trainingString[this.state.cursor])
-        )
-        state.mistakeCharIndexes.add(state.cursor)
+        state.mistakeCharIndices.add(state.cursor)
       }
     }
 
     // Update state
     this.setState(state, () => {
-      if (this.state.machineState === MachineState.SessionReady) {
+      if (this.state.machineState === "READY") {
         this.startSession()
       }
     })
@@ -152,12 +154,12 @@ export class TypeTrainer extends React.Component<{}, State> {
     })
   }
 
-  newStringOptionsBasedOnMode(mode: TrainingMode): UserStringOptions {
-    let options: UserStringOptions
+  newStringOptionsBasedOnMode(mode: TrainingMode): StringGeneratorOptions {
+    let options: StringGeneratorOptions
     // TODO: check local storage for user options, else load defaults
     switch (mode) {
       case TrainingMode.Guided:
-        options = defaultGuidedModeStringOptions
+        options = defaultGuidedModeStringGeneratorOptions
         break
       case TrainingMode.Practice:
         options = defaultPracticeModeStringOptions
@@ -173,7 +175,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     let generator: TrainingStringGenerator
     switch (mode) {
       case TrainingMode.Guided:
-        generator = new GuidedModeStringGenerator(dict)
+        generator = new GuidedModeStringGenerator(this.state.settings.language.dictionary)
         break
       case TrainingMode.Practice:
         generator = new PracticeModeStringGenerator()
@@ -215,19 +217,19 @@ export class TypeTrainer extends React.Component<{}, State> {
 
   startSession(): void {
     this.sessionTimer.start()
-    this.setState({ machineState: MachineState.Training }, () => this.logStatus())
+    this.setState({ machineState: "TRAINING" }, () => this.logStatus())
   }
 
   pauseSession(): void {
     // Record pause start time
     if (this.sessionTimer != null) this.sessionTimer.pause()
-    this.setState({ pressed: new Set(), machineState: MachineState.Paused }, () => this.logStatus())
+    this.setState({ pressed: new Set(), machineState: "PAUSED" }, () => this.logStatus())
   }
 
   unPauseSession(event: Event): void {
     // Translate timer variable forward
     this.sessionTimer.unPause()
-    this.setState({ machineState: MachineState.Training }, () => {
+    this.setState({ machineState: "TRAINING" }, () => {
       this.logStatus()
       this.routeEvent(event)
     })
@@ -240,7 +242,7 @@ export class TypeTrainer extends React.Component<{}, State> {
 
     sessionStats.wpm = this.wordsPerMinute(sessionStats)
 
-    sessionStats.mistakeCount = this.state.mistakeCharIndexes.size
+    sessionStats.mistakeCount = this.state.mistakeCharIndices.size
     // Calculate mistakes per session
     sessionStats.totalSessions += 1
     sessionStats.averages.wpm = Math.round(
@@ -259,7 +261,12 @@ export class TypeTrainer extends React.Component<{}, State> {
     )
   }
 
-  private wordsPerMinute(sessionStats: { wpm: number; mistakeCount: number; totalSessions: number; averages: { wpm: number; mistakeCount: number } }) {
+  private wordsPerMinute(sessionStats: {
+    wpm: number
+    mistakeCount: number
+    totalSessions: number
+    averages: { wpm: number; mistakeCount: number }
+  }) {
     const minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
     const conventionalWordLength = 5
     const words = this.state.trainingString.length / conventionalWordLength
@@ -287,8 +294,8 @@ export class TypeTrainer extends React.Component<{}, State> {
       {
         cursor: 0,
         trainingString: string,
-        mistakeCharIndexes: new Set(),
-        machineState: MachineState.SessionReady,
+        mistakeCharIndices: new Set(),
+        machineState: "READY",
       },
       () => this.logStatus()
     )
@@ -301,7 +308,7 @@ export class TypeTrainer extends React.Component<{}, State> {
   private guidedModeText(): string {
     const generator = this.state.generator as GuidedModeStringGenerator
     const options = this.state.settings.stringOptions
-    return generator.generate(options, this.state.settings.layout, this.getCurrentLevel())
+    return generator.generate(options, this.state.settings.keyboard, this.getCurrentLevel())
   }
 
   private practiceModeText(): string {
@@ -328,10 +335,30 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ settings: settings })
   }
 
-  changeTrainingStringOptions(trainingStringOptions: UserStringOptions): void {
+  changeTrainingStringOptions(trainingStringOptions: StringGeneratorOptions): void {
     const settings = { ...this.state.settings }
     settings.stringOptions = { ...trainingStringOptions }
     this.setState({ settings: settings }, () => this.prepareNewSession())
+  }
+
+  currentActiveKeyCodes(): KeyCode[] {
+    if (this.state.trainingMode === TrainingMode.Guided) {
+      const keyboard = this.state.settings.keyboard
+      const { keyBoardRows: rows, hand, fingers } = this.getCurrentLevel()
+      let active: KeyCode[] = []
+      const activeRows = rows.map(row => keyboard.layout[row])
+      activeRows.forEach(row => {
+        active = active.concat(row.filter(keyCap => {
+          const belongsToHand = (hand === Hand.ANY || hand === keyCap.fingerHand.hand)
+          const belongsToFingers = ((fingers === [Finger.ANY]) || fingers.includes(keyCap.fingerHand.finger))
+
+          return belongsToHand && belongsToFingers
+        }).map(keyCap => keyCap.code))
+      })
+      return active
+    } else {
+      return this.state.settings.language.characterSet.uniqueKeyCodes()
+    }
   }
 
   render(): JSX.Element {
@@ -352,7 +379,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           onHide={() => this.setSettingsModalShow(false)}
           mode={this.state.trainingMode}
           trainingStringOptions={this.state.settings.stringOptions}
-          updateFn={(updatedOptions: UserStringOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+          updateFn={(updatedOptions: StringGeneratorOptions): void => this.changeTrainingStringOptions(updatedOptions)}
         ></SettingsModal>
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
@@ -377,23 +404,19 @@ export class TypeTrainer extends React.Component<{}, State> {
             {
               <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
                 <FormattedText
-                  greyed={this.state.machineState === MachineState.Paused}
+                  greyed={this.state.machineState === "PAUSED"}
                   cursor={this.state.cursor}
                   trainingString={this.state.trainingString}
-                  mistakeCharIndexes={this.state.mistakeCharIndexes}
+                  mistakeCharIndexes={this.state.mistakeCharIndices}
                 />
               </TextDisplay>
             }
             {
-              <Keyboard
-                layout={this.state.settings.layout}
+              <VirtualKeyboard
+                layout={this.state.settings.keyboard}
                 pressed={this.state.pressed}
-                active={Language.uniqueKeyCodes(
-                  this.state.settings.layout.charSet.subSet({
-                    trainingLevel: this.getCurrentLevel(),
-                  })
-                )}
-                current={this.state.settings.layout.charSet.keyCodeFromChar(
+                active={this.currentActiveKeyCodes()}
+                currentKey={this.state.settings.language.characterSet.mapGlyphToKeyCode(
                   this.state.trainingString[this.state.cursor]
                 )}
               />

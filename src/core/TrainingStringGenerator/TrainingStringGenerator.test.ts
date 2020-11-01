@@ -1,8 +1,8 @@
-import { defaultGuidedModeStringOptions, UserStringOptions } from "../../components/defaultState"
+import { defaultGuidedModeStringGeneratorOptions, UserStringOptions } from "../../components/defaultState"
 import { GuidedModeStringGenerator } from "./TrainingStringGenerator"
 import {dict as english}  from "../../assets/Dictionaries/english.json"
 import { Language } from "../Language"
-import Courses, { CourseLevel } from "../../assets/Courses/Courses"
+import Courses, { CourseLevel } from "../../assets/courses/Courses"
 
 it.todo('rewrite')
 

@@ -1,22 +1,8 @@
 import { KeyCode } from "./KeyCode"
 
-export enum CharacterType {
-  NONE,
-  LOWERCASE_LETTER,
-  NUMBER,
-  PUNCTUATION,
-  SPECIAL,
-  PROGRAMMING,
-}
-export enum CharacterBehavior {
-  NONE,
-  PREPEND,
-  APPEND,
-  PREPEND_OR_APPEND,
-  SPLIT,
-  BRACKET,
-  OPERATOR,
-}
+export type CharacterType = "NONE" | "LOWERCASE_LETTER" | "NUMBER" | "PUNCTUATION" | "SPECIAL" | "PROGRAMMING"
+
+export type CharacterBehavior = "NONE" | "PREPEND" | "APPEND" | "PREPEND_OR_APPEND" | "SPLIT" | "BRACKET" | "OPERATOR"
 
 export type Character = {
   code: KeyCode[]
@@ -58,17 +44,5 @@ export default class CharacterSet {
     const character = this._characters.find(character => character.code.length === 1 && character.glyph === glyph)
     if (character != null) return character.code[0]
     return "NONE"
-  }
-
-  ofType(type: CharacterType | CharacterType[], invert?: boolean): CharacterSet {
-    let restricted = [...this._characters]
-    if (type instanceof Array) {
-      restricted = restricted.filter((char) =>
-        invert ? (type as CharacterType[]).every((type) => type !== char.type) : char.type === options.type
-      )
-    } else {
-      restricted = restricted.filter((char) => (invert ? char.type !== type : char.type === type))
-    }
-    return new CharacterSet(restricted)
   }
 }

@@ -1,18 +1,21 @@
-import CharacterSet, { Character} from "./CharacterSet";
+import CharacterSet, { Character } from "./CharacterSet"
 
 export class Language {
   private _characters: Character[]
-  constructor(private _characterSet: CharacterSet, private _vowels: string[]) { 
+  constructor(private _characterSet: CharacterSet, private _vowels: string[], private _dictionary: string[]) {
     this._characters = this._characterSet.characters
   }
   get characterSet(): CharacterSet {
     return this._characterSet
   }
   get characters(): Character[] {
-    return this._characters;
+    return this._characters
   }
   get vowels(): string[] {
-    return this._vowels;
+    return this._vowels
+  }
+  get dictionary(): string[] {
+    return this._dictionary
   }
 
   // charSetAtCourseLevel(courseLevel: CourseLevel): Character[] {

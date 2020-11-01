@@ -1,4 +1,4 @@
-import { Character, CharacterBehavior } from "../CharacterSet"
+import { Character } from "../CharacterSet"
 
 export interface ICharacterInserter {
   apply(str: string, character: Character): string
@@ -7,7 +7,7 @@ export interface ICharacterInserter {
 
 export class PrependCharacterInserter implements ICharacterInserter {
   apply(str: string, character: Character): string {
-    if (character.behavior !== CharacterBehavior.PREPEND) return str
+    if (character.behavior !== 'PREPEND') return str
     return character.glyph + str
   }
 }
@@ -15,7 +15,7 @@ export class PrependCharacterInserter implements ICharacterInserter {
 export class AppendCharacterInserter
  implements ICharacterInserter {
   apply(str: string, character: Character): string {
-    if (character.behavior !== CharacterBehavior.APPEND) return str
+    if (character.behavior !== 'APPEND') return str
     return str + character.glyph
   }
 }
@@ -23,7 +23,7 @@ export class AppendCharacterInserter
 export class PrependOrAppendCharacterInserter
  implements ICharacterInserter {
   apply(str: string, character: Character): string {
-    if (character.behavior !== CharacterBehavior.PREPEND_OR_APPEND) return str
+    if (character.behavior !== 'PREPEND_OR_APPEND') return str
     return Math.random() < 0.5 ? character.glyph + str : str + character.glyph
   }
 }
@@ -31,7 +31,7 @@ export class PrependOrAppendCharacterInserter
 export class BracketCharacterInserter
  implements ICharacterInserter {
   apply(str: string, character: Character): string {
-    if (character.behavior !== CharacterBehavior.BRACKET) return str
+    if (character.behavior !== 'BRACKET') return str
     if (character.bracketPair != null) return character.glyph + str + character.bracketPair
     return character.glyph + str + character.glyph
   }
@@ -40,7 +40,7 @@ export class BracketCharacterInserter
 export class SplitCharacterInserter  implements ICharacterInserter {
   constructor(private vowels: string[]) {}
   apply(str: string, character: Character): string {
-    if (character.behavior !== CharacterBehavior.SPLIT) return str
+    if (character.behavior !== 'SPLIT') return str
     if (str.length < 5) return str // ignore short strings
     const isVowel = (char: string): boolean => this.vowels.includes(char)
     // try to split somewhere after 2nd and before 2nd-to-last letters
@@ -64,7 +64,7 @@ export class SplitCharacterInserter  implements ICharacterInserter {
 export class OperatorCharacterInserter
  implements ICharacterInserter {
   apply(str: string, character: Character): string {
-    if (character.behavior !== CharacterBehavior.OPERATOR) return str
+    if (character.behavior !== 'OPERATOR') return str
     return str + ' ' + character.glyph
   }
 }
@@ -75,22 +75,22 @@ export default class CharacterInserter {
   apply(str: string, character: Character): string {
     let inserter
     switch (character.behavior) {
-      case CharacterBehavior.PREPEND:
+      case 'PREPEND':
         inserter = new PrependCharacterInserter()
         break
-      case CharacterBehavior.APPEND:
+      case 'APPEND':
         inserter = new AppendCharacterInserter()
         break
-      case CharacterBehavior.PREPEND_OR_APPEND:
+      case 'PREPEND_OR_APPEND':
         inserter = new PrependOrAppendCharacterInserter()
         break
-      case CharacterBehavior.BRACKET:
+      case 'BRACKET':
         inserter = new BracketCharacterInserter()
         break
-      case CharacterBehavior.SPLIT:
+      case 'SPLIT':
         inserter = new SplitCharacterInserter(this.vowels)
         break
-      case CharacterBehavior.OPERATOR:
+      case 'OPERATOR':
         inserter = new OperatorCharacterInserter()
         break
       default:

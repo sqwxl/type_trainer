@@ -1,19 +1,19 @@
-import { Character, CharacterType, CharacterBehavior } from '../CharacterSet'
+import { Character } from '../CharacterSet'
 import { AppendCharacterInserter, BracketCharacterInserter, ICharacterInserter, OperatorCharacterInserter, PrependCharacterInserter, PrependOrAppendCharacterInserter, SplitCharacterInserter } from './CharacterInserter'
 
-const nullCharacter: Character = { code: ['NONE'], glyph: '', type: CharacterType.NONE, behavior: CharacterBehavior.NONE }
-const prependingCharacter: Character = { code: ["Digit3"], glyph: "#", type: CharacterType.SPECIAL, behavior: CharacterBehavior.PREPEND }
-const appendingCharacter: Character = { code: ["KeyA"], glyph: "a", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND }
-const prependOrAppendCharacter: Character = { code: ["Equal"], glyph: "++", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.PREPEND_OR_APPEND }
+const nullCharacter: Character = { code: ['NONE'], glyph: '', type: 'NONE', behavior: 'NONE' }
+const prependingCharacter: Character = { code: ["Digit3"], glyph: "#", type: 'SPECIAL', behavior: 'PREPEND' }
+const appendingCharacter: Character = { code: ["KeyA"], glyph: "a", type: 'LOWERCASE_LETTER', behavior: 'APPEND' }
+const prependOrAppendCharacter: Character = { code: ["Equal"], glyph: "++", type: 'PROGRAMMING', behavior: 'PREPEND_OR_APPEND' }
 const pairedBracketingCharacter: Character = {
     code: ["Digit9", "Digit0"],
     glyph: "(", bracketPair:")",
-    type: CharacterType.PUNCTUATION,
-    behavior: CharacterBehavior.BRACKET,
+    type: 'PUNCTUATION',
+    behavior: 'BRACKET',
   }
-const unpairedBracketingCharacter: Character = { code: ["Quote"], glyph: '"', type: CharacterType.PUNCTUATION, behavior: CharacterBehavior.BRACKET }
-const splittingCharacter: Character = { code: ["Digit2"], glyph: "@", type: CharacterType.SPECIAL, behavior: CharacterBehavior.SPLIT }
-const operatorCharacter: Character = { code: ["Equal"], glyph: "=", type: CharacterType.PROGRAMMING, behavior: CharacterBehavior.OPERATOR }
+const unpairedBracketingCharacter: Character = { code: ["Quote"], glyph: '"', type: 'PUNCTUATION', behavior: 'BRACKET' }
+const splittingCharacter: Character = { code: ["Digit2"], glyph: "@", type: 'SPECIAL', behavior: 'SPLIT' }
+const operatorCharacter: Character = { code: ["Equal"], glyph: "=", type: 'PROGRAMMING', behavior: 'OPERATOR' }
 
 const testStr = 'parfumerie'
 const mockVowels = 'aeiou'.split('')

@@ -1,12 +1,11 @@
 import "./Keyboard.css"
 import React from "react"
-import { KeyboardLayout } from "../../core/KeyboardLayout"
+import Keyboard, { KeyCapLabel } from "../../core/Keyboard"
 import { KeyCode } from "../../core/KeyCode"
-import { KeyCapLabel } from "../../core/Keyboard"
 
 
 
-export default function Keyboard(props: { layout: KeyboardLayout; pressed: Set<string>; active: KeyCode[]; current: KeyCode }): JSX.Element {
+export default function VirtualKeyboard(props: { layout: Keyboard; pressed: Set<string>; active: KeyCode[]; currentKey: KeyCode }): JSX.Element {
   // const { keyLabels } = useContext(KeyboardLayoutContext)
 
   function generateLabelHtml(keyCapLabel: KeyCapLabel): JSX.Element {
@@ -42,7 +41,7 @@ export default function Keyboard(props: { layout: KeyboardLayout; pressed: Set<s
 
   return (
     <div className={"keyboard"} id="keyboard" data-testid="keyboard">
-      {props.layout.keyboard.map((row, rowIdx) => (
+      {props.layout.layout.map((row, rowIdx) => (
         <ul key={"row-" + rowIdx} className={"keyboard-flex-row row-" + rowIdx}>
           {row.map(keyBtn => {
             // Determine style classes to apply to each btn
@@ -56,7 +55,7 @@ export default function Keyboard(props: { layout: KeyboardLayout; pressed: Set<s
             const keyIsActive = props.active.includes(keyBtn.code)
             if (!keyIsActive) classes.push("greyed")
             // Current
-            const keyIsCurrent = props.current === keyBtn.code
+            const keyIsCurrent = props.currentKey === keyBtn.code
             if (keyIsCurrent) classes.push("highlight")
 
             // Generate label html

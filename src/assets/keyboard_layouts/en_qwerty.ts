@@ -1,0 +1,71 @@
+import Keyboard, { KeyCapLabelMap } from "../../core/Keyboard"
+
+
+
+const keyCapLabelMap: KeyCapLabelMap = {
+  NONE: { main: "" },
+  Backquote: { main: "`", shift: "~" },
+  Digit1: { main: "1", shift: "!" },
+  Digit2: { main: "2", shift: "@" },
+  Digit3: { main: "3", shift: "#" },
+  Digit4: { main: "4", shift: "$" },
+  Digit5: { main: "5", shift: "%" },
+  Digit6: { main: "6", shift: "^" },
+  Digit7: { main: "7", shift: "&" },
+  Digit8: { main: "8", shift: "*" },
+  Digit9: { main: "9", shift: "(" },
+  Digit0: { main: "0", shift: ")" },
+  Minus: { main: "-", shift: "_" },
+  Equal: { main: "=", shift: "+" },
+  Backspace: { main: "Backspace" },
+  Tab: { main: "Tab" },
+  KeyQ: { main: "q", shift: "Q" },
+  KeyW: { main: "w", shift: "W" },
+  KeyE: { main: "e", shift: "E" },
+  KeyR: { main: "r", shift: "R" },
+  KeyT: { main: "t", shift: "T" },
+  KeyY: { main: "y", shift: "Y" },
+  KeyU: { main: "u", shift: "U" },
+  KeyI: { main: "i", shift: "I" },
+  KeyO: { main: "o", shift: "O" },
+  KeyP: { main: "p", shift: "P" },
+  BracketLeft: { main: "[", shift: "{" },
+  BracketRight: { main: "]", shift: "}" },
+  Backslash: { main: "\\", shift: "|" },
+  CapsLock: { main: "CapsLock" },
+  KeyA: { main: "a", shift: "A" },
+  KeyS: { main: "s", shift: "S" },
+  KeyD: { main: "d", shift: "D" },
+  KeyF: { main: "f", shift: "F" },
+  KeyG: { main: "g", shift: "G" },
+  KeyH: { main: "h", shift: "H" },
+  KeyJ: { main: "j", shift: "J" },
+  KeyK: { main: "k", shift: "K" },
+  KeyL: { main: "l", shift: "L" },
+  Semicolon: { main: ";", shift: ":" },
+  Quote: { main: "'", shift: '"' },
+  Enter: { main: "Enter" },
+  ShiftLeft: { main: "Shift" },
+  KeyZ: { main: "z", shift: "Z" },
+  KeyX: { main: "x", shift: "X" },
+  KeyC: { main: "c", shift: "C" },
+  KeyV: { main: "v", shift: "V" },
+  KeyB: { main: "b", shift: "B" },
+  KeyN: { main: "n", shift: "N" },
+  KeyM: { main: "m", shift: "M" },
+  Comma: { main: ",", shift: "<" },
+  Period: { main: ".", shift: ">" },
+  Slash: { main: "/", shift: "?" },
+  ShiftRight: { main: "Shift" },
+  ControlLeft: { main: "Ctrl" },
+  AltLeft: { main: "Alt" },
+  Space: { main: "" },
+  AltRight: { main: "Alt" },
+  ControlRight: { main: "Ctrl" }
+}
+
+
+
+const EnglishQwertyLayout = new Keyboard(keyCapLabelMap)
+
+export default EnglishQwertyLayout

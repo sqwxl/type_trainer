@@ -1,10 +1,11 @@
-import { Finger, Hand } from "../../core/Keyboard"
+import { Hand, Finger } from "../../core/Keyboard"
+
 
 export interface CourseLevel {
   description: string
-  keyBoardRows?: number[]
-  hand?: Hand
-  fingers?: Finger[]
+  keyBoardRows: number[]
+  hand: Hand
+  fingers: Finger[]
 }
 export type Course = {
   name: string
@@ -12,16 +13,16 @@ export type Course = {
   levels: CourseLevel[]
 }
 
-const Fingers: Course = {
+/* const Fingers: Course = {
   name: "Finger by finger",
   description: "TODO",
   levels: [
-    { description: "Both indexes", fingers: [Finger.THUMB, Finger.INDEX] },
-    { description: "Both indexes", fingers: [Finger.THUMB, Finger.INDEX, Finger.MIDDLE] },
-    { description: "Both indexes", fingers: [Finger.THUMB, Finger.INDEX, Finger.MIDDLE, Finger.RING] },
-    { description: "Both indexes", fingers: [Finger.ANY] },
+    { description: "Both indexes", hand: Hand.ANY, fingers: [Finger.THUMB, Finger.INDEX] },
+    { description: "Both indexes", hand: Hand.ANY, fingers: [Finger.THUMB, Finger.INDEX, Finger.MIDDLE] },
+    { description: "Both indexes", hand: Hand.ANY, fingers: [Finger.THUMB, Finger.INDEX, Finger.MIDDLE, Finger.RING] },
+    { description: "Both indexes", hand: Hand.ANY, fingers: [Finger.ANY] },
   ],
-}
+} */
 
 const GuidedCourse: Course = {
   name: "Guided Course",
@@ -122,6 +123,6 @@ const GuidedCourse: Course = {
     { description: "Full keyboard", keyBoardRows: [0, 1, 2, 3], hand: Hand.ANY, fingers: [Finger.ANY] },
   ],
 }
-const Courses = { guidedCourse: GuidedCourse, fingers: Fingers }
+const Courses = { guidedCourse: GuidedCourse }
 
 export default Courses

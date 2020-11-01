@@ -1,9 +1,9 @@
 import { UserStringOptions } from "../../components/defaultState"
 import MarkovChain from "./MarkovChain"
 import { wordModifier } from "./WordModifiers"
-import Layout, { CharacterType } from "../KeyboardLayout"
+import Layout, { CharacterType } from "../Keyboard"
 import { Language } from "../Language"
-import { CourseLevel } from "../../assets/Courses/Courses"
+import { CourseLevel } from "../../assets/courses/Courses"
 
 export interface TrainingStringGenerator {
   generate(options: UserStringOptions, layout?: Layout, lvl?: CourseLevel): string

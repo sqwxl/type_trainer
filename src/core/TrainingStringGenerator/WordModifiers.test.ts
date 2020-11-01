@@ -1,21 +1,19 @@
-import { UserStringOption, FormType } from "../../components/defaultState"
 import { mockCharacters, mockCharacterSet } from "../../utils/mockValues"
-import { CharacterType } from "../CharacterSet"
 import { NumsWordModifier, CapsWordModifier, PunctWordModifier } from "./WordModifiers"
-
+/* 
 
 const NOOP_OPTIONS = {
-  wordModifierOptions: new UserStringOption({
+  wordModifierOptions: new StringGeneratorOption({
     value: {
-      caps: new UserStringOption({ value: false, formLabel: "Aa", formType: FormType.Switch }),
-      punct: new UserStringOption({ value: false, formLabel: "Punctuation", formType: FormType.Switch }),
-      syms: new UserStringOption({ value: false, formLabel: "Symbols", formType: FormType.Switch }),
-      nums: new UserStringOption({ value: false, formLabel: "0-9", formType: FormType.Switch }),
+      caps: new StringGeneratorOption({ value: false, formLabel: "Aa", formType: FormType.Switch }),
+      punct: new StringGeneratorOption({ value: false, formLabel: "Punctuation", formType: FormType.Switch }),
+      syms: new StringGeneratorOption({ value: false, formLabel: "Symbols", formType: FormType.Switch }),
+      nums: new StringGeneratorOption({ value: false, formLabel: "0-9", formType: FormType.Switch }),
     },
     formLabel: "Options",
     formType: FormType.Parent,
   }),
-  modifyingLikelihood: new UserStringOption({
+  modifyingLikelihood: new StringGeneratorOption({
     value: 1,
     formLabel: "% modified",
     formType: FormType.Number,
@@ -24,11 +22,11 @@ const NOOP_OPTIONS = {
     step: 0.1,
   }),
 }
-
+ */
 
 
 describe("NumsWordModifier", () => {
-  const numberChars = mockCharacterSet.ofType(CharacterType.NUMBER)
+  const numberChars = mockCharacterSet.characters.filter(ch => ch.type === 'NUMBER')
  it("should not alter string when not enabled", () => {
     expect(new NumsWordModifier(false, numberChars).modify("word")).toEqual("word")
   })

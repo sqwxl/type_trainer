@@ -1,121 +1,89 @@
 import { themes } from "./Contexts/ThemeContext/ThemeContext"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import Courses, { Course } from "../assets/Courses/Courses"
+import Courses, { Course } from "../assets/courses/Courses"
 import {
   PracticeModeStringGenerator,
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
+import en_qwerty from "../assets/keyboard_layouts/en_qwerty"
+import state_and_revolution from "../assets/texts/state_and_revolution"
+import English from "../assets/languages/english/English"
+import { StringGeneratorOption, StringGeneratorOptions } from "../core/TrainingStringGenerator/StringGeneratorOption"
+import { TrainingMode, MachineState } from "./TypeTrainer"
+import TrainingText from "../core/TrainingText"
 import { Language } from "../core/Language"
-import enUsQwerty from "../assets/Layouts/en_US"
-import text from "../assets/Texts/state_and_revolution"
-import sanitizeStringForChars from "../utils/sanitizeStringForChars"
-import { KeyboardLayout } from "../core/KeyboardLayout"
-import { CharacterType } from "../core/CharacterSet"
+import Keyboard from "../core/Keyboard"
 
-const stateRev = text // TODO: Make generic lol
 
-export enum MachineState {
-  Loaded = "LOADED",
-  SessionReady = "READY",
-  Paused = "PAUSED",
-  Training = "TRAINING",
-}
+const defaultLayout = en_qwerty
+const defaultLanguage = English
+const defaultText = new TrainingText(state_and_revolution, English)
+const defaultGenerator = new PracticeModeStringGenerator()
 
-export enum TrainingMode {
-  Guided = "Guided Mode",
-  Practice = "Practice Mode",
-  Code = "Code Mode",
-}
-export const FontSizes: { [key: number]: string } = {
-  0: "1rem",
-  1: "1.5rem",
-  2: "2rem",
-}
+export const FontSizes = ["1rem","1.5rem","2rem"]
 
-export enum FormType {
-  Parent,
-  Switch,
-  Number,
-  Text,
-  Select,
-}
-
-export class UserStringOption {
-  value: boolean | number | string | UserStringOptions
-  formLabel: string
-  formType: FormType
-  min: number
-  max: number
-  step: number
-  values: string[]
-  constructor(
-    init: {value: boolean | number | string | UserStringOptions,
-    formLabel: string,
-    formType: FormType,
-    min?: number,
-    max?: number,
-    step?: number,
-    values?: string[]}
-  ) {
-    const { value, formLabel, formType, min, max, step, values } = init
-    this.value = value
-    this.formLabel = formLabel
-    this.formType = formType
-    this.min = min == null ? 0 : min
-    this.max = max == null ? 100 : max
-    this.step = step == null ? 1 : step
-    this.values = values == null ? [] : values
-  }
-  setNestedOption(name: string, value: boolean | number | string | UserStringOptions): boolean {
-    if (isUserStringOptions(this.value)) {
-      if (name in this.value) {
-        this.value[name].value = value
-        return true
-      } else {
-        Object.values(this.value).forEach(userStringOption => userStringOption.setNestedOption(name, value))
-      }
-    }
-    return false
-    function isUserStringOptions(value: boolean | number | string | UserStringOptions): value is UserStringOptions {
-      return value as UserStringOptions !== undefined && Object.values(value as UserStringOptions).some(val => val.value !== undefined || isUserStringOptions(val.value))
-    }
-  }
-}
-
-export interface UserStringOptions {
-  [key: string]: UserStringOption
-}
-
-export const defaultGuidedModeStringOptions: UserStringOptions = {
-  wordLength: new UserStringOption({value:
-    {
-      minLength: new UserStringOption({value: 3, formLabel: "Minimum", formType: FormType.Number, min: 3, max: 6, step: 1}),
-      maxLength: new UserStringOption({value: 12, formLabel: "Maximum", formType: FormType.Number, min: 7, max: 15, step: 1}),
+export const defaultGuidedModeStringGeneratorOptions: StringGeneratorOptions = {
+  wordLength: new StringGeneratorOption({
+    value: {
+      minLength: new StringGeneratorOption({
+        value: 3,
+        formLabel: "Minimum",
+        formType: 'NUMBER',
+        min: 3,
+        max: 6,
+        step: 1,
+      }),
+      maxLength: new StringGeneratorOption({
+        value: 12,
+        formLabel: "Maximum",
+        formType: 'NUMBER',
+        min: 7,
+        max: 15,
+        step: 1,
+      }),
     },
-    formLabel:"Word length",
-    formType: FormType.Parent}
-  ),
-  wordModifierOptions: new UserStringOption({value:
-    {
-      caps: new UserStringOption({ value: false, formLabel: "Aa", formType: FormType.Switch }),
-      punct: new UserStringOption({ value: false, formLabel:  "Punctuation", formType: FormType.Switch}),
-      syms: new UserStringOption({  value: false, formLabel: "Symbols", formType:  FormType.Switch }),
-      nums: new UserStringOption({ value: false, formLabel: "0-9", formType: FormType.Switch}),
+    formLabel: "Word length",
+    formType: 'PARENT',
+  }),
+  wordModifierOptions: new StringGeneratorOption({
+    value: {
+      caps: new StringGeneratorOption({ value: false, formLabel: "Aa", formType: 'SWITCH' }),
+      punct: new StringGeneratorOption({ value: false, formLabel: "Punctuation", formType: 'SWITCH' }),
+      syms: new StringGeneratorOption({ value: false, formLabel: "Symbols", formType: 'SWITCH' }),
+      nums: new StringGeneratorOption({ value: false, formLabel: "0-9", formType: 'SWITCH' }),
     },
     formLabel: "Options",
-    formType: FormType.Parent},
-  ),
-  modifyingLikelihood: new UserStringOption({ value: 0.8, formLabel: "% modified", formType: FormType.Number, min: 0, max: 1, step: 0.1 }),
-  wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
+    formType: 'PARENT',
+  }),
+  modifyingLikelihood: new StringGeneratorOption({
+    value: 0.8,
+    formLabel: "% modified",
+    formType: 'NUMBER',
+    min: 0,
+    max: 1,
+    step: 0.1,
+  }),
+  wordsPerString: new StringGeneratorOption({
+    value: 6,
+    formLabel: "Words per session",
+    formType: 'NUMBER',
+    min: 1,
+    max: 100,
+    step: 1,
+  }),
 }
-export const defaultLayout = new KeyboardLayout(enUsQwerty.keyCapLabelMap)
-export const defaultLanguage = new Language(enUsQwerty.characterSet, enUsQwerty.vowels)
-export const formattedSource = sanitizeStringForChars(stateRev, defaultLanguage.characterSet.uniqueGlyphs()) // TODO MAKE GENERIC
 
-export const defaultPracticeModeStringOptions: UserStringOptions = {
-  sourceText: new UserStringOption({ value: formattedSource, formLabel: "Source text", formType: FormType.Text}),
-  fullSentences: new UserStringOption({ value: true, formLabel: "Full sentences", formType:  FormType.Switch }),
-  wordsPerString: new UserStringOption({ value: 6, formLabel: "Words per session", formType: FormType.Number, min: 1, max: 100, step: 1 }),
+export const defaultPracticeModeStringOptions: StringGeneratorOptions = {
+  sourceText: new StringGeneratorOption({ value: defaultText.text, formLabel: "Source text", formType: 'TEXT' }),
+  fullSentences: new StringGeneratorOption({ value: true, formLabel: "Full sentences", formType: 'SWITCH' }),
+  wordsPerString: new StringGeneratorOption({
+    value: 6,
+    formLabel: "Words per session",
+    formType: 'NUMBER',
+    min: 1,
+    max: 100,
+    step: 1,
+  }),
 }
 
 export enum CodingLanguage {
@@ -126,28 +94,31 @@ export enum CodingLanguage {
   "Python" = "Python",
 }
 
-export const defaultCodeModeStringOptions: UserStringOptions = {
-  language: new UserStringOption({
+export const defaultCodeModeStringOptions: StringGeneratorOptions = {
+  language: new StringGeneratorOption({
     value: CodingLanguage.JS,
     formLabel: "Language",
-    formType: FormType.Select,
-    values: Object.values(CodingLanguage) as string[]}
-  ),
-  lines: new UserStringOption({ value: 6, formLabel: "Lines", formType: FormType.Number, min: 1, max: 20, step: 1 }),
+    formType: 'SELECT',
+    values: Object.values(CodingLanguage) as string[],
+  }),
+  lines: new StringGeneratorOption({ value: 6, formLabel: "Lines", formType: 'NUMBER', min: 1, max: 20, step: 1 }),
 }
 
 interface Settings {
-  layout: Layout
+  language: Language
+  keyboard: Keyboard
   UI: {
     theme: { [index: string]: CSSCustomProperties }
     fontSize: number
   }
   course: Course
-  stringOptions: UserStringOptions
+  stringOptions: StringGeneratorOptions
 }
+
 const defaultSettings: Settings = {
+  language: defaultLanguage,
+  keyboard: defaultLayout,
   UI: { theme: themes.dark, fontSize: 1 },
-  layout: defaultLayout,
   course: Courses.guidedCourse,
   stringOptions: defaultPracticeModeStringOptions,
 }
@@ -155,13 +126,13 @@ const defaultSettings: Settings = {
 export interface State {
   modeSelectShow: boolean
   settingsModalShow: boolean
-  trainingMode: TrainingMode
+  trainingMode: TrainingMode          // TODO: move to settings
   generator: TrainingStringGenerator
   pressed: Set<string>
   machineState: MachineState
   trainingString: string
   cursor: number
-  mistakeCharIndexes: Set<number>
+  mistakeCharIndices: Set<number>
   courseLevelIndex: number
   stats: {
     wpm: number
@@ -174,7 +145,6 @@ export interface State {
   }
   settings: Settings
 }
-export const defaultGenerator = new PracticeModeStringGenerator()
 
 export const defaultState: State = {
   modeSelectShow: false,
@@ -183,7 +153,7 @@ export const defaultState: State = {
   generator: defaultGenerator,
   trainingString: "",
   cursor: 0,
-  mistakeCharIndexes: new Set(),
+  mistakeCharIndices: new Set(),
   courseLevelIndex: 33,
   stats: {
     wpm: 0,
@@ -192,7 +162,7 @@ export const defaultState: State = {
     averages: { wpm: 0, mistakeCount: 0 },
   },
   pressed: new Set(),
-  machineState: MachineState.Loaded,
+  machineState: 'LOADED',
   settings: { ...defaultSettings },
 }
 
