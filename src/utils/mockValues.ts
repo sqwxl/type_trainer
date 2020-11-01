@@ -1,36 +1,36 @@
-import CharacterSet, { CharacterType, CharacterBehavior, Character } from "../core/CharacterSet";
+import CharacterSet, { Character } from "../core/CharacterSet";
 import { KeyCapLabelMap } from "../core/Keyboard";
 
 export const mockCharacters: Character[] = [
-  { code: ["KeyA"], glyph: "a", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
-  { code: ["KeyB"], glyph: "b", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
-  { code: ["KeyC"], glyph: "c", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
-  { code: ["KeyD"], glyph: "d", type: CharacterType.LOWERCASE_LETTER, behavior: CharacterBehavior.APPEND },
+  { code: ["KeyA"], glyph: "a", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
+  { code: ["KeyB"], glyph: "b", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
+  { code: ["KeyC"], glyph: "c", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
+  { code: ["KeyD"], glyph: "d", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
 
   // DIGITS
-  { code: ["Digit0"], glyph: "0", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit1"], glyph: "1", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit2"], glyph: "2", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit3"], glyph: "3", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit4"], glyph: "4", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit5"], glyph: "5", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit6"], glyph: "6", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit7"], glyph: "7", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit8"], glyph: "8", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit9"], glyph: "9", type: CharacterType.NUMBER, behavior: CharacterBehavior.APPEND },
+  { code: ["Digit0"], glyph: "0", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit1"], glyph: "1", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit2"], glyph: "2", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit3"], glyph: "3", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit4"], glyph: "4", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit5"], glyph: "5", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit6"], glyph: "6", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit7"], glyph: "7", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit8"], glyph: "8", type: 'NUMBER', behavior: 'APPEND' },
+  { code: ["Digit9"], glyph: "9", type: 'NUMBER', behavior: 'APPEND' },
 
   // PUNCTUATION
-  { code: ["Comma"], glyph: ",", type: CharacterType.PUNCTUATION, behavior: CharacterBehavior.APPEND },
-  { code: ["Quote"], glyph: "'", type: CharacterType.PUNCTUATION, behavior: CharacterBehavior.SPLIT },
-  { code: ["Quote"], glyph: '"', type: CharacterType.PUNCTUATION, behavior: CharacterBehavior.BRACKET },
+  { code: ["Comma"], glyph: ",", type: 'PUNCTUATION', behavior: 'APPEND' },
+  { code: ["Quote"], glyph: "'", type: 'PUNCTUATION', behavior: 'SPLIT' },
+  { code: ["Quote"], glyph: '"', type: 'PUNCTUATION', behavior: 'BRACKET' },
 
   // SYMBOLS
-  { code: ["Digit2"], glyph: "@", type: CharacterType.SPECIAL, behavior: CharacterBehavior.SPLIT },
-  { code: ["Digit3"], glyph: "#", type: CharacterType.SPECIAL, behavior: CharacterBehavior.PREPEND },
-  { code: ["Digit4"], glyph: "$", type: CharacterType.SPECIAL, behavior: CharacterBehavior.APPEND },
-  { code: ["Digit6"], glyph: "^", type: CharacterType.SPECIAL, behavior: CharacterBehavior.OPERATOR },
-  { code: ["Backquote"], glyph: "`", type: CharacterType.SPECIAL, behavior: CharacterBehavior.BRACKET },
-  { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: CharacterType.SPECIAL, behavior: CharacterBehavior.BRACKET },
+  { code: ["Digit2"], glyph: "@", type: 'SPECIAL', behavior: 'SPLIT' },
+  { code: ["Digit3"], glyph: "#", type: 'SPECIAL', behavior: 'PREPEND' },
+  { code: ["Digit4"], glyph: "$", type: 'SPECIAL', behavior: 'APPEND' },
+  { code: ["Digit6"], glyph: "^", type: 'SPECIAL', behavior: 'OPERATOR' },
+  { code: ["Backquote"], glyph: "`", type: 'SPECIAL', behavior: 'BRACKET' },
+  { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: 'SPECIAL', behavior: 'BRACKET' },
 
 ]
 

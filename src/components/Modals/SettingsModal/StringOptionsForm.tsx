@@ -1,12 +1,12 @@
 import React from "react"
 import { Form, FormCheck, FormControl, FormFile, FormGroup, FormLabel } from "react-bootstrap"
-import { UserStringOptions, TrainingMode, FormType } from "../../defaultState"
-// import Range from './Range.tsx'
+import { StringGeneratorOptions } from "../../../core/TrainingStringGenerator/StringGeneratorOption"
+import { TrainingMode } from "../../defaultState"
 
 export default function StringOptionsForm(props: {
   mode: TrainingMode
-  stringOptions: UserStringOptions
-  updateFn: (updatedOptions: UserStringOptions) => void
+  stringOptions: StringGeneratorOptions
+  updateFn: (updatedOptions: StringGeneratorOptions) => void
 }): JSX.Element {
   function setOption(object: any, property: any, value: string | number | boolean): void {
     if (object[property] != null) {
@@ -38,15 +38,15 @@ export default function StringOptionsForm(props: {
 
   const formElements: JSX.Element[] = []
 
-  ;(function populate(options: UserStringOptions): void {
+  ;(function populate(options: StringGeneratorOptions): void {
     let label, section, group
     for (let [key, option] of Object.entries(options)) {
       label = <FormLabel>{option.formLabel + ": "}</FormLabel>
       switch (option.formType) {
-        case FormType.Parent:
-          section = populate(option.value as UserStringOptions)
+        case 'PARENT':
+          section = populate(option.value as StringGeneratorOptions)
           break
-        case FormType.Number:
+        case 'NUMBER':
           section = (
             <FormControl
               key={key + "-key"}
@@ -59,7 +59,7 @@ export default function StringOptionsForm(props: {
             ></FormControl>
           )
           break
-        case FormType.Switch:
+        case 'SWITCH':
           section = (
             <FormCheck
               id={key + "-form"}
@@ -72,7 +72,7 @@ export default function StringOptionsForm(props: {
             ></FormCheck>
           )
           break
-        case FormType.Select:
+        case 'SELECT':
           section = (
             <FormControl as="select" custom>
               {option.values!.map((value) => (
@@ -81,7 +81,7 @@ export default function StringOptionsForm(props: {
             </FormControl>
           )
           break
-        case FormType.Text:
+        case 'TEXT':
           section = <FormFile custom></FormFile>
           break
       }

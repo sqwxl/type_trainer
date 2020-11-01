@@ -25,7 +25,7 @@ const NOOP_OPTIONS = {
  */
 
 
-describe("NumsWordModifier", () => {
+describe.skip("NumsWordModifier", () => {
   const numberChars = mockCharacterSet.characters.filter(ch => ch.type === 'NUMBER')
  it("should not alter string when not enabled", () => {
     expect(new NumsWordModifier(false, numberChars).modify("word")).toEqual("word")

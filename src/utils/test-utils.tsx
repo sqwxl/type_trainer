@@ -1,16 +1,13 @@
 
 import React from 'react'
 import { render } from '@testing-library/react'
-import {KeyboardLayoutContext} from '../components/Contexts/KeyboardLayoutContext/KeyboardLayoutContext'
 import {ThemeContext, themes} from '../components/Contexts/ThemeContext/ThemeContext'
 import enUsQwerty from '../assets/keyboard_layouts/en_qwerty'
 
 const AllProviders = ({ children }: any) => {
   return (
     <ThemeContext.Provider value={{ theme: themes.dark, toggleTheme: () => { }}}>
-      <KeyboardLayoutContext.Provider value={{keyLabels: enUsQwerty.keyCapLabelMap, charset: enUsQwerty.characters}}>
         {children}
-      </KeyboardLayoutContext.Provider>
     </ThemeContext.Provider>
   )
 }

@@ -1,12 +1,10 @@
-import { UserStringOptions } from "../../components/defaultState"
 import MarkovChain from "./MarkovChain"
-import { wordModifier } from "./WordModifiers"
-import Layout, { CharacterType } from "../Keyboard"
 import { Language } from "../Language"
 import { CourseLevel } from "../../assets/courses/Courses"
+import { StringGeneratorOptions } from "./StringGeneratorOption"
 
 export interface TrainingStringGenerator {
-  generate(options: UserStringOptions, layout?: Layout, lvl?: CourseLevel): string
+  generate(options: StringGeneratorOptions): string
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
@@ -17,11 +15,17 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 }
 
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
-  constructor(private dictionary: string[]) {}
+  /* constructor(language: Language, lvl: CourseLevel) {
+    this.language = language
+    this.lvl = lvl
+  } */
 
-  generate(options: UserStringOptions, layout: Layout, lvl: CourseLevel): string {
+  generate(options: StringGeneratorOptions): string {
+    return "todo"
+  }
+  /* 
     const alphabet = Language.uniqueChars(
-      layout.charSet.subSet({ trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER })
+      layout.charSet.subSet({ trainingLevel: lvl, type: 'LOWERCASE_LETTER' })
     )
     function modifyWords(words: string[]): string[] {
       return words.map((word) => wordModifier(word, options, layout.charSet.subSet({ trainingLevel: lvl })))
@@ -47,7 +51,7 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
       words.push(word)
     }
     words = modifyWords(words)
-    return words.join(" ")
+    return words.join(" ") 
   }
 
   private newMarkovChainRestrictedToLetters(allowedLetters: string[]): MarkovChain {
@@ -58,12 +62,12 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
       return true
     })
     return new MarkovChain(3, dict)
-  }
+  } */
 }
 
 export class PracticeModeStringGenerator implements TrainingStringGenerator {
   constructor(private textCursor: number = 0) {}
-  generate(options: UserStringOptions) {
+  generate(options: StringGeneratorOptions) {
     let str: string
     if (options.fullSentences) {
       str = this.nextFullSentence(options.sourceText.value as string)
@@ -72,7 +76,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
     }
     return str
   }
-  nextFullSentence(sourceText: string): string {
+  private nextFullSentence(sourceText: string): string {
     let start = this.textCursor
     let end = this.advanceCursorByOne(sourceText.length, start)
     while (/\s/.test(sourceText[start])) {
@@ -83,17 +87,17 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
         end = this.advanceCursorByOne(sourceText.length, start)
       }
     }
-    while (sourceText[end] !== ".") {
+    while (sourceText[end] !== "." || sourceText[end] !== '!' || sourceText[end] !== '?') {
       end = this.advanceCursorByOne(sourceText.length, end)
     }
     end = this.advanceCursorByOne(sourceText.length, end)
     this.textCursor = this.advanceCursorByOne(sourceText.length, end)
     return sourceText.slice(start, end)
   }
-  advanceCursorByOne(max: number, pos?: number): number {
+  private advanceCursorByOne(max: number, pos?: number): number {
     return pos != null ? (pos + 1) % max : (this.textCursor + 1) % max
   }
-  advanceCursorByWords(options: UserStringOptions): string {
+  private advanceCursorByWords(options: StringGeneratorOptions): string {
     const source = options.sourceText.value as string
     const wordsPerString = options.wordsPerString.value as number
     let count = 0
@@ -125,7 +129,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
 }
 
 export class CodeModeStringGenerator {
-  generate(options: UserStringOptions) {
+  generate(options: StringGeneratorOptions) {
     let string = "todo"
 
     return string

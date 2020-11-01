@@ -6,7 +6,7 @@ import Toolbar from "./Toolbar/Toolbar"
 import { Container } from "react-bootstrap"
 import FormattedText from "./FormattedText/FormattedText"
 import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
-import FontSizeToggle from "./Toolbar/FontSizeSelet"
+import FontSizeToggle from "./Toolbar/FontSizeToggle"
 import { isChar } from "../utils/isChar"
 import { Timer } from "../utils/Timer"
 import QuickStats from "./Toolbar/QuickStats"
@@ -28,18 +28,13 @@ import {
   defaultPracticeModeStringOptions,
   defaultCodeModeStringOptions,
   FontSizes,
+  TrainingMode,
 } from "./defaultState"
 import { StringGeneratorOptions } from "../core/TrainingStringGenerator/StringGeneratorOption"
 import { KeyCode } from "../core/KeyCode"
 import { Finger, Hand } from "../core/Keyboard"
 
-export type MachineState = "LOADED" | "READY" | "PAUSED" | "TRAINING"
 
-export enum TrainingMode {
-  Guided = "Guided Mode",
-  Practice = "Practice Mode",
-  Code = "Code Mode",
-}
 
 export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
@@ -175,7 +170,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     let generator: TrainingStringGenerator
     switch (mode) {
       case TrainingMode.Guided:
-        generator = new GuidedModeStringGenerator(this.state.settings.language.dictionary)
+        generator = new GuidedModeStringGenerator()
         break
       case TrainingMode.Practice:
         generator = new PracticeModeStringGenerator()
@@ -242,14 +237,14 @@ export class TypeTrainer extends React.Component<{}, State> {
 
     sessionStats.wpm = this.wordsPerMinute(sessionStats)
 
-    sessionStats.mistakeCount = this.state.mistakeCharIndices.size
+    sessionStats.mistakeRatio = this.state.mistakeCharIndices.size / this.state.trainingString.length
     // Calculate mistakes per session
     sessionStats.totalSessions += 1
     sessionStats.averages.wpm = Math.round(
       (sessionStats.averages.wpm * (sessionStats.totalSessions - 1) + sessionStats.wpm) / sessionStats.totalSessions
     )
-    sessionStats.averages.mistakeCount = Math.round(
-      (sessionStats.averages.mistakeCount * (sessionStats.totalSessions - 1) + sessionStats.mistakeCount) /
+    sessionStats.averages.mistakeRatio = Math.round(
+      (sessionStats.averages.mistakeRatio * (sessionStats.totalSessions - 1) + sessionStats.mistakeRatio) /
         sessionStats.totalSessions
     )
 
@@ -263,9 +258,9 @@ export class TypeTrainer extends React.Component<{}, State> {
 
   private wordsPerMinute(sessionStats: {
     wpm: number
-    mistakeCount: number
+    mistakeRatio: number
     totalSessions: number
-    averages: { wpm: number; mistakeCount: number }
+    averages: { wpm: number; mistakeRatio: number }
   }) {
     const minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
     const conventionalWordLength = 5
@@ -308,7 +303,7 @@ export class TypeTrainer extends React.Component<{}, State> {
   private guidedModeText(): string {
     const generator = this.state.generator as GuidedModeStringGenerator
     const options = this.state.settings.stringOptions
-    return generator.generate(options, this.state.settings.keyboard, this.getCurrentLevel())
+    return generator.generate(options/* , this.state.settings.keyboard, this.getCurrentLevel() */)
   }
 
   private practiceModeText(): string {
@@ -384,18 +379,15 @@ export class TypeTrainer extends React.Component<{}, State> {
         <Container fluid className="App" style={this.state.settings.UI.theme}>
           {
             <Toolbar
-              stats={<QuickStats sessionStats={this.state.stats} />}
+              stats={<QuickStats key='quickStats' sessionStats={this.state.stats} />}
               buttons={[
                 <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
                   {this.state.trainingMode}
                 </Button>,
-                <div style={{ margin: "0 0.5rem" }} />,
                 <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>
                   Settings
                 </Button>,
-                <div style={{ margin: "0 0.5rem" }} />,
                 <FontSizeToggle key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
-                <div style={{ margin: "0 0.5rem" }} />,
                 <ThemeToggleSwitch key={"themeToggle"} />,
               ]}
             />

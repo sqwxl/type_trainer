@@ -6,7 +6,7 @@ import VirtualKeyboard from "./VirtualKeyboard"
 
 const keyboard = new Keyboard(mockKeyCapLabelMap)
 
-describe("Keyboard", () => {
+describe.skip("Keyboard", () => {
   it("renders without crashing", () => {
     render(<VirtualKeyboard layout={keyboard} pressed={new Set()} active={[]} currentKey={'NONE'} />, {})
     expect(screen.getByText(/Z/)).toBeInTheDocument()

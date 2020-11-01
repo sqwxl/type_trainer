@@ -9,7 +9,6 @@ import en_qwerty from "../assets/keyboard_layouts/en_qwerty"
 import state_and_revolution from "../assets/texts/state_and_revolution"
 import English from "../assets/languages/english/English"
 import { StringGeneratorOption, StringGeneratorOptions } from "../core/TrainingStringGenerator/StringGeneratorOption"
-import { TrainingMode, MachineState } from "./TypeTrainer"
 import TrainingText from "../core/TrainingText"
 import { Language } from "../core/Language"
 import Keyboard from "../core/Keyboard"
@@ -21,7 +20,13 @@ const defaultText = new TrainingText(state_and_revolution, English)
 const defaultGenerator = new PracticeModeStringGenerator()
 
 export const FontSizes = ["1rem","1.5rem","2rem"]
+export type MachineState = "LOADED" | "READY" | "PAUSED" | "TRAINING"
 
+export enum TrainingMode {
+  Guided = "Guided Mode",
+  Practice = "Practice Mode",
+  Code = "Code Mode",
+}
 export const defaultGuidedModeStringGeneratorOptions: StringGeneratorOptions = {
   wordLength: new StringGeneratorOption({
     value: {
@@ -136,11 +141,11 @@ export interface State {
   courseLevelIndex: number
   stats: {
     wpm: number
-    mistakeCount: number
+    mistakeRatio: number
     totalSessions: number
     averages: {
       wpm: number
-      mistakeCount: number
+      mistakeRatio: number
     }
   }
   settings: Settings
@@ -157,9 +162,9 @@ export const defaultState: State = {
   courseLevelIndex: 33,
   stats: {
     wpm: 0,
-    mistakeCount: 0,
+    mistakeRatio: 0,
     totalSessions: 0,
-    averages: { wpm: 0, mistakeCount: 0 },
+    averages: { wpm: 0, mistakeRatio: 0 },
   },
   pressed: new Set(),
   machineState: 'LOADED',
