@@ -1,40 +1,35 @@
 import React from "react"
-import VirtualKeyboard from "./Keyboard/VirtualKeyboard"
-import { TextDisplay } from "./TextDisplay/TextDisplay"
-import { ThemeContext, themes } from "./Contexts/ThemeContext/ThemeContext"
-import Toolbar from "./Toolbar/Toolbar"
-import { Container } from "react-bootstrap"
-import FormattedText from "./FormattedText/FormattedText"
-import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
-import FontSizeToggle from "./Toolbar/FontSizeToggle"
-import { isChar } from "../utils/isChar"
-import { Timer } from "../utils/Timer"
-import QuickStats from "./Toolbar/QuickStats"
 import { CourseLevel } from "../assets/courses/Courses"
+import { Hand, Finger } from "../core/Keyboard"
+import { KeyCode } from "../core/KeyCode"
 import {
-  CodeModeStringGenerator,
+  TrainingStringGenerator,
   GuidedModeStringGenerator,
   PracticeModeStringGenerator,
-  TrainingStringGenerator,
+  CodeModeStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
-import Button from "react-bootstrap/Button"
-import SettingsModal from "./Modals/SettingsModal/SettingsModal"
-import {
-  State,
-  defaultState,
+import { Timer } from "../utils/Timer"
+import { ThemeContext, themes } from "./Contexts/ThemeContext/ThemeContext"
+import defaultState, {
   inactivityDelay,
-  defaultGuidedModeStringGeneratorOptions,
-  defaultPracticeModeStringOptions,
-  defaultCodeModeStringOptions,
-  FontSizes,
   TrainingMode,
+  FontSizes,
+  MachineState,
+  State,
 } from "./defaultState"
-import { StringGeneratorOptions } from "../core/TrainingStringGenerator/StringGeneratorOption"
-import { KeyCode } from "../core/KeyCode"
-import { Finger, Hand } from "../core/Keyboard"
 
-
+// CHILDREN
+import { Container, Button, ButtonGroup } from "react-bootstrap"
+import FormattedText from "./FormattedText/FormattedText"
+import VirtualKeyboard from "./VirtualKeyboard/VirtualKeyboard"
+import ModeSelectorModal from "./Modals/ModeSelectorModal/ModeSelectorModal"
+import SettingsModal from "./Modals/SettingsModal/SettingsModal"
+import TextDisplay from "./TextDisplay/TextDisplay"
+import FontSizeToggle from "./Toolbar/FontSizeToggle"
+import QuickStats from "./Toolbar/QuickStats"
+import ThemeToggleSwitch from "./Toolbar/ThemeToggleSwitch/ThemeToggleSwitch"
+import Toolbar from "./Toolbar/Toolbar"
+import Keyboard from "../core/Keyboard"
 
 export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
@@ -45,10 +40,6 @@ export class TypeTrainer extends React.Component<{}, State> {
     super(props)
     this.state = defaultState
     this.routeEvent = this.routeEvent.bind(this)
-  }
-
-  startInactivityTimer(): number {
-    return setTimeout(() => this.routeEvent(new Event("blur")), inactivityDelay)
   }
 
   componentDidMount(): void {
@@ -62,7 +53,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     document.removeEventListener("keydown", this.routeEvent)
     document.removeEventListener("keyup", this.routeEvent)
     document.removeEventListener("blur", this.routeEvent)
-  }
+  }  
 
   routeEvent(event: Event): void {
     const machineState = this.state.machineState
@@ -77,6 +68,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           case "PAUSED":
             this.unPauseSession(event)
             break
+          case "SETTINGS":
           default:
             break
         }
@@ -92,6 +84,10 @@ export class TypeTrainer extends React.Component<{}, State> {
     }
   }
 
+  startInactivityTimer(): number {
+    return setTimeout(() => this.routeEvent(new Event("blur")), inactivityDelay)
+  }
+
   private resetInactivityTimer(): void {
     clearTimeout(this.inactivityTimer)
     this.inactivityTimer = this.startInactivityTimer()
@@ -104,10 +100,10 @@ export class TypeTrainer extends React.Component<{}, State> {
     if (!TypeTrainer.shouldKeepKeyDownEvent(event, state)) {
       return
     }
-    state.pressed.add(event.code)
-    console.log("code: ", event.code, "key: ", event.key)
+    state.currentUserPressedKeys.add(event.code)
+    // console.log("code: ", event.code, "key: ", event.key)
     // Validate
-    if (isChar(event.code)) {
+    if (Keyboard.keyCodeisCharKey(event.code)) {
       if (TypeTrainer.isCorrectCharPressed(state, event)) {
         TypeTrainer.goToNextChar(state)
         if (TypeTrainer.isEOF(state)) {
@@ -127,55 +123,35 @@ export class TypeTrainer extends React.Component<{}, State> {
     })
   }
 
-  setModeSelectShow(value: boolean): void {
-    this.setState({ modeSelectShow: value }, () => {
-      if (value) this.pauseSession()
+  setModeModalShow(value: boolean): void {
+    this.setState({ uiModeSelectShow: value }, () => {
+      if (value) this.pauseSession("SETTINGS")
     })
   }
 
-  setTrainingMode(mode: TrainingMode): void {
-    const newStringOptions = this.newStringOptionsBasedOnMode(mode)
-    const newSettings = this.state.settings
-    newSettings.stringOptions = newStringOptions
-    const newGenerator = this.newGeneratorBasedOnMode(mode)
-    this.setState({ modeSelectShow: false, trainingMode: mode, generator: newGenerator, settings: newSettings }, () =>
+  setSettingsModalShow(value: boolean): void {
+    this.setState({ uiSettingsModalShow: value }, () => {
+      if (value) this.pauseSession("SETTINGS")
+    })
+  }
+
+  setTrainingMode(mode: TrainingMode = this.state.trainingMode): void {
+    const newGenerator = this.newTrainingStringGenerator(mode)
+    this.setState({ trainingMode: mode, trainingStringGenerator: newGenerator }, () =>
       this.prepareNewSession()
     )
   }
 
-  setSettingsModalShow(value: boolean): void {
-    this.setState({ settingsModalShow: value }, () => {
-      if (value) this.pauseSession()
-    })
-  }
-
-  newStringOptionsBasedOnMode(mode: TrainingMode): StringGeneratorOptions {
-    let options: StringGeneratorOptions
-    // TODO: check local storage for user options, else load defaults
-    switch (mode) {
-      case TrainingMode.Guided:
-        options = defaultGuidedModeStringGeneratorOptions
-        break
-      case TrainingMode.Practice:
-        options = defaultPracticeModeStringOptions
-        break
-      case TrainingMode.Code:
-        options = defaultCodeModeStringOptions
-        break
-    }
-    return options
-  }
-
-  newGeneratorBasedOnMode(mode: TrainingMode): TrainingStringGenerator {
+  newTrainingStringGenerator(mode: TrainingMode = this.state.trainingMode): TrainingStringGenerator {
     let generator: TrainingStringGenerator
     switch (mode) {
-      case TrainingMode.Guided:
+      case TrainingMode.GUIDED:
         generator = new GuidedModeStringGenerator()
         break
-      case TrainingMode.Practice:
-        generator = new PracticeModeStringGenerator()
+      case TrainingMode.PRACTICE:
+        generator = new PracticeModeStringGenerator(this.state.language, this.state.practiceSourceText)
         break
-      case TrainingMode.Code:
+      case TrainingMode.CODE:
         generator = new CodeModeStringGenerator()
         break
     }
@@ -196,14 +172,14 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   private static shouldKeepKeyDownEvent(event: KeyboardEvent, state: State): boolean {
-    return !event.repeat && !state.pressed.has(event.code)
+    return !event.repeat && !state.currentUserPressedKeys.has(event.code)
   }
 
   handleKeyUp(event: KeyboardEvent): void {
     event.preventDefault()
-    const pressed = this.state.pressed
+    const pressed = this.state.currentUserPressedKeys
     pressed.delete(event.code)
-    this.setState({ pressed: pressed })
+    this.setState({ currentUserPressedKeys: pressed })
   }
 
   logStatus(): void {
@@ -215,14 +191,12 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ machineState: "TRAINING" }, () => this.logStatus())
   }
 
-  pauseSession(): void {
-    // Record pause start time
+  pauseSession(state: MachineState = "PAUSED"): void {
     if (this.sessionTimer != null) this.sessionTimer.pause()
-    this.setState({ pressed: new Set(), machineState: "PAUSED" }, () => this.logStatus())
+    this.setState({ currentUserPressedKeys: new Set(), machineState: state }, () => this.logStatus())
   }
 
   unPauseSession(event: Event): void {
-    // Translate timer variable forward
     this.sessionTimer.unPause()
     this.setState({ machineState: "TRAINING" }, () => {
       this.logStatus()
@@ -231,64 +205,38 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   endSession(): void {
-    // Computes sessions stats and passes baton to this.startNewSession
-    // Calculate words per minute
-    const sessionStats = { ...this.state.stats }
-
-    sessionStats.wpm = this.wordsPerMinute(sessionStats)
-
-    sessionStats.mistakeRatio = this.state.mistakeCharIndices.size / this.state.trainingString.length
-    // Calculate mistakes per session
-    sessionStats.totalSessions += 1
-    sessionStats.averages.wpm = Math.round(
-      (sessionStats.averages.wpm * (sessionStats.totalSessions - 1) + sessionStats.wpm) / sessionStats.totalSessions
-    )
-    sessionStats.averages.mistakeRatio = Math.round(
-      (sessionStats.averages.mistakeRatio * (sessionStats.totalSessions - 1) + sessionStats.mistakeRatio) /
-        sessionStats.totalSessions
+    const totalSessions = this.state.totalSessions + 1
+    
+    const wordsPerMinute = this.wordsPerMinute()
+    const wordsPerMinuteAverage = Math.round(
+      (this.state.wordsPerMinuteAverage * this.state.totalSessions + wordsPerMinute) / totalSessions
     )
 
-    this.setState(
-      {
-        stats: sessionStats,
-      },
-      () => this.prepareNewSession()
+    const successRate = Math.round(100 * (1 - this.state.mistakeCharIndices.size / this.state.trainingString.length))
+    const successRateAverage = Math.round(
+      (this.state.successRate * this.state.totalSessions + successRate) / totalSessions
+    )
+
+    this.setState({ totalSessions, wordsPerMinute, wordsPerMinuteAverage, successRate, successRateAverage }, () =>
+      this.prepareNewSession()
     )
   }
 
-  private wordsPerMinute(sessionStats: {
-    wpm: number
-    mistakeRatio: number
-    totalSessions: number
-    averages: { wpm: number; mistakeRatio: number }
-  }) {
+  private wordsPerMinute(): number {
     const minutes = this.sessionTimer.getTimeElapsed() / 1000 / 60
     const conventionalWordLength = 5
-    const words = this.state.trainingString.length / conventionalWordLength
-    return Math.round(words / minutes)
+    const sentenceLength = this.state.trainingString.length
+    const words = sentenceLength / conventionalWordLength
+    if (words < 1 && minutes < 1 / 60) return 40 // sloppy patch to avoid ridiculous values
+    const wpm = Math.round(words / minutes)
+    return wpm
   }
 
   prepareNewSession(): void {
-    const { trainingMode } = this.state
-    let string: string
-    switch (trainingMode) {
-      case TrainingMode.Guided:
-        string = this.guidedModeText()
-        break
-      case TrainingMode.Practice:
-        string = this.practiceModeText()
-        break
-      case TrainingMode.Code:
-        string = this.codeModeText()
-        break
-      default:
-        string = ""
-        break
-    }
     this.setState(
       {
         cursor: 0,
-        trainingString: string,
+        trainingString: this.state.trainingStringGenerator.generate(this.state),
         mistakeCharIndices: new Set(),
         machineState: "READY",
       },
@@ -297,141 +245,95 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   private getCurrentLevel(): CourseLevel {
-    return this.state.settings.course.levels[this.state.courseLevelIndex]
-  }
-
-  private guidedModeText(): string {
-    const generator = this.state.generator as GuidedModeStringGenerator
-    const options = this.state.settings.stringOptions
-    return generator.generate(options/* , this.state.settings.keyboard, this.getCurrentLevel() */)
-  }
-
-  private practiceModeText(): string {
-    const generator = this.state.generator as PracticeModeStringGenerator
-    const options = this.state.settings.stringOptions
-    return generator.generate(options)
-  }
-
-  private codeModeText(): string {
-    const generator = this.state.generator as CodeModeStringGenerator
-    const options = this.state.settings.stringOptions
-    return generator.generate(options)
+    return this.state.guidedCourse.levels[this.state.courseLevelIndex]
   }
 
   toggleTheme(): void {
-    const settings = { ...this.state.settings }
-    settings.UI.theme = settings.UI.theme === themes.light ? themes.dark : themes.light
-    this.setState({ settings: settings })
+    this.setState({ uiTheme: this.state.uiTheme === themes.light ? themes.dark : themes.light })
   }
 
   toggleFontSize(): void {
-    const settings = { ...this.state.settings }
-    settings.UI.fontSize = (settings.UI.fontSize + 1) % 3
-    this.setState({ settings: settings })
-  }
-
-  changeTrainingStringOptions(trainingStringOptions: StringGeneratorOptions): void {
-    const settings = { ...this.state.settings }
-    settings.stringOptions = { ...trainingStringOptions }
-    this.setState({ settings: settings }, () => this.prepareNewSession())
+    this.setState({ trainingStringFontSize: (this.state.trainingStringFontSize + 1) % 3 }) // TODO: remove magic number
   }
 
   currentActiveKeyCodes(): KeyCode[] {
-    if (this.state.trainingMode === TrainingMode.Guided) {
-      const keyboard = this.state.settings.keyboard
+    if (this.state.trainingMode === TrainingMode.GUIDED) {
+      const keyboard = this.state.keyboard
       const { keyBoardRows: rows, hand, fingers } = this.getCurrentLevel()
       let active: KeyCode[] = []
       const activeRows = rows.map(row => keyboard.layout[row])
       activeRows.forEach(row => {
-        active = active.concat(row.filter(keyCap => {
-          const belongsToHand = (hand === Hand.ANY || hand === keyCap.fingerHand.hand)
-          const belongsToFingers = ((fingers === [Finger.ANY]) || fingers.includes(keyCap.fingerHand.finger))
+        active = active.concat(
+          row
+            .filter(keyCap => {
+              const belongsToHand = hand === Hand.ANY || hand === keyCap.fingerHand.hand
+              const belongsToFingers = fingers === [Finger.ANY] || fingers.includes(keyCap.fingerHand.finger)
 
-          return belongsToHand && belongsToFingers
-        }).map(keyCap => keyCap.code))
+              return belongsToHand && belongsToFingers
+            })
+            .map(keyCap => keyCap.code)
+        )
       })
       return active
     } else {
-      return this.state.settings.language.characterSet.uniqueKeyCodes()
+      return this.state.language.uniqueKeyCodes
     }
+  }
+
+  applyUserSettings(settings: any) {
+    const trainingStringGenerator = this.newTrainingStringGenerator()
+    this.setState({...settings, trainingStringGenerator}, () => this.prepareNewSession())
   }
 
   render(): JSX.Element {
     return (
-      <ThemeContext.Provider
-        value={{
-          theme: this.state.settings.UI.theme,
-          toggleTheme: (): void => this.toggleTheme(),
-        }}
-      >
+      <ThemeContext.Provider value={{ theme: this.state.uiTheme, toggleTheme: (): void => this.toggleTheme() }}>
         <ModeSelectorModal
-          show={this.state.modeSelectShow}
-          onHide={() => this.setModeSelectShow(false)}
-          setTrainingMode={(mode: TrainingMode): void => this.setTrainingMode(mode)}
+          show={this.state.uiModeSelectShow}
+          onHide={() => this.setModeModalShow(false)}
+          settrainingmode={(mode: TrainingMode): void => this.setTrainingMode(mode)}
         ></ModeSelectorModal>
         <SettingsModal
-          show={this.state.settingsModalShow}
+          show={this.state.uiSettingsModalShow}
           onHide={() => this.setSettingsModalShow(false)}
-          mode={this.state.trainingMode}
-          trainingStringOptions={this.state.settings.stringOptions}
-          updateFn={(updatedOptions: StringGeneratorOptions): void => this.changeTrainingStringOptions(updatedOptions)}
+          settings={{ ...this.state }}
+          onSubmitChanges={settings => this.applyUserSettings(settings)}
         ></SettingsModal>
-        <Container fluid className="App" style={this.state.settings.UI.theme}>
-          {
-            <Toolbar
-              stats={<QuickStats key='quickStats' sessionStats={this.state.stats} />}
-              buttons={[
-                <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeSelectShow(true)}>
+        <Container fluid className="App" style={this.state.uiTheme}>
+          <Toolbar
+            stats={<QuickStats key="quickStats" {...this.state} />}
+            buttons={
+              <ButtonGroup aria-label="App settings">
+                <Button key="openModeSelectModalBtn" variant="primary" onClick={() => this.setModeModalShow(true)}>
                   {this.state.trainingMode}
-                </Button>,
+                </Button>
                 <Button key="openSettingsModalBtn" onClick={() => this.setSettingsModalShow(true)}>
                   Settings
-                </Button>,
-                <FontSizeToggle key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />,
-                <ThemeToggleSwitch key={"themeToggle"} />,
-              ]}
-            />
-          }
+                </Button>
+                <FontSizeToggle key={"fontSelect"} toggleFn={(): void => this.toggleFontSize()} />
+              </ButtonGroup>
+            }
+          />
           <Container>
-            {
-              <TextDisplay style={{ fontSize: FontSizes[this.state.settings.UI.fontSize] }}>
-                <FormattedText
-                  greyed={this.state.machineState === "PAUSED"}
-                  cursor={this.state.cursor}
-                  trainingString={this.state.trainingString}
-                  mistakeCharIndexes={this.state.mistakeCharIndices}
-                />
-              </TextDisplay>
-            }
-            {
-              <VirtualKeyboard
-                layout={this.state.settings.keyboard}
-                pressed={this.state.pressed}
-                active={this.currentActiveKeyCodes()}
-                currentKey={this.state.settings.language.characterSet.mapGlyphToKeyCode(
-                  this.state.trainingString[this.state.cursor]
-                )}
+            <TextDisplay style={{ fontSize: FontSizes[this.state.trainingStringFontSize] }}>
+              <FormattedText
+                greyed={this.state.machineState === "PAUSED"}
+                cursor={this.state.cursor}
+                trainingString={this.state.trainingString}
+                mistakeCharIndexes={this.state.mistakeCharIndices}
               />
-            }
+            </TextDisplay>
 
-            {/* <Form inline>
-                <FormLabel htmlFor="courseLevelSelector">Level: </FormLabel>
-                <FormControl
-                  id="courseLevelSelector"
-                  key="course-select"
-                  type="number"
-                  size="sm"
-                  name="wordsPerString"
-                  style={{
-                    width: "4rem",
-                    fontFamily: "'Courier New', Courier, monospace",
-                  }}
-                  defaultValue={this.state.courseLevelIndex}
-                  onChange={({ target: { value } }): void =>
-                    this.setState({ courseLevelIndex: parseInt(value) }, () => this.prepareNewSession())
-                  }
-                />
-              </Form> */}
+            <VirtualKeyboard
+              layout={this.state.keyboard}
+              pressed={this.state.currentUserPressedKeys}
+              active={this.currentActiveKeyCodes()}
+              currentKey={this.state.language.characterSet.mapGlyphToKeyCode(
+                this.state.trainingString[this.state.cursor]
+              )}
+            >
+              <ThemeToggleSwitch key={"themeToggle"} />
+            </VirtualKeyboard>
           </Container>
         </Container>
       </ThemeContext.Provider>

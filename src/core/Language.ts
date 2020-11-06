@@ -1,9 +1,36 @@
 import CharacterSet, { Character } from "./CharacterSet"
+import { KeyCode } from "./KeyCode"
 
 export class Language {
   private _characters: Character[]
+  private _alphabet: string[]
+  private _alphaMap: {[ch: string]: true}
+  private _uniqueGlyphs: string[]
+  private _uniqueKeyCodes: KeyCode[]
+  // TODO private _terminators: Character[]
   constructor(private _characterSet: CharacterSet, private _vowels: string[], private _dictionary: string[]) {
     this._characters = this._characterSet.characters
+    this._uniqueGlyphs = this._characterSet.uniqueGlyphs()
+    this._uniqueKeyCodes = this._characterSet.uniqueKeyCodes()
+    this._alphabet = this._characterSet.alphabet()
+    this._alphaMap = {}
+    this._alphabet.forEach(ch => {
+      this._alphaMap[ch] = true
+      this._alphaMap[ch.toUpperCase()] = true
+    })
+    // TODO this._terminators = 
+  }
+  get alphabet(): string[] {
+    return this._alphabet
+  }
+  get alphaMap(): {[ch: string]: true} {
+    return this._alphaMap
+  }
+  get uniqueGlyphs(): string[] {
+    return this._uniqueGlyphs
+  }
+  get uniqueKeyCodes(): KeyCode[] {
+    return this._uniqueKeyCodes
   }
   get characterSet(): CharacterSet {
     return this._characterSet

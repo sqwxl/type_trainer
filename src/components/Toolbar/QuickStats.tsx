@@ -29,23 +29,32 @@ const Avg = styled.small`
   color: var(--text-secondary);
 `
 
-export default function QuickStats(props: any) {
+interface MyProps {
+  wordsPerMinute: number
+  wordsPerMinuteAverage: number
+  successRate: number
+  successRateAverage: number
+}
+
+const QuickStats: React.FC<MyProps> = props => {
   return (
     <Wrapper>
       <BigStat className="display-3" color={"var(--correct)"}>
-        {props.sessionStats.wpm}
+        {props.wordsPerMinute}
       </BigStat>
       <SmallStack>
         <SmallStackLabel>wpm</SmallStackLabel>
-        <Avg>avg: {props.sessionStats.averages.wpm}</Avg>
+        <Avg>avg: {props.wordsPerMinuteAverage}</Avg>
       </SmallStack>
       <BigStat className="display-3" color={"var(--mistake)"}>
-        {props.sessionStats.mistakeCount}
+        {props.successRate}
       </BigStat>
       <SmallStack>
-        <SmallStackLabel> errors </SmallStackLabel> 
-        <Avg>avg: {props.sessionStats.averages.mistakeCount}</Avg>
+        <SmallStackLabel> % correct</SmallStackLabel>
+        <Avg>avg: {props.successRateAverage}</Avg>
       </SmallStack>
     </Wrapper>
   )
 }
+
+export default QuickStats

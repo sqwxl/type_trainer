@@ -1,29 +1,11 @@
 import React from "react"
-import styled from 'styled-components'
+import './Toolbar.css'
 
-const Wrapper = styled.nav`
-  height: 4rem;
-  display: flex;
-  justify-content: space-around;
-  align-items: end;
-  margin: 0.5rem 0;
-`
-
-const ToolbarLeft = styled.div`
-  height: 100%;
-  display: flex;
-`
-const ToolbarRight = styled.div`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-`
-
-export default function Toolbar(props: { stats: JSX.Element, buttons: JSX.Element[] }): JSX.Element {
+export default function Toolbar(props: { stats: JSX.Element, buttons: JSX.Element }): JSX.Element {
   return (
-    <Wrapper>
-      <ToolbarLeft key="stats">{props.stats}</ToolbarLeft>
-      <ToolbarRight key="buttons">{props.buttons}</ToolbarRight>
-    </Wrapper>
+    <nav className="toolbar">
+      <div key="stats" className='stats'>{props.stats}</div>
+      <div key="buttons" className='settingsBtnGrp'>{props.buttons}</div>
+    </nav>
   )
 }

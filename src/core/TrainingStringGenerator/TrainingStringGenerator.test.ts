@@ -1,10 +1,24 @@
-import { defaultGuidedModeStringGeneratorOptions, UserStringOptions } from "../../components/defaultState"
-import { GuidedModeStringGenerator } from "./TrainingStringGenerator"
-import {dict as english}  from "../../assets/Dictionaries/english.json"
-import { Language } from "../Language"
-import Courses, { CourseLevel } from "../../assets/courses/Courses"
+import English from "../../assets/languages/english/English"
+import { PracticeModeStringGenerator } from "./TrainingStringGenerator"
 
-it.todo('rewrite')
+const mockLanguage = English
+const mockSourceText = "Test sentence1. Test sentence2? Test sentence3! 'Test sentence4!'"
+
+let generator: PracticeModeStringGenerator
+describe('PracticeModeStringGenerator', () => {
+  beforeEach(() => {
+    generator = new PracticeModeStringGenerator(mockLanguage, mockSourceText)
+  })
+  it('generates a string', () => {
+    expect(typeof generator.generate() === 'string').toBeTruthy()
+  })
+  test('generates successive sentences', () => {
+    expect(generator.generate()).toEqual('Test sentence1.')
+    expect(generator.generate()).toEqual('Test sentence2?')
+    expect(generator.generate()).toEqual('Test sentence3!')
+    expect(generator.generate()).toEqual("'Test sentence4!'")
+  })
+})
 
 /*
 const generator = new GuidedModeStringGenerator(english)

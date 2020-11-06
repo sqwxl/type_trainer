@@ -5,7 +5,7 @@ type MyProps = {
   style: React.CSSProperties
 }
 
-export function TextDisplay(props: React.PropsWithChildren<MyProps>): JSX.Element {
+export default function TextDisplay(props: React.PropsWithChildren<MyProps>): JSX.Element {
   return (
     <div className="textDisplay" style={props.style} role="textbox">
       {props.children}

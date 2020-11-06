@@ -68,6 +68,30 @@ export default class Keyboard {
     return this._fingerMap
   } 
   */
+  static keyCodeisCharKey(keyCode: string): boolean {
+  if (keyCode.slice(0, 3) === "Key")
+    return true;
+  if (keyCode.slice(0, 5) === "Digit")
+    return true;
+  switch (keyCode) {
+    case "Space":
+    case "Backquote":
+    case "Minus":
+    case "Equal":
+    case "BracketLeft":
+    case "BracketRight":
+    case "Backslash":
+    case "Semicolon":
+    case "Quote":
+    case "Comma":
+    case "Period":
+    case "Slash":
+    case 'Enter':
+      return true;
+    default:
+      return false;
+  }
+}
   protected readonly _keyCodeLayout: KeyCode[][] = [
     ['Backquote','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal','Backspace'],
     ['Tab','KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight','Backslash'],

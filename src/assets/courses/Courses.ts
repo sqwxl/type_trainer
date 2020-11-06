@@ -124,5 +124,4 @@ const GuidedCourse: Course = {
   ],
 }
 const Courses = { guidedCourse: GuidedCourse }
-
 export default Courses

@@ -17,7 +17,9 @@ export default class CharacterSet {
   get characters() {
     return this._characters
   }
-
+  alphabet(): string[] {
+    return this._characters.filter(({type}) => type === 'LOWERCASE_LETTER').map(({glyph}) => glyph)
+  }
   uniqueGlyphs(): string[] {
     return this._characters.reduce((uniqueGlyphs: string[], { glyph, bracketPair }) => {
       if (uniqueGlyphs.includes(glyph) || glyph.length > 1) return uniqueGlyphs

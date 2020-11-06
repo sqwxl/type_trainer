@@ -2,6 +2,8 @@ import CharacterSet, {  } from "../../../core/CharacterSet";
 import { Language } from "../../../core/Language";
 import { dictionary } from './english.json'
 
+
+
 const characterSet = new CharacterSet([
     { code: ["KeyA"], glyph: "a", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
     { code: ["KeyB"], glyph: "b", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
@@ -101,7 +103,7 @@ const characterSet = new CharacterSet([
     { code: ["Digit5"], glyph: "%", type: PROGRAMMING, behavior: 'OPERATOR' } */
   ])
   
-  const vowels = ['a', 'e', 'i', 'o', 'u']
+  const vowels = ['a', 'e', 'i', 'o', 'u'] // TODO switch to KeyCode[]
 
 const English = new Language(characterSet, vowels, dictionary)
 

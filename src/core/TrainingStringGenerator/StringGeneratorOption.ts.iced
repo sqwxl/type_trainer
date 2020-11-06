@@ -1,11 +1,12 @@
+export type FormType = "SWITCH" | "NUMBER" | "TEXT" | "SELECT"
 
-export type FormType = "PARENT" | "SWITCH" | "NUMBER" | "TEXT" | "SELECT"
 
-export interface StringGeneratorOptions {
-  [key: string]: StringGeneratorOption
+export class OptionCategory {
+  constructor() {}
 }
+
 export class StringGeneratorOption {
-  value: boolean | number | string | StringGeneratorOptions;
+  value: boolean | number | string | StringGeneratorOption;
   formLabel: string;
   formType: FormType;
   min: number;
@@ -14,7 +15,7 @@ export class StringGeneratorOption {
   values: string[];
 
   constructor({ value, formLabel, formType, min, max, step, values }: {
-    value: boolean | number | string | StringGeneratorOptions;
+    value: boolean | number | string | StringGeneratorOption;
     formLabel: string;
     formType: FormType;
     min?: number;
@@ -30,8 +31,11 @@ export class StringGeneratorOption {
     this.step = step == null ? 1 : step;
     this.values = values == null ? [] : values;
   }
-  setNestedOption(name: string, value: boolean | number | string | StringGeneratorOptions): boolean {
-    if (isUserStringOptions(this.value)) {
+  formSchema() {
+    
+  }
+  setNestedOption(name: string, value: boolean | number | string | StringGeneratorOption): boolean {
+    if (this.value instanceof StringGeneratorOption) {
       if (name in this.value) {
         this.value[name].value = value;
         return true;
@@ -40,11 +44,6 @@ export class StringGeneratorOption {
       }
     }
     return false;
-    function isUserStringOptions(value: boolean | number | string | StringGeneratorOptions): value is StringGeneratorOptions {
-      return (
-        (value as StringGeneratorOptions) !== undefined &&
-        Object.values(value as StringGeneratorOptions).some(val => val.value !== undefined || isUserStringOptions(val.value))
-      );
     }
   }
 }

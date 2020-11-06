@@ -5,6 +5,7 @@
   border-radius: 1rem;
   padding: 0.5rem 0rem;
   font-family: monospace;
+  text-align: left;
 }
 
 .keyboard-flex-row {
@@ -42,8 +43,7 @@
 }
 
 .highlight {
-  box-shadow: 0 0 5px yellow ;
-  color: yellow
+  border: 1px solid var(--text-primary)
 }
 
 #Delete, #Escape {

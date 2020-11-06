@@ -2,7 +2,6 @@
 import React from 'react'
 import { render } from '@testing-library/react'
 import {ThemeContext, themes} from '../components/Contexts/ThemeContext/ThemeContext'
-import enUsQwerty from '../assets/keyboard_layouts/en_qwerty'
 
 const AllProviders = ({ children }: any) => {
   return (

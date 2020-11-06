@@ -1,9 +1,15 @@
-import sanitizeStringForChars from "./sanitizeStringForGlyphs";
+import sanitizeStringForGlyphs from "./sanitizeStringForGlyphs";
 
 const aMockCharset = (chars: string): string[] => chars.split('')
 const aCharset = aMockCharset("abcdefghijklmnopqrstuvwxyz1234567890'\".\n")
 
 describe('Formats strings properly', () => {
+    it(`undefined to ''`, () => {
+        assertReplaces('', undefined)
+    })
+    it(`'' -> '' (empty to empty)`, () => {
+        assertReplaces('', '')
+    })
     it (`“ -> "`, () => {        
         assertReplaces(`"`, `“`)
     })
@@ -35,11 +41,11 @@ describe('Formats strings properly', () => {
     assertReplaces(`\n\n`, `\n \n   \t\n    \n \n\n \t\r\t\n`)
 })
     it (`remove characters which aren't part of the character set`, () => {
-        expect(sanitizeStringForChars("abcde", aMockCharset("abcd"))).toBe("abcd")
+        expect(sanitizeStringForGlyphs("abcde", aMockCharset("abcd"))).toBe("abcd")
     })
 })
 
 function assertReplaces(expected: string, actual: string){
-    const frmt = sanitizeStringForChars(actual, aCharset)
+    const frmt = sanitizeStringForGlyphs(actual, aCharset)
     expect(frmt).toEqual(expected)
 }

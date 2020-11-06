@@ -1,7 +1,8 @@
 
-export default function sanitizeStringForChars(str: string, chars: string[]): string {
+export default function sanitizeStringForGlyphs(str: string, chars: string[]): string {
     let formatted = str
 
+    if (!str) return ''
     // console.log(chars)
 
     formatted = formatted.replace(/[’‚]/g, "'")     // Curly single-quote
