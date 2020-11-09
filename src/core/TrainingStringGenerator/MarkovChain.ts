@@ -98,14 +98,14 @@ export default class MarkovChain {
   }
 
   generate({
-    minLength = 0,
-    maxLength = 0,
+    min = 0,
+    max = 0,
     allowDuplicates = true,
     maxAttempts = 25,
     random = Math.random,
   }: {
-    minLength?: number;
-    maxLength?: number;
+    min?: number;
+    max?: number;
     allowDuplicates?: boolean;
     maxAttempts?: number;
     random?: RandomGenerator;
@@ -119,14 +119,14 @@ export default class MarkovChain {
       let currentNode = this.start.neighbors[nextNodeIndex];
       word = '';
 
-      while (currentNode && (maxLength <= 0 || word.length <= maxLength)) {
+      while (currentNode && (max <= 0 || word.length <= max)) {
         word += currentNode.character;
         nextNodeIndex = Math.floor(random() * currentNode.neighbors.length);
         currentNode = currentNode.neighbors[nextNodeIndex];
       }
       if (
-        (maxLength > 0 && word.length > maxLength) ||
-        word.length < minLength
+        (max > 0 && word.length > max) ||
+        word.length < min
       ) {
         repeat = true;
       }

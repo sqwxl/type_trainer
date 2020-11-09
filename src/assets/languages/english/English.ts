@@ -31,8 +31,7 @@ const characterSet = new CharacterSet([
     { code: ["KeyX"], glyph: "x", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
     { code: ["KeyY"], glyph: "y", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
     { code: ["KeyZ"], glyph: "z", type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
-    { code: ["Enter"], glyph: '\n', type: 'LOWERCASE_LETTER', behavior: 'APPEND' },
-  
+    
     // DIGITS
     { code: ["Digit0"], glyph: "0", type: 'NUMBER', behavior: 'APPEND' },
     { code: ["Digit1"], glyph: "1", type: 'NUMBER', behavior: 'APPEND' },
@@ -44,7 +43,7 @@ const characterSet = new CharacterSet([
     { code: ["Digit7"], glyph: "7", type: 'NUMBER', behavior: 'APPEND' },
     { code: ["Digit8"], glyph: "8", type: 'NUMBER', behavior: 'APPEND' },
     { code: ["Digit9"], glyph: "9", type: 'NUMBER', behavior: 'APPEND' },
-  
+    
     // 'PUNCTUATION'
     { code: ["Comma"], glyph: ",", type: 'PUNCTUATION', behavior: 'APPEND' },
     { code: ["Period"], glyph: ".", type: 'PUNCTUATION', behavior: 'APPEND' },
@@ -63,8 +62,9 @@ const characterSet = new CharacterSet([
     },
     { code: ["Quote"], glyph: "'", type: 'PUNCTUATION', behavior: 'BRACKET' },
     { code: ["Quote"], glyph: '"', type: 'PUNCTUATION', behavior: 'BRACKET' },
-  
+    
     // SYMBOLS
+    { code: ["Enter"], glyph: '\n', type: 'SPECIAL', behavior: 'APPEND' },
     { code: ["Digit2"], glyph: "@", type: 'SPECIAL', behavior: 'SPLIT' },
     { code: ["Digit3"], glyph: "#", type: 'SPECIAL', behavior: 'PREPEND' },
     { code: ["Digit4"], glyph: "$", type: 'SPECIAL', behavior: 'APPEND' },
@@ -82,7 +82,7 @@ const characterSet = new CharacterSet([
     { code: ["Minus"], glyph: "_", type: 'SPECIAL', behavior: 'SPLIT' },
     { code: ["Equal"], glyph: "=", type: 'SPECIAL', behavior: 'OPERATOR' },
     { code: ["Equal"], glyph: "+", type: 'SPECIAL', behavior: 'OPERATOR' },
-  /* 
+    /* 
     /// PROGRAMMING CHARACTERS
     { code: ["Backquote"], glyph: "`", type: PROGRAMMING, behavior: 'BRACKET' },
     { code: ["BracketLeft", "BracketRight"], glyph: "[", bracketPair: "]", type: PROGRAMMING, behavior: 'BRACKET' },

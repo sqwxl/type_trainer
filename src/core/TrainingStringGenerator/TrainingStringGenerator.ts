@@ -1,4 +1,7 @@
-import { Course } from "../../assets/courses/Courses"
+import { Course, CourseLevel } from "../../assets/courses/Courses"
+import { charsAtCourseLevel } from "../../utils/course-utils"
+import CharacterSet, { Character, CharacterType } from "../CharacterSet"
+import Keyboard from "../Keyboard"
 import { Language } from "../Language"
 import CharacterInserter from "./CharacterInserter"
 import MarkovChain from "./MarkovChain"
@@ -16,64 +19,98 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 }
 
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
-  constructor(private _language: Language, private _course: Course) {}
+  constructor(private _keyboard: Keyboard, private _language: Language, private _courseLevels: CourseLevel[]) {}
 
-  newWordModifier = (options: any) => {
-    const { guidedHasCaps, guidedHasNumbers, guidedHasPunctuation, guidedHasSpecials } = options
+  generate(options: any): string {
+    const modifier = this.newWordModifier(options)
+    const words = modifier(this.newUnmodifiedWords(options))
+    return words.join(" ")
+  }
+
+  private newWordModifier = ({
+    guidedHasCaps = false,
+    guidedHasNumbers = false,
+    guidedHasPunctuation = false,
+    guidedHasSpecials = false,
+  }) => {
     const inserter = new CharacterInserter(this._language.vowels)
-    const modifiers: {(word: string): string}[] = []
+    const modifiers: { (word: string): string }[] = []
     if (guidedHasCaps) modifiers.push(CapsWordModifier())
     if (guidedHasNumbers) modifiers.push(NumsWordModifier(this._language.characterSet.numberSet))
     if (guidedHasPunctuation) modifiers.push(PunctWordModifier(this._language.characterSet.punctSet, inserter))
     if (guidedHasSpecials) modifiers.push(SpecialWordModifier(this._language.characterSet.specialSet, inserter))
     return (words: string[]) => {
-      if (modifiers.length !== 0) return words.map(word => {
-        for (const mod of modifiers) {
-          word = mod(word)
-        }
-        return word
-      })
+      if (modifiers.length !== 0)
+        return words.map(word => {
+          for (const mod of modifiers) {
+            word = mod(word)
+          }
+          return word
+        })
       return words
     }
   }
 
-  generate(options: any): string {
-    const modifier = this.newWordModifier(options)
-    const words = modifier(this.words(options))
-    return words.join(" ")
-  }
-
-  words(options: any): string[] {
+  private newUnmodifiedWords(options: any): string[] {
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
-    const chain = this.newMarkovChainRestrictedToLetters(this._language.alphaMap)
-    const { guidedLevelIndex, guidedCourse, guidedWordLength, guidedNumWords, guidedLikelihoodModified } = options
-
-    let words: Array<string> = []
+    const {
+      guidedLevelIndex,
+      guidedWordLength = { min: 3, max: 12 },
+      guidedNumWords = 10,
+      guidedLikelihoodModified,
+    } = options
+    const alphaMap = this.alphaMapAtLevel(guidedLevelIndex)
+    const letters = this._language.alphabet.filter(ch => alphaMap[ch] != null)
+    const vowels = this._language.vowels.filter(vowel => alphaMap[vowel] != null)
+    // hardcoded expeption for english word generation
+    const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => 'iuoy'.includes(letter))
+    console.table(letters)
+    console.table(vowels)
+    const wantsMarkovChain = hasEnoughVowels
+    let newWord
+    if (wantsMarkovChain) {
+      const chain = this.newMarkovChain(alphaMap)
+      newWord = (): string => chain.generate(guidedWordLength)
+    } else {
+      newWord = (): string => this.randomWordFrom(guidedWordLength, letters)
+    }
+    const words: Array<string> = []
     while (words.length < guidedNumWords) {
-      let word = ""
-      try {
-        // TODO: use better control flow rather than relying on chain to throw an error
-        word = chain.generate(guidedWordLength)
-      } catch (error) {
-        // If MarkovChain was unsuccessful (because there weren't enough letters available)
-        // produce a random string
-        // console.error(error.message)
-        const { min, max } = guidedWordLength
-        const length = min + Math.floor(Math.random() * (max - min))
-        for (let i = 0; i < length; i++) {
-          const letter = this._language.alphabet[Math.floor(Math.random() * this._language.alphabet.length)]
-          word = word.concat(letter)
-        }
-      }
-      words.push(word)
+      words.push(newWord())
     }
     return words
   }
-
-  private newMarkovChainRestrictedToLetters(alphaMap: { [ch: string]: true }): MarkovChain {
+  randomWordFrom(length: { min: number; max: number } = { min: 6, max: 6 }, letters: string[]): string {
+    const l = length.min + Math.floor(Math.random() * (length.max - length.min))
+    let word = ""
+    for (let i = 0; i < l; i++) {
+      const letter = letters[Math.floor(Math.random() * letters.length)]
+      word = word.concat(letter)
+    }
+    return word
+  }
+  private newMarkovChain(alphaMap: { [ch: string]: true } = this._language.alphaMap): MarkovChain {
     const byAlphaMap = (word: string) => !word.split("").some(ch => alphaMap[ch] == null)
     const filteredDict = this._language.dictionary.filter(byAlphaMap)
     return new MarkovChain(3, filteredDict)
+  }
+
+  private charsAtLevel(lvl: number, type: CharacterType = "LOWERCASE_LETTER"): Character[] {
+    return charsAtCourseLevel(this._language.characterSet, this._courseLevels[lvl], this._keyboard).filter(
+      ({ type: t }) => t === type
+    )
+  }
+
+  private alphaMapAtLevel(lvl: number): { [ch: string]: true } {
+    const level = this._courseLevels[lvl]
+
+    if (level == null) return this._language.alphaMap
+
+    const lvlMap: { [ch: string]: true } = {}
+    const glyphs = CharacterSet.uniqueGlyphs(this.charsAtLevel(lvl))
+    for (const glyph of glyphs) lvlMap[glyph] = true
+    lvlMap[" "] = true // special case for space
+    return lvlMap
   }
 }
 
@@ -131,30 +168,30 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
     // Move cursor to the end of sentence
     const isLetter = (ch: string) => this.language.alphaMap[ch] != null
     const isPeriodMark = (ch: string): boolean => ch === "." || ch === "!" || ch === "?"
-    const isBracketMark = (ch: string): boolean => ch === '"' || ch === "'" // TODO: include parentheses, brackets...
-    const openBrackets: { ch: string; wants: string }[] = []
-    const isWantedBracket = (ch: string): boolean => openBrackets.some(bracket => bracket.wants === ch)
+    const brackets = this.language.characterSet.punctSet.filter(({ behavior }) => behavior === "BRACKET")
+    const isBracketMark = (ch: string): boolean => CharacterSet.uniqueGlyphs(brackets).includes(ch) // TODO: include parentheses, brackets...
+    const wantedBrackets: string[] = []
+    const isWantedBracket = (ch: string): boolean => wantedBrackets.some(wanted => ch === wanted)
 
-    let passedPeriod = false
     const isEndOfSentence = (cursor: { isValid: boolean; index: number; ch: string }): boolean => {
       const next = this.cursorAt(cursor.index + 1)
       if (!next.isValid) return true
       if (cursor.index - startIdx < minimalLength) return false
-      if (openBrackets.length === 0) {
+      if (wantedBrackets.length === 0) {
         if (isPeriodMark(cursor.ch) && !isPeriodMark(next.ch)) return true
-        if (isBracketMark(cursor.ch) && passedPeriod) return true
-      } else {
-        if (isPeriodMark(cursor.ch)) passedPeriod = true
+        if (isBracketMark(cursor.ch) && sentenceHasOuterBracket) return true
       }
       return false
     }
 
+    let sentenceHasOuterBracket = isBracketMark(cursor.ch)
     let endReached = false
     const isApostrophe = (ch: string) => {
+      if (ch !== "'") return false
       const prev = this.cursorAt(cursor.index - 1)
       const next = this.cursorAt(cursor.index + 1)
       if (!next.isValid) return false
-      return ch === "'" && isLetter(prev.ch) && isLetter(next.ch)
+      return isLetter(prev.ch) && isLetter(next.ch)
     } // TODO: add support for Torres', n', etc
     while (!endReached) {
       if (!cursor.isValid) {
@@ -162,12 +199,15 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
       } else {
         if (isBracketMark(cursor.ch) && !isApostrophe(cursor.ch)) {
           if (isWantedBracket(cursor.ch)) {
-            openBrackets.splice(
-              openBrackets.findIndex(({ wants }) => wants === cursor.ch),
+            wantedBrackets.splice(
+              wantedBrackets.findIndex(wanted => cursor.ch === wanted),
               1
             )
           } else {
-            openBrackets.push({ ch: cursor.ch, wants: cursor.ch }) // TODO: generalize
+            const { glyph, bracketPair } = brackets.find(
+              ({ glyph, bracketPair }) => cursor.ch === glyph || cursor.ch === bracketPair
+            ) as { glyph: string; bracketPair: string }
+            wantedBrackets.push(bracketPair != null ? bracketPair : glyph) // TODO: generalize
           }
         }
         endReached = isEndOfSentence(cursor)

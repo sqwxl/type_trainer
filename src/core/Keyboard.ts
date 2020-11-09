@@ -60,14 +60,15 @@ export default class Keyboard {
   get labelMap(): KeyCapLabelMap {
     return this._labelMap
   }
-   
+  */
   get keyCodeLayout(): KeyCode[][] {
     return this._keyCodeLayout
   }
+  
   get fingerMap(): { [key in KeyCode]: { hand: Hand, finger: Finger }} {
     return this._fingerMap
   } 
-  */
+  
   static keyCodeisCharKey(keyCode: string): boolean {
   if (keyCode.slice(0, 3) === "Key")
     return true;

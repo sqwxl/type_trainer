@@ -25,7 +25,7 @@ const defaultLanguage = English
 const defaultText = new TrainingText(state_and_revolution, English)
 const defaultMode = TrainingMode.PRACTICE
 const defaultGenerator = new PracticeModeStringGenerator(defaultLanguage, defaultText.text)
-
+const defaultCourse = Courses.guidedCourse
 export enum CodeLanguage {
   "JS" = "JavaScript",
   "TS" = "TypeScript",
@@ -55,8 +55,8 @@ export interface State {
   trainingMode: TrainingMode
   trainingStringFontSize: number
 
-  guidedLevelIndex: number
   guidedCourse: Course
+  guidedLevelIndex: number | undefined
   guidedWordLength: {min: number, max: number}
   guidedNumWords: number
   guidedHasCaps: boolean
@@ -81,21 +81,21 @@ export const defaultState: State = {
   trainingString: "",
   cursor: 0,
   mistakeCharIndices: new Set(),
-  guidedLevelIndex: 32,
   wordsPerMinute: 0,
   successRate: 0,
   totalSessions: 0,
   wordsPerMinuteAverage: 0,
   successRateAverage: 0,
-
+  
   uiModeSelectShow: false,
   uiSettingsModalShow: false,
-
+  
   uiTheme: themes.dark,
   trainingStringFontSize: 1,
-
-  guidedCourse: Courses.guidedCourse,
-  guidedWordLength: 6,
+  
+  guidedCourse: defaultCourse,
+  guidedLevelIndex: 32,
+  guidedWordLength: {min:6, max: 6},
   guidedNumWords: 8,
   guidedHasCaps: false,
   guidedHasPunctuation: false,
