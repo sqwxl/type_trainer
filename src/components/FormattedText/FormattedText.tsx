@@ -2,9 +2,10 @@ import React from 'react'
 import './FormattedText.css'
 
 const testId = "formattedString"
+interface MyProps { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndices: Set<number> }
 
-export function FormattedText(props: { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndexes: Set<number> }): JSX.Element {
-  const { cursor, trainingString, mistakeCharIndexes } = props
+export const FormattedText: React.FC<MyProps> = (props: MyProps): JSX.Element => {
+  const { cursor, trainingString, mistakeCharIndices } = props
 
   let uniquekey = 0
   function replaceSpaces(str: string): string {
@@ -41,7 +42,7 @@ export function FormattedText(props: { greyed: boolean, cursor: number, training
 
   // Tag mistakes, up to but not including cursor
   let start = 0
-  for (const e of mistakeCharIndexes) {
+  for (const e of mistakeCharIndices) {
     if (e === cursor) break
     before.push(tag(trainingString.slice(start, e), 'correct'))
     before.push(tag(trainingString[e], 'mistake'))
@@ -50,7 +51,7 @@ export function FormattedText(props: { greyed: boolean, cursor: number, training
   before.push(tag(trainingString.slice(start, cursor), 'correct'))
 
   // Tag cursor
-  if (mistakeCharIndexes.has(cursor)) {
+  if (mistakeCharIndices.has(cursor)) {
     current = tag(trainingString[cursor], 'typo')
     setTimeout(() => {
       const typo = document.getElementsByClassName('typo')

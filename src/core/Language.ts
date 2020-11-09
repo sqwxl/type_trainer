@@ -2,47 +2,35 @@ import CharacterSet, { Character } from "./CharacterSet"
 import { KeyCode } from "./KeyCode"
 
 export class Language {
-  private _characters: Character[]
-  private _alphabet: string[]
-  private _alphaMap: {[ch: string]: true}
-  private _uniqueGlyphs: string[]
-  private _uniqueKeyCodes: KeyCode[]
-  // TODO private _terminators: Character[]
-  constructor(private _characterSet: CharacterSet, private _vowels: string[], private _dictionary: string[]) {
-    this._characters = this._characterSet.characters
-    this._uniqueGlyphs = this._characterSet.uniqueGlyphs()
-    this._uniqueKeyCodes = this._characterSet.uniqueKeyCodes()
-    this._alphabet = this._characterSet.alphabet()
-    this._alphaMap = {}
-    this._alphabet.forEach(ch => {
-      this._alphaMap[ch] = true
-      this._alphaMap[ch.toUpperCase()] = true
+  characterSet: CharacterSet
+  vowels: string[]
+  dictionary: string[]
+  characters: Character[]
+  alphabet: string[]
+  numbers: string[]
+  punctuation: string[]
+  specials: string[]
+  alphaMap: {[ch: string]: true}
+  uniqueGlyphs: string[]
+  uniqueKeyCodes: KeyCode[]
+  // TODO terminators: Character[]
+  constructor(characterSet: CharacterSet, vowels: string[], dictionary: string[]) {
+    this.dictionary = dictionary
+    this.characterSet = characterSet
+    this.vowels = vowels
+    this.characters = this.characterSet.characters
+    this.uniqueGlyphs = this.characterSet.uniqueGlyphs()
+    this.uniqueKeyCodes = this.characterSet.uniqueKeyCodes()
+    this.alphabet = this.characterSet.letterSet.map(({glyph}) => glyph)
+    this.numbers = this.characterSet.numberSet.map(({glyph}) => glyph)
+    this.punctuation = this.characterSet.punctSet.map(({glyph}) => glyph)
+    this.specials = this.characterSet.specialSet.map(({glyph}) => glyph)
+    this.alphaMap = {}
+    this.alphabet.forEach(ch => {
+      this.alphaMap[ch] = true
+      this.alphaMap[ch.toUpperCase()] = true
     })
-    // TODO this._terminators = 
-  }
-  get alphabet(): string[] {
-    return this._alphabet
-  }
-  get alphaMap(): {[ch: string]: true} {
-    return this._alphaMap
-  }
-  get uniqueGlyphs(): string[] {
-    return this._uniqueGlyphs
-  }
-  get uniqueKeyCodes(): KeyCode[] {
-    return this._uniqueKeyCodes
-  }
-  get characterSet(): CharacterSet {
-    return this._characterSet
-  }
-  get characters(): Character[] {
-    return this._characters
-  }
-  get vowels(): string[] {
-    return this._vowels
-  }
-  get dictionary(): string[] {
-    return this._dictionary
+    // TODO this.terminators = 
   }
 
   // charSetAtCourseLevel(courseLevel: CourseLevel): Character[] {

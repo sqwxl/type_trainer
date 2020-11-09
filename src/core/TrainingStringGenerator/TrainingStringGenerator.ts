@@ -1,4 +1,7 @@
+import { Course } from "../../assets/courses/Courses"
 import { Language } from "../Language"
+import MarkovChain from "./MarkovChain"
+import { CapsWordModifier, NumsWordModifier, PunctWordModifier, SpecialWordModifier } from "./WordModifiers"
 
 export interface TrainingStringGenerator {
   generate(options?: any): string
@@ -12,75 +15,89 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 }
 
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
-  /* constructor(language: Language, lvl: CourseLevel) {
-    this.language = language
-    this.lvl = lvl
-  } */
+  constructor(private _language: Language, private _course: Course) {}
+
+  newWordModifier = (options: any) => {
+    const { guidedHasCaps, guidedHasPunctuation, guidedHasNumbers, guidedHasSpecials } = options
+    const modifiers = fns: {(word: string): string => void}[]
+    if (guidedHasCaps) modifiers.push(CapsWordModifier(guidedHasCaps))
+    if (guidedHasPunctuation) modifiers.push(PunctWordModifier(this._language.characterSet.punctSet))
+    if (guidedHasNumbers) modifiers.push(NumsWordModifier(this._language.characterSet.numberSet))
+    if (guidedHasSpecials) modifiers.push(SpecialWordModifier(this._language.characterSet.specialSet))
+    return (words: string[]) => {
+      const moded = [...words]
+      if (modifiers.length !== 0) return words.map(word => {
+        for (const mod of modifiers) {
+          word = mod(word)
+        }
+        return word
+      })
+      return words
+    }
+  }
 
   generate(options: any): string {
-    return "todo"
+    const modifier = this.newWordModifier(options)
+    const words = modifier(this.words(options))
+    return words.join(" ")
   }
-  /* 
-    const alphabet = Language.uniqueChars(
-      layout.charSet.subSet({ trainingLevel: lvl, type: 'LOWERCASE_LETTER' })
-    )
-    function modifyWords(words: string[]): string[] {
-      return words.map((word) => wordModifier(word, options, layout.charSet.subSet({ trainingLevel: lvl })))
-    }
-    
+
+  words(options: any): string[] {
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
-    const chain = this.newMarkovChainRestrictedToLetters(alphabet)
+    const chain = this.newMarkovChainRestrictedToLetters(this._language.alphaMap)
+    const { guidedLevelIndex, guidedCourse, guidedWordLength, guidedNumWords, guidedLikelihoodModified } = options
 
     let words: Array<string> = []
-    while (words.length < options.wordsPerString) {
+    while (words.length < guidedNumWords) {
       let word = ""
       try {
-        word = chain.generate(options.wordLength)
+        // TODO: use better control flow rather than relying on chain to throw an error
+        word = chain.generate(guidedWordLength)
       } catch (error) {
-        console.error(error.message)
-        const { minLength, maxLength } = options.wordLength
-        const length = minLength + Math.floor(Math.random() * (maxLength - minLength))
+        // If MarkovChain was unsuccessful (because there weren't enough letters available)
+        // produce a random string
+        // console.error(error.message)
+        const { min, max } = guidedWordLength
+        const length = min + Math.floor(Math.random() * (max - min))
         for (let i = 0; i < length; i++) {
-          const letter = alphabet[Math.floor(Math.random() * alphabet.length)]
+          const letter = this._language.alphabet[Math.floor(Math.random() * this._language.alphabet.length)]
           word = word.concat(letter)
         }
       }
       words.push(word)
     }
-    words = modifyWords(words)
-    return words.join(" ") 
+    return words
   }
 
-  private newMarkovChainRestrictedToLetters(allowedLetters: string[]): MarkovChain {
-    const dict = this.dictionary.filter((word) => {
-      for (const letter of word) {
-        if (!allowedLetters.includes(letter)) return false
-      }
-      return true
-    })
-    return new MarkovChain(3, dict)
-  } */
+  private newMarkovChainRestrictedToLetters(alphaMap: { [ch: string]: true }): MarkovChain {
+    const byAlphaMap = (word: string) => !word.split("").some(ch => alphaMap[ch] == null)
+    const filteredDict = this._language.dictionary.filter(byAlphaMap)
+    return new MarkovChain(3, filteredDict)
+  }
 }
 
-type CursorPos = { isValid: boolean; index?: number }
-
 export class PracticeModeStringGenerator implements TrainingStringGenerator {
+  private _textCursor: number
+  private _sentenceCursor: number
   private _sentences: string[]
-  constructor(private language: Language, private _sourceText: string, private _textCursor: number = 0, private _sentenceCursor = 0) {
+  constructor(private language: Language, private _sourceText: string) {
     // TODO: ensure sourceText has been sanitized
     // TODO: make language-aware
+    this._textCursor = 0
+    this._sentenceCursor = 0
     this._sentences = this.parseSentences()
   }
 
-  generate() {
-    let str: string
-    str = this._sentences[this._sentenceCursor++]
-    return str
+  generate(): string {
+    // Generate subsequent sentence on each call
+    const sentence = this._sentences[this._sentenceCursor]
+    this._sentenceCursor = (this._sentenceCursor + 1) % this._sentences.length
+    return sentence ? sentence : ""
   }
 
-  reset(): void {
+  /*  reset(): void {
     this._sentenceCursor = this._textCursor = 0
-  }
+  } */
 
   get sourceText(): string {
     return this._sourceText
@@ -88,108 +105,89 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
 
   private parseSentences(): string[] {
     const sentences: string[] = []
-    let sentence = this.nextSentence()
-    while (sentence.isFound) {
+    let sentence = this.sentence()
+    while (sentence.wasFound) {
       sentences.push(sentence.str!)
-      sentence = this.nextSentence()
+      sentence = this.sentence()
     }
     return sentences
   }
 
-  private nextSentence(): { isFound: boolean; str?: string } {
+  private sentence(): { wasFound: boolean; str?: string } {
     // TODO: make dynamic and language-agnostic
-    const txt = this._sourceText
-
-    let cursor: CursorPos = { isValid: true, index: this._textCursor }
-    const isLetterAt = (idx: number) => {
-      return this.language.alphaMap[txt[idx]] != null
-    }
-    const isPeriodMarkAt = (idx: number): boolean => {
-      const ch = txt[idx]
-      return ch === "." || ch === "!" || ch === "?"
-    }
-    const isBracketAt = (idx: number): boolean => {
-      const ch = txt[idx]
-      const prev = this.cursorTo(idx - 1)
-      const prevCh = prev.isValid ? txt[prev.index!] : undefined
-      const next = this.cursorTo(idx + 1)
-      const nextCh = next.isValid ? txt[next.index!] : undefined
-      // Differentiate between single-quote and apostrophe
-      if (ch === "'") {
-        const isApostrophe = prevCh != null && nextCh != null && isLetterAt(prev.index!) && isLetterAt(next.index!)
-        return !isApostrophe
-      } else if (ch === '"') return true
-      return false
-    }
+    let cursor = this.cursorAt()
+    const minimalLength = 5 // sentences shorter than this will be merged
+    if (!cursor.isValid) return { wasFound: false }
     const isWhiteSpace = (ch: string) => ch === " " || ch === "\t" || ch === "\n"
 
     // Move cursor to first non-white character
-    while (isWhiteSpace(txt[cursor.index!])) {
-      let next = this.cursorTo(cursor.index! + 1)
-      if (!next.isValid) return { isFound: false }
-      cursor = next
+    while (isWhiteSpace(cursor.ch)) {
+      cursor = this.cursorAt(cursor.index + 1)
     }
+    if (!cursor.isValid) return { wasFound: false }
     const startIdx = cursor.index
 
-    // Move end cursor to the end of sentence
-    let endOfSentence = false
-    let bracketOpen = false
-    let periodMarkFound = false
-    do {
-      if (!cursor.isValid) endOfSentence = true
-      // Check for opening bracket
-      if (isBracketAt(cursor.index!)) {
-        bracketOpen = !bracketOpen
-        if(!bracketOpen && periodMarkFound) endOfSentence = true
+    // Move cursor to the end of sentence
+    const isLetter = (ch: string) => this.language.alphaMap[ch] != null
+    const isPeriodMark = (ch: string): boolean => ch === "." || ch === "!" || ch === "?"
+    const isBracketMark = (ch: string): boolean => ch === '"' || ch === "'" // TODO: include parentheses, brackets...
+    const openBrackets: { ch: string; wants: string }[] = []
+    const isWantedBracket = (ch: string): boolean => openBrackets.some(bracket => bracket.wants === ch)
+
+    let passedPeriod = false
+    const isEndOfSentence = (cursor: { isValid: boolean; index: number; ch: string }): boolean => {
+      const next = this.cursorAt(cursor.index + 1)
+      if (!next.isValid) return true
+      if (cursor.index - startIdx < minimalLength) return false
+      if (openBrackets.length === 0) {
+        if (isPeriodMark(cursor.ch) && !isPeriodMark(next.ch)) return true
+        if (isBracketMark(cursor.ch) && passedPeriod) return true
+      } else {
+        if (isPeriodMark(cursor.ch)) passedPeriod = true
       }
-      // Check for period mark
-      if (isPeriodMarkAt(cursor.index!)) {
-        periodMarkFound = true
-        if (!bracketOpen) endOfSentence = true
+      return false
+    }
+
+    let endReached = false
+    const isApostrophe = (ch: string) => {
+      const prev = this.cursorAt(cursor.index - 1)
+      const next = this.cursorAt(cursor.index + 1)
+      if (!next.isValid) return false
+      return ch === "'" && isLetter(prev.ch) && isLetter(next.ch)
+    } // TODO: add support for Torres', n', etc
+    while (!endReached) {
+      if (!cursor.isValid) {
+        endReached = true
+      } else {
+        if (isBracketMark(cursor.ch) && !isApostrophe(cursor.ch)) {
+          if (isWantedBracket(cursor.ch)) {
+            openBrackets.splice(
+              openBrackets.findIndex(({ wants }) => wants === cursor.ch),
+              1
+            )
+          } else {
+            openBrackets.push({ ch: cursor.ch, wants: cursor.ch }) // TODO: generalize
+          }
+        }
+        endReached = isEndOfSentence(cursor)
       }
-      cursor = this.cursorTo(cursor.index! + 1)
-    } while (!endOfSentence)
+      if (!endReached) cursor = this.cursorAt(cursor.index + 1)
+    }
     const endIdx = cursor.index
 
     // If end == start position, return no sentence found
-    if (startIdx === endIdx) return { isFound: false }
+    if (startIdx === endIdx) return { wasFound: false }
 
     // Return the found sentence
-    const sentence = txt.slice(startIdx, endIdx)
-    return { isFound: true, str: sentence }
+    const sentence = this._sourceText.slice(startIdx, endIdx + 1)
+    this._textCursor = endIdx + 1
+    return { wasFound: true, str: sentence }
   }
 
-  private cursorTo(idx: number): CursorPos {
-    if (idx < 0 || idx > this._sourceText.length) return { isValid: false }
-    return { isValid: true, index: idx }
+  private cursorAt(idx: number = this._textCursor) {
+    if (idx < 0 || idx > this._sourceText.length) return { isValid: false, index: idx, ch: "" }
+    return { isValid: true, index: idx, ch: this._sourceText[idx] }
   }
-  // private advanceCursorByWords(): string {
-  //   let count = 0
-  //   let words: string[] = []
-  //   let start = this.textCursor
-  //   let end = this.advanceCursorByOne(this._sourceText.length, start)
-  //   let getNextWord = (): string => {
-  //     while (/\s/.test(this._sourceText[start])) {
-  //       start = this.advanceCursorByOne(this._sourceText.length, start)
-  //       end = this.advanceCursorByOne(this._sourceText.length, start)
-  //       if (end < start) {
-  //         start = end
-  //         end = this.advanceCursorByOne(this._sourceText.length, start)
-  //       }
-  //     }
-  //     while (!/\s/.test(this._sourceText[end])) {
-  //       end = this.advanceCursorByOne(this._sourceText.length, end)
-  //       if (end < start) throw new RangeError("Can't generate next word; perhaps the sourceText string is too short?")
-  //     }
-  //     return this._sourceText.slice(start, end)
-  //   }
-
-  //   while (count <= options.wordsPerString) {
-  //     words.push(getNextWord())
-  //     count++
-  //   }
-  //   return words.join(" ")
-  // }
 }
 
 export class CodeModeStringGenerator {

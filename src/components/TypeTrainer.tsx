@@ -146,7 +146,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     let generator: TrainingStringGenerator
     switch (mode) {
       case TrainingMode.GUIDED:
-        generator = new GuidedModeStringGenerator()
+        generator = new GuidedModeStringGenerator(this.state.language, this.state.guidedCourse)
         break
       case TrainingMode.PRACTICE:
         generator = new PracticeModeStringGenerator(this.state.language, this.state.practiceSourceText)
@@ -232,20 +232,23 @@ export class TypeTrainer extends React.Component<{}, State> {
     return wpm
   }
 
-  prepareNewSession(): void {
-    this.setState(
-      {
-        cursor: 0,
-        trainingString: this.state.trainingStringGenerator.generate(this.state),
-        mistakeCharIndices: new Set(),
-        machineState: "READY",
-      },
+  prepareNewSession(newState: any = {}): void {
+    if (newState.practiceSourceText != null) {
+      newState.trainingStringGenerator = new PracticeModeStringGenerator(this.state.language, newState.practiceSourceText)
+      newState.trainingString = newState.trainingStringGenerator.generate()
+    } else {
+      newState.trainingString = this.state.trainingStringGenerator.generate()
+    }
+    if (newState.cursor == null) newState.cursor = 0
+    if (newState.mistakeCharIndices == null) newState.mistakeCharIndices = new Set()
+
+    this.setState(state => ({...state, ...newState, machineState: 'READY'}),
       () => this.logStatus()
     )
   }
 
   private getCurrentLevel(): CourseLevel {
-    return this.state.guidedCourse.levels[this.state.courseLevelIndex]
+    return this.state.guidedCourse.levels[this.state.guidedLevelIndex]
   }
 
   toggleTheme(): void {
@@ -281,8 +284,7 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   applyUserSettings(settings: any) {
-    const trainingStringGenerator = this.newTrainingStringGenerator()
-    this.setState({...settings, trainingStringGenerator}, () => this.prepareNewSession())
+    this.prepareNewSession(settings)
   }
 
   render(): JSX.Element {
@@ -320,7 +322,7 @@ export class TypeTrainer extends React.Component<{}, State> {
                 greyed={this.state.machineState === "PAUSED"}
                 cursor={this.state.cursor}
                 trainingString={this.state.trainingString}
-                mistakeCharIndexes={this.state.mistakeCharIndices}
+                mistakeCharIndices={this.state.mistakeCharIndices}
               />
             </TextDisplay>
 

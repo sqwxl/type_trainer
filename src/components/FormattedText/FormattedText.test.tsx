@@ -5,12 +5,12 @@ import { FormattedText } from "./FormattedText"
 const props = {
   trainingString: "My little pony",
   cursor: 8,
-  mistakeCharIndexes: new Set([0, 3]),
+  mistakeCharIndices: new Set([0, 3]),
   greyed: false,
 }
 
 
-describe("Text Formatter", () => {
+describe("FormattedText", () => {
   it("renders a string", () => {
     render(<FormattedText {...props} />, {})
     expect(screen.getByTestId('formattedString')).toHaveTextContent('pony')

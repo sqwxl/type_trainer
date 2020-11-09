@@ -1,10 +1,11 @@
 
-export default function sanitizeStringForGlyphs(str: string, chars: string[]): string {
+export default function sanitizeStringForGlyphs(str: string | undefined, chars: string[]): string {
+    if (!str) return ''
+    
     let formatted = str
 
-    if (!str) return ''
     // console.log(chars)
-
+    
     formatted = formatted.replace(/[’‚]/g, "'")     // Curly single-quote
     formatted = formatted.replace(/[“”„]/g, '"')    // Curly double-quotes
     formatted = formatted.replace(/…/g, '...')      // Ellipsis

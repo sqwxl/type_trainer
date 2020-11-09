@@ -4,7 +4,7 @@ const aMockCharset = (chars: string): string[] => chars.split('')
 const aCharset = aMockCharset("abcdefghijklmnopqrstuvwxyz1234567890'\".\n")
 
 describe('Formats strings properly', () => {
-    it(`undefined to ''`, () => {
+    it(`returns empty str when input is undefined`, () => {
         assertReplaces('', undefined)
     })
     it(`'' -> '' (empty to empty)`, () => {
@@ -45,7 +45,7 @@ describe('Formats strings properly', () => {
     })
 })
 
-function assertReplaces(expected: string, actual: string){
+function assertReplaces(expected: string, actual: string  | undefined){
     const frmt = sanitizeStringForGlyphs(actual, aCharset)
     expect(frmt).toEqual(expected)
 }

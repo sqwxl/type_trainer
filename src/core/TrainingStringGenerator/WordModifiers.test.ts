@@ -24,34 +24,27 @@ const NOOP_OPTIONS = {
 }
  */
 
-
-describe.skip("NumsWordModifier", () => {
-  const numberChars = mockCharacterSet.characters.filter(ch => ch.type === 'NUMBER')
- it("should not alter string when not enabled", () => {
-    expect(new NumsWordModifier(false, numberChars).modify("word")).toEqual("word")
+describe("NumsWordModifier", () => {
+  it("should not alter string when not enabled", () => {
+    expect(NumsWordModifier(false, mockCharacterSet.numberSet)("word")).toEqual("word")
   })
-  
   it("should add a number to a word when enabled", () => {
     const numbersRE = /\d/
-    expect(new NumsWordModifier(true, numberChars).modify("word")).toMatch(numbersRE)
+    expect(NumsWordModifier(true, mockCharacterSet.numberSet)("word")).toMatch(numbersRE)
   })
 })
-
 
 describe("CapsWordModifier", () => {
-  it("should not alter string when not enabled", () => {
-    expect(new CapsWordModifier(false).modify("word")).toEqual("word")
+  it("preserves string when not enabled", () => {
+    expect(CapsWordModifier(false)("word")).toEqual("word")
   })
-  
   it("should capitalize the first letter when enabled", () => {
-    expect(new CapsWordModifier(true).modify("word")).toEqual('Word')
+    expect(CapsWordModifier(true)("word")).toEqual("Word")
   })
 })
 
-describe('PunctWordModifier', () => {
-
-  it.skip("should not alter string when not enabled", () => {
-    expect(new PunctWordModifier(false, mockCharacters).modify("word")).toEqual("word")
+describe("PunctWordModifier", () => {
+  it("preserves string when not enabled", () => {
+    expect(PunctWordModifier(false, mockCharacterSet.punctSet)("word")).toEqual("word")
   })
 })
-

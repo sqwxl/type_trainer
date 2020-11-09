@@ -1,6 +1,6 @@
 import CharacterSet, {  } from "../../../core/CharacterSet";
 import { Language } from "../../../core/Language";
-import { dictionary } from './english.json'
+import { dictionary } from './english-dict.json'
 
 
 

@@ -11,6 +11,5 @@ describe.skip("Keyboard", () => {
     render(<VirtualKeyboard layout={keyboard} pressed={new Set()} active={[]} currentKey={'NONE'} />, {})
     expect(screen.getByText(/Z/)).toBeInTheDocument()
   })
-  it.todo("renders keys with the appropriate classes", () => {
-    })
+  it.todo("renders keys with the appropriate classes")
 })

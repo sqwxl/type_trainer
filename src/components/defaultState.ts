@@ -12,27 +12,19 @@ import TrainingText from "../core/TrainingText"
 import { Language } from "../core/Language"
 import Keyboard from "../core/Keyboard"
 
-const defaultLayout = en_qwerty
-const defaultLanguage = English
-const defaultText = new TrainingText(state_and_revolution, English)
-const defaultGenerator = new PracticeModeStringGenerator(defaultText.text)
-
 export const FontSizes = ["1rem", "1.5rem", "3rem"]
-export type MachineState = 'INIT' | "LOADED" | "READY" | "PAUSED" | "TRAINING" | "SETTINGS"
+export type MachineState = "INIT" | "LOADED" | "READY" | "PAUSED" | "TRAINING" | "SETTINGS"
 
 export enum TrainingMode {
   GUIDED = "Guided",
   PRACTICE = "Practice",
   CODE = "Code",
 }
-
-export const defaultGuidedModeStringGeneratorOptions = {}
-
-export const defaultPracticeModeStringOptions = {
-  sourceText: defaultText.text,
-  fullSentences: true,
-  wordsPerString: 8,
-}
+const defaultLayout = en_qwerty
+const defaultLanguage = English
+const defaultText = new TrainingText(state_and_revolution, English)
+const defaultMode = TrainingMode.PRACTICE
+const defaultGenerator = new PracticeModeStringGenerator(defaultLanguage, defaultText.text)
 
 export enum CodeLanguage {
   "JS" = "JavaScript",
@@ -42,11 +34,6 @@ export enum CodeLanguage {
   "Python" = "Python",
 }
 
-export const defaultCodeModeStringOptions = {
-  language: CodeLanguage.JS,
-  lines: 6,
-}
-
 export interface State {
   machineState: MachineState
   currentUserPressedKeys: Set<string>
@@ -54,7 +41,6 @@ export interface State {
   trainingString: string
   cursor: number
   mistakeCharIndices: Set<number>
-  courseLevelIndex: number
   wordsPerMinute: number
   successRate: number
   totalSessions: number
@@ -69,13 +55,14 @@ export interface State {
   trainingMode: TrainingMode
   trainingStringFontSize: number
 
+  guidedLevelIndex: number
   guidedCourse: Course
-  guidedWordLength: number
+  guidedWordLength: {min: number, max: number}
   guidedNumWords: number
   guidedHasCaps: boolean
   guidedHasPunctuation: boolean
   guidedHasNumbers: boolean
-  guidedHasSymbols: boolean
+  guidedHasSpecials: boolean
   guidedLikelihoodModified: number
 
   practiceSourceText: string
@@ -86,12 +73,15 @@ export interface State {
 
 export const defaultState: State = {
   machineState: "INIT",
+  language: defaultLanguage,
+  keyboard: defaultLayout,
+  trainingMode: defaultMode,
   trainingStringGenerator: defaultGenerator,
   currentUserPressedKeys: new Set(),
   trainingString: "",
   cursor: 0,
   mistakeCharIndices: new Set(),
-  courseLevelIndex: 32,
+  guidedLevelIndex: 32,
   wordsPerMinute: 0,
   successRate: 0,
   totalSessions: 0,
@@ -100,10 +90,6 @@ export const defaultState: State = {
 
   uiModeSelectShow: false,
   uiSettingsModalShow: false,
-
-  language: defaultLanguage,
-  keyboard: defaultLayout,
-  trainingMode: TrainingMode.PRACTICE,
 
   uiTheme: themes.dark,
   trainingStringFontSize: 1,
@@ -114,7 +100,7 @@ export const defaultState: State = {
   guidedHasCaps: false,
   guidedHasPunctuation: false,
   guidedHasNumbers: false,
-  guidedHasSymbols: false,
+  guidedHasSpecials: false,
   guidedLikelihoodModified: 0.8,
 
   practiceSourceText: defaultText.text,

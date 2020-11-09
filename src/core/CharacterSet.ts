@@ -13,12 +13,33 @@ export type Character = {
 }
 
 export default class CharacterSet {
-  constructor(private _characters: Character[]) {}
+  private _letterSet: Character[]
+  private _numberSet: Character[]
+  private _punctSet: Character[]
+  private _specialSet: Character[]
+  constructor(private _characters: Character[]) {
+    this._letterSet = this.ofType('LOWERCASE_LETTER')
+    this._numberSet = this.ofType('NUMBER')
+    this._punctSet  = this.ofType("PUNCTUATION")
+    this._specialSet = this.ofType("SPECIAL")
+  }
   get characters() {
     return this._characters
   }
-  alphabet(): string[] {
-    return this._characters.filter(({type}) => type === 'LOWERCASE_LETTER').map(({glyph}) => glyph)
+  get letterSet() {
+    return this._letterSet
+  }
+  get numberSet() {
+    return this._numberSet
+  }
+  get punctSet() {
+    return this._punctSet
+  }
+  get specialSet() {
+    return this._specialSet
+  }
+  ofType(t: CharacterType): Character[] {
+    return this._characters.filter(({type}) => t === type)
   }
   uniqueGlyphs(): string[] {
     return this._characters.reduce((uniqueGlyphs: string[], { glyph, bracketPair }) => {

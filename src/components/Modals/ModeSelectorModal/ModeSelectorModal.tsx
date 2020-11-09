@@ -18,16 +18,17 @@ export default function ModeSelectorModal(props: {
           block={true}
           onClick={() => {
             props.settrainingmode(TrainingMode.GUIDED)
+            props.onHide()
           }}
         >
           <strong>Guided:</strong> choose this if you are learning to touch type
         </Button>
         <br />
-        <Button block={true} onClick={() => props.settrainingmode(TrainingMode.PRACTICE)}>
+        <Button block={true} onClick={() => {props.settrainingmode(TrainingMode.PRACTICE); props.onHide()}}>
           <strong>Practice:</strong> hone your skills
         </Button>
         <br />
-        <Button block={true} onClick={() => props.settrainingmode(TrainingMode.CODE)}>
+        <Button block={true} onClick={() => {props.settrainingmode(TrainingMode.CODE); props.onHide()}}>
           <strong>Code:</strong> for programmers
         </Button>
         <br />
