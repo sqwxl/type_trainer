@@ -1,5 +1,6 @@
 import { Course } from "../../assets/courses/Courses"
 import { Language } from "../Language"
+import CharacterInserter from "./CharacterInserter"
 import MarkovChain from "./MarkovChain"
 import { CapsWordModifier, NumsWordModifier, PunctWordModifier, SpecialWordModifier } from "./WordModifiers"
 
@@ -18,14 +19,14 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private _language: Language, private _course: Course) {}
 
   newWordModifier = (options: any) => {
-    const { guidedHasCaps, guidedHasPunctuation, guidedHasNumbers, guidedHasSpecials } = options
-    const modifiers = fns: {(word: string): string => void}[]
-    if (guidedHasCaps) modifiers.push(CapsWordModifier(guidedHasCaps))
-    if (guidedHasPunctuation) modifiers.push(PunctWordModifier(this._language.characterSet.punctSet))
+    const { guidedHasCaps, guidedHasNumbers, guidedHasPunctuation, guidedHasSpecials } = options
+    const inserter = new CharacterInserter(this._language.vowels)
+    const modifiers: {(word: string): string}[] = []
+    if (guidedHasCaps) modifiers.push(CapsWordModifier())
     if (guidedHasNumbers) modifiers.push(NumsWordModifier(this._language.characterSet.numberSet))
-    if (guidedHasSpecials) modifiers.push(SpecialWordModifier(this._language.characterSet.specialSet))
+    if (guidedHasPunctuation) modifiers.push(PunctWordModifier(this._language.characterSet.punctSet, inserter))
+    if (guidedHasSpecials) modifiers.push(SpecialWordModifier(this._language.characterSet.specialSet, inserter))
     return (words: string[]) => {
-      const moded = [...words]
       if (modifiers.length !== 0) return words.map(word => {
         for (const mod of modifiers) {
           word = mod(word)

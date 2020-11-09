@@ -1,50 +1,46 @@
-import { mockCharacters, mockCharacterSet } from "../../utils/mockValues"
-import { NumsWordModifier, CapsWordModifier, PunctWordModifier } from "./WordModifiers"
-/* 
+import { mockCharacterSet } from "../../utils/mockValues"
+import CharacterSet, { Character } from "../CharacterSet"
+import CharacterInserter from "./CharacterInserter"
+import { NumsWordModifier, CapsWordModifier, PunctWordModifier, SpecialWordModifier } from "./WordModifiers"
+const mockVowels = "aeiou".split("")
+const inserter = new CharacterInserter(mockVowels)
+const numbers = mockCharacterSet.numberSet
+const punctuation = mockCharacterSet.punctSet
+const specials = mockCharacterSet.specialSet
+const capsModifier = CapsWordModifier()
+const numsModifier = NumsWordModifier(numbers)
+const punctModifier = PunctWordModifier(punctuation, inserter)
+const specialsModifier = SpecialWordModifier(specials, inserter)
 
-const NOOP_OPTIONS = {
-  wordModifierOptions: new StringGeneratorOption({
-    value: {
-      caps: new StringGeneratorOption({ value: false, formLabel: "Aa", formType: FormType.Switch }),
-      punct: new StringGeneratorOption({ value: false, formLabel: "Punctuation", formType: FormType.Switch }),
-      syms: new StringGeneratorOption({ value: false, formLabel: "Symbols", formType: FormType.Switch }),
-      nums: new StringGeneratorOption({ value: false, formLabel: "0-9", formType: FormType.Switch }),
-    },
-    formLabel: "Options",
-    formType: FormType.Parent,
-  }),
-  modifyingLikelihood: new StringGeneratorOption({
-    value: 1,
-    formLabel: "% modified",
-    formType: FormType.Number,
-    min: 0,
-    max: 1,
-    step: 0.1,
-  }),
+const glyphMap = (cs: Character[]): { [ch: string]: true } => {
+  const map: { [ch: string]: true } = {}
+  cs.forEach(({ glyph: ch }) => (map[ch] = true))
+  return map
 }
- */
-
-describe("NumsWordModifier", () => {
-  it("should not alter string when not enabled", () => {
-    expect(NumsWordModifier(false, mockCharacterSet.numberSet)("word")).toEqual("word")
-  })
-  it("should add a number to a word when enabled", () => {
-    const numbersRE = /\d/
-    expect(NumsWordModifier(true, mockCharacterSet.numberSet)("word")).toMatch(numbersRE)
+const assertModifies = (modifier: (word: string) => string, word: string, cs: Character[]) => {
+  const map = glyphMap(cs)
+  expect(modifier(word).split("").some(ch => map[ch] != null)).toBeTruthy()
+}
+describe("CapsWordModifier", () => {
+  it("should capitalize the first letter when enabled", () => {
+    expect(capsModifier("word")).toEqual("Word")
   })
 })
 
-describe("CapsWordModifier", () => {
-  it("preserves string when not enabled", () => {
-    expect(CapsWordModifier(false)("word")).toEqual("word")
-  })
-  it("should capitalize the first letter when enabled", () => {
-    expect(CapsWordModifier(true)("word")).toEqual("Word")
+describe("NumsWordModifier", () => {
+  it("should add a number to a word", () => {
+    assertModifies(numsModifier, "word", numbers)
   })
 })
 
 describe("PunctWordModifier", () => {
-  it("preserves string when not enabled", () => {
-    expect(PunctWordModifier(false, mockCharacterSet.punctSet)("word")).toEqual("word")
+  it("should insert at a punctuation mark", () => {
+    assertModifies(punctModifier, "longEnoughToBeModedForSure", punctuation)
+  })
+})
+
+describe("SpecialWordModifier", () => {
+  it("should insert a special character", () => {
+    assertModifies(specialsModifier, 'longEnoughToBeModedForSure', specials)
   })
 })

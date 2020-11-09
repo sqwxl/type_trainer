@@ -41,8 +41,8 @@ export default class CharacterSet {
   ofType(t: CharacterType): Character[] {
     return this._characters.filter(({type}) => t === type)
   }
-  uniqueGlyphs(): string[] {
-    return this._characters.reduce((uniqueGlyphs: string[], { glyph, bracketPair }) => {
+  static uniqueGlyphs(cs: Character[]): string[] {
+    return cs.reduce((uniqueGlyphs: string[], { glyph, bracketPair }) => {
       if (uniqueGlyphs.includes(glyph) || glyph.length > 1) return uniqueGlyphs
       uniqueGlyphs = uniqueGlyphs.concat(glyph)
       if (bracketPair == null || uniqueGlyphs.includes(bracketPair)) return uniqueGlyphs

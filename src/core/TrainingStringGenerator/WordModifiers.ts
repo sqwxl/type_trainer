@@ -1,36 +1,28 @@
-import { Character } from "../CharacterSet"
+import CharacterSet, { Character } from "../CharacterSet"
+import CharacterInserter from "./CharacterInserter"
 
-export interface IWordModifier {
-  modify(word: string): string
+const randomEle = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
+
+export const CapsWordModifier = () => (word: string): string => {
+  return word.slice(0, 1).toUpperCase().concat(word.slice(1))
 }
 
-export const CapsWordModifier = (enabled: boolean) => (word: string): string => {
-    if (!enabled) {
-      return word
-    }
-    return word.slice(0, 1).toUpperCase().concat(word.slice(1))
-  }
-
-
-export const PunctWordModifier = (enabled: boolean, punctSet: Character[]) => (word: string): string => {
-  if (!enabled || punctSet.length === 0) return word
-}
-  
-
-export const NumsWordModifier = (enabled: boolean, numbers: Character[]) => (word: string): string => {
-  const randomNumber = (): Character =>  numbers[Math.floor(Math.random() * numbers.length)]
-  if (!enabled || numbers.length === 0) return word
-  return  word + randomNumber().glyph
+export const NumsWordModifier = (numberSet: Character[]) => (word: string): string => {
+  if (numberSet.length === 0) return word
+  return word + randomEle(numberSet).glyph
 }
 
-export const SpecialWordModifier = (enabled: boolean,specials: Character[]) => (word: string): string => {
-    if (!enabled) {
-      return word
-    }
-    return "todo"
-  }
+export const PunctWordModifier = (punctSet: Character[], inserter: CharacterInserter) => (word: string): string => {
+  if (punctSet.length === 0) return word
+  return inserter.apply(word, randomEle(punctSet))
+}
 
 
+export const SpecialWordModifier = (specialSet: Character[], inserter: CharacterInserter) => (word: string): string => {
+  if (specialSet.length === 0) return word
+  return inserter.apply(word, randomEle(specialSet))
+}
 
 const WordModifiers = [CapsWordModifier, NumsWordModifier, PunctWordModifier, SpecialWordModifier]
 export default WordModifiers
+
