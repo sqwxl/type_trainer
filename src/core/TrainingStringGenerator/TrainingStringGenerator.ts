@@ -1,13 +1,12 @@
 import { CourseLevel } from "../../assets/courses/Courses"
-import { CodeLanguage } from "../../components/defaultState"
 import { charsAtCourseLevel } from "../../utils/course-utils"
+import { sanitizeCode } from "../../utils/text-utils"
 import CharacterSet, { CharacterType, Character } from "../CharacterSet"
 import Keyboard from "../Keyboard"
 import { Language } from "../Language"
 import CharacterInserter from "./CharacterInserter"
 import MarkovChain from "./MarkovChain"
 import { CapsWordModifier, NumsWordModifier, PunctWordModifier, SpecialWordModifier } from "./WordModifiers"
-
 
 export interface TrainingStringGenerator {
   generate(options: any): string
@@ -65,7 +64,7 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     const letters = this._language.alphabet.filter(ch => alphaMap[ch] != null)
     const vowels = this._language.vowels.filter(vowel => alphaMap[vowel] != null)
     // hardcoded expeption for english word generation
-    const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => 'iuoy'.includes(letter))
+    const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => "iuoy".includes(letter))
     const wantsMarkovChain = hasEnoughVowels
     let newWord
     if (wantsMarkovChain) {
@@ -233,24 +232,29 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
 }
 
 export class CodeModeStringGenerator implements TrainingStringGenerator {
-  private _cursor
-  constructor(private _code: string) {
+  private _cursor: number
+  private _code: string
+  constructor(_code: string) {
+    this._code = sanitizeCode(_code)
     this._cursor = 0
   }
-  generate(options: any = {codeLanguage: CodeLanguage.JS, codeLines: 4}): string {
+  generate(options: any = { codeLines: 4 }): string {
     const lines: string[] = []
-    const newLineAt = (idx: number) => this._code[idx] === '\n'
+    const newLineAt = (idx: number) => this._code[idx] === "\n"
+
+    let cursor = this._cursor
+    let start,
+      end = 0
     for (let i = 0; i < options.codeLines; i++) {
-      const start = this._cursor
-      while (!newLineAt(this._cursor)) {
-        this._cursor++
-        
-      }
-      const end = this._cursor
-      lines.push(this._code.slice(start, end))
+      start = cursor
+      end = this._code.indexOf("\n", start) + 1
+      if (end <= 0) end = this._code.length
+      const line = this._code.slice(start, end)
+      lines.push(line)
+      cursor = end
+      if (cursor >= this._code.length) break
     }
-    return lines.join('')
+    this._cursor = cursor
+    return lines.join("")
   }
 }
-
-export const number = 4
