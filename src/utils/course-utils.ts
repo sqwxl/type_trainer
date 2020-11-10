@@ -11,12 +11,12 @@ export const charsAtCourseLevel = (charSet: CharacterSet, level: CourseLevel, ke
     
 }
 
-export const codesAtCourseLevel = (charSet: CharacterSet, level: CourseLevel, keyboard: Keyboard): KeyCodes[] => {
+export const codesAtCourseLevel = (charSet: CharacterSet, level: CourseLevel, keyboard: Keyboard): KeyCode[] => {
   const specifiesRows = level.keyBoardRows != null;
   const specifiesHand = level.hand != null;
   const specifiesFingers = level.fingers != null && level.fingers.length > 0;
 
-  if (!specifiesRows && !specifiesHand && !specifiesFingers) return charSet.characters;
+  if (!specifiesRows && !specifiesHand && !specifiesFingers) return charSet.uniqueKeyCodes();
   
   const keyCodes = charSet.uniqueKeyCodes()
   const rowCodes: KeyCode[] = []

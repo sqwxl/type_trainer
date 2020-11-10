@@ -1,14 +1,16 @@
-import { Course, CourseLevel } from "../../assets/courses/Courses"
+import { CourseLevel } from "../../assets/courses/Courses"
+import { CodeLanguage } from "../../components/defaultState"
 import { charsAtCourseLevel } from "../../utils/course-utils"
-import CharacterSet, { Character, CharacterType } from "../CharacterSet"
+import CharacterSet, { CharacterType, Character } from "../CharacterSet"
 import Keyboard from "../Keyboard"
 import { Language } from "../Language"
 import CharacterInserter from "./CharacterInserter"
 import MarkovChain from "./MarkovChain"
 import { CapsWordModifier, NumsWordModifier, PunctWordModifier, SpecialWordModifier } from "./WordModifiers"
 
+
 export interface TrainingStringGenerator {
-  generate(options?: any): string
+  generate(options: any): string
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
@@ -64,8 +66,6 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     const vowels = this._language.vowels.filter(vowel => alphaMap[vowel] != null)
     // hardcoded expeption for english word generation
     const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => 'iuoy'.includes(letter))
-    console.table(letters)
-    console.table(vowels)
     const wantsMarkovChain = hasEnoughVowels
     let newWord
     if (wantsMarkovChain) {
@@ -118,6 +118,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
   private _textCursor: number
   private _sentenceCursor: number
   private _sentences: string[]
+
   constructor(private language: Language, private _sourceText: string) {
     // TODO: ensure sourceText has been sanitized
     // TODO: make language-aware
@@ -231,10 +232,25 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
   }
 }
 
-export class CodeModeStringGenerator {
-  generate(options: any) {
-    let string = "todo"
-
-    return string
+export class CodeModeStringGenerator implements TrainingStringGenerator {
+  private _cursor
+  constructor(private _code: string) {
+    this._cursor = 0
+  }
+  generate(options: any = {codeLanguage: CodeLanguage.JS, codeLines: 4}): string {
+    const lines: string[] = []
+    const newLineAt = (idx: number) => this._code[idx] === '\n'
+    for (let i = 0; i < options.codeLines; i++) {
+      const start = this._cursor
+      while (!newLineAt(this._cursor)) {
+        this._cursor++
+        
+      }
+      const end = this._cursor
+      lines.push(this._code.slice(start, end))
+    }
+    return lines.join('')
   }
 }
+
+export const number = 4

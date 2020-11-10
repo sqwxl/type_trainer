@@ -1,23 +1,22 @@
-import Courses, { Course } from "../../assets/courses/Courses"
+import Courses from "../../assets/courses/Courses"
 import English from "../../assets/languages/english/English"
 import qwerty from '../../assets/keyboard_layouts/en_qwerty'
 import { GuidedModeStringGenerator, PracticeModeStringGenerator, CodeModeStringGenerator } from "./TrainingStringGenerator"
 import { charsAtCourseLevel } from "../../utils/course-utils"
 import CharacterSet from "../CharacterSet"
 
+
+
+// GUIDED MODE
 const testCourseLevels = Courses.guidedCourse.levels
-const practiceEnglishGenerator = (txt: string) => new PracticeModeStringGenerator(English, txt)
 const guidedEnglishGenerator = new GuidedModeStringGenerator(qwerty, English, testCourseLevels)
-
-
 
 describe('GuidedModeStringGenerator', () => {
   const assertContains = (options: any, wanted: string) => {
     const words = guidedEnglishGenerator.generate(options)
-    console.log(`generated: ${words} \nwants to include: ${wanted}`)
     expect(words.split('').every(ch => wanted.split('').includes(ch))).toBeTruthy()
   }
-
+  
   it('should generate a string', () => {
     expect(typeof guidedEnglishGenerator.generate({guidedLevelIndex: 0}) === 'string').toBeTruthy()
   })
@@ -29,6 +28,12 @@ describe('GuidedModeStringGenerator', () => {
     }
   })
 })
+
+
+
+// PRACTICE MODE
+const practiceEnglishGenerator = (txt: string) => new PracticeModeStringGenerator(English, txt)
+
 describe('PracticeModeStringGenerator', () => {
   
   const assertGenerates = (str: string, result: string[]) => {
@@ -83,42 +88,34 @@ describe('PracticeModeStringGenerator', () => {
   })
 })
 
+// CODE MODE
 
-/*
-const generator = new GuidedModeStringGenerator(english)
-const options = { ...defaultGuidedModeStringOptions }
-const course = Courses.guidedCourse
+let codeGenerator: CodeModeStringGenerator
+let mockCode = `private sentence(): { wasFound: boolean; str?: string } {
+  // TODO: make dynamic and language-agnostic
+  let cursor = this.cursorAt()
+  const minimalLength = 5 // sentences shorter than this will be merged
+  if (!cursor.isValid) return { wasFound: false }
+  const isWhiteSpace = (ch: string) => ch === " " || ch === "\t" || ch === "\n"
 
-function testStringAgainstAllowedLetters(str: string, allowedLetters: RegExp): void {
-  // console.log("generated markov string:" + str.join(' '))
-  for (const ltr of str) {
-    expect(allowedLetters.test(ltr)).toBe(true)
+  // Move cursor to first non-white character
+  while (isWhiteSpace(cursor.ch)) {
+    cursor = this.cursorAt(cursor.index + 1)
   }
-}
-
-function newRegExpFromStrArr(letters: string[]): RegExp {
-  return new RegExp("[".concat(letters.join(''), "\\s]"))
-}
-
-function testMarkovLevel(options: UserStringOptions, generator: GuidedModeStringGenerator, lvl: CourseLevel): void {
-  testStringAgainstAllowedLetters(generator.generate(options, layout, lvl), newRegExpFromStrArr(Language.uniqueChars(layout.charSet.subSet({trainingLevel: lvl, type: CharacterType.LOWERCASE_LETTER})).concat([' '])))
-}
-
-
-
-describe("TrainingStringGenerator", () => {
-  it("should generate a string for a given set of characters", () => {
-    
-    const str = generator.generate(options, layout, course.levels[0])
-    expect(str.length).toBeTruthy()
-  })})
-describe("TrainingStringGenerator: Markov Chains", () => {
-  it("produces a string of words based on a training level using markov chains", () => {
-    for (let lvl = 0; lvl < course.levels.length; lvl++) {
-      testMarkovLevel(options, generator, course.levels[lvl])
-    }
+  if (!cursor.isValid) return { wasFound: false }
+  const startIdx = cursor.index
+`
+describe("CodeModeStringGenerator", () => {
+  beforeEach(() => {
+    codeGenerator = new CodeModeStringGenerator(mockCode)
+  })
+  it("should generate a string", () => {
+    expect(typeof codeGenerator.generate() === 'string').toBeTruthy()
+  })
+  test("given no options, it should generate the first four lines of code of", () => {
+    expect(codeGenerator.generate()).toEqual(`private sentence(): { wasFound: boolean; str?: string } {
+      // TODO: make dynamic and language-agnostic
+      let cursor = this.cursorAt()
+      const minimalLength = 5 // sentences shorter than this will be merged`)
   })
 })
-
-
- */

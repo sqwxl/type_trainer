@@ -1,16 +1,14 @@
-import { themes } from "./Contexts/ThemeContext/ThemeContext"
-import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import Courses, { Course } from "../assets/courses/Courses"
-import {
-  PracticeModeStringGenerator,
-  TrainingStringGenerator,
-} from "../core/TrainingStringGenerator/TrainingStringGenerator"
-import en_qwerty from "../assets/keyboard_layouts/en_qwerty"
-import state_and_revolution from "../assets/texts/state_and_revolution"
-import English from "../assets/languages/english/English"
-import TrainingText from "../core/TrainingText"
-import { Language } from "../core/Language"
 import Keyboard from "../core/Keyboard"
+import { Language } from "../core/Language"
+import { PracticeModeStringGenerator, TrainingStringGenerator } from "../core/TrainingStringGenerator/TrainingStringGenerator"
+import TrainingText from "../core/TrainingText"
+import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
+import { themes } from "./Contexts/ThemeContext/ThemeContext"
+
+import Courses, { Course } from "../assets/courses/Courses"
+import English from "../assets/languages/english/English"
+import qwerty from "../assets/keyboard_layouts/en_qwerty"
+import state_and_revolution from "../assets/texts/state_and_revolution"
 
 export const FontSizes = ["1rem", "1.5rem", "3rem"]
 export type MachineState = "INIT" | "LOADED" | "READY" | "PAUSED" | "TRAINING" | "SETTINGS"
@@ -20,7 +18,7 @@ export enum TrainingMode {
   PRACTICE = "Practice",
   CODE = "Code",
 }
-const defaultLayout = en_qwerty
+const defaultLayout = qwerty
 const defaultLanguage = English
 const defaultText = new TrainingText(state_and_revolution, English)
 const defaultMode = TrainingMode.PRACTICE
@@ -106,7 +104,7 @@ export const defaultState: State = {
   practiceSourceText: defaultText.text,
 
   codeLanguage: CodeLanguage.JS,
-  codeLines: 6,
+  codeLines: 4,
 }
 
 export const inactivityDelay = 2000 //todo: mettre dans settings

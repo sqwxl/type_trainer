@@ -146,7 +146,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     let generator: TrainingStringGenerator
     switch (mode) {
       case TrainingMode.GUIDED:
-        generator = new GuidedModeStringGenerator(this.state.language, this.state.guidedCourse)
+        generator = new GuidedModeStringGenerator(this.state.keyboard, this.state.language, this.state.guidedCourse.levels)
         break
       case TrainingMode.PRACTICE:
         generator = new PracticeModeStringGenerator(this.state.language, this.state.practiceSourceText)
@@ -248,6 +248,8 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   private getCurrentLevel(): CourseLevel {
+    // return final level (full keyboard) if lvl is undefined
+    if (this.state.guidedLevelIndex == null) return this.state.guidedCourse.levels.slice(-1)[0]
     return this.state.guidedCourse.levels[this.state.guidedLevelIndex]
   }
 

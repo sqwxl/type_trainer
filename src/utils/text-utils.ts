@@ -1,7 +1,7 @@
 
-export default function sanitizeStringForGlyphs(str: string | undefined, chars: string[]): string {
-    if (!str) return ''
-    
+    export function sanitizeStringForGlyphs(str: string | undefined, chars?: string[]): string {
+    if (str == null) return ''
+    if (chars == null) return str
     let formatted = str
 
     // console.log(chars)

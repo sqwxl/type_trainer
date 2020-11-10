@@ -10,26 +10,7 @@ import { CodeLanguage, TrainingMode } from "../../defaultState"
 interface MyProps {
   onHide: () => void
   show: boolean
-  settings: {
-    language: Language
-    keyboard: Keyboard
-    trainingMode: TrainingMode
-    trainingStringFontSize: number
-    
-    guidedCourse: Course
-    guidedWordLength: number
-    guidedNumWords: number
-    guidedHasCaps: boolean
-    guidedHasPunctuation: boolean
-    guidedHasNumbers: boolean
-    guidedHasSymbols: boolean
-    guidedLikelihoodModified: number
-  
-    practiceSourceText: string
-  
-    codeLanguage: CodeLanguage
-    codeLines: number
-  }
+  settings: any
   onSubmitChanges: (updatedOptions: any) => void
 }
 
@@ -41,7 +22,7 @@ const SettingsModal: React.FC<MyProps> = props => {
   }
 
   const handleChange = (prop: string, value: any) => {
-    setDraftSettings(prev => ({...prev, [prop]: value}))
+    setDraftSettings((prev: any) => ({...prev, [prop]: value}))
   }
 
   let form: JSX.Element = <></> // = options.parseForm(handleChange)

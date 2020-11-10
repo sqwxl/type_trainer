@@ -1,4 +1,4 @@
-import sanitizeStringForGlyphs from "../utils/sanitizeStringForGlyphs";
+import { sanitizeStringForGlyphs } from "../utils/text-utils";
 import { Language } from "./Language";
 
 export default class TrainingText {

@@ -1,4 +1,4 @@
-import sanitizeStringForGlyphs from "./sanitizeStringForGlyphs";
+import { sanitizeStringForGlyphs } from "./text-utils";
 
 const aMockCharset = (chars: string): string[] => chars.split('')
 const aCharset = aMockCharset("abcdefghijklmnopqrstuvwxyz1234567890'\".\n")
