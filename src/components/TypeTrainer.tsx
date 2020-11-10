@@ -152,7 +152,7 @@ export class TypeTrainer extends React.Component<{}, State> {
         generator = new PracticeModeStringGenerator(this.state.language, this.state.practiceSourceText)
         break
       case TrainingMode.CODE:
-        generator = new CodeModeStringGenerator()
+        generator = new CodeModeStringGenerator(this.state.codeSourceText)
         break
     }
     return generator
@@ -237,7 +237,7 @@ export class TypeTrainer extends React.Component<{}, State> {
       newState.trainingStringGenerator = new PracticeModeStringGenerator(this.state.language, newState.practiceSourceText)
       newState.trainingString = newState.trainingStringGenerator.generate()
     } else {
-      newState.trainingString = this.state.trainingStringGenerator.generate()
+      newState.trainingString = this.state.trainingStringGenerator.generate(this.state)
     }
     if (newState.cursor == null) newState.cursor = 0
     if (newState.mistakeCharIndices == null) newState.mistakeCharIndices = new Set()
@@ -322,6 +322,7 @@ export class TypeTrainer extends React.Component<{}, State> {
             <TextDisplay style={{ fontSize: FontSizes[this.state.trainingStringFontSize] }}>
               <FormattedText
                 greyed={this.state.machineState === "PAUSED"}
+                mode={this.state.trainingMode}
                 cursor={this.state.cursor}
                 trainingString={this.state.trainingString}
                 mistakeCharIndices={this.state.mistakeCharIndices}

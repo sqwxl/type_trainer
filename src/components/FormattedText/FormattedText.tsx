@@ -1,8 +1,9 @@
 import React from 'react'
+import { TrainingMode } from '../defaultState'
 import './FormattedText.css'
 
 const testId = "formattedString"
-interface MyProps { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndices: Set<number> }
+interface MyProps { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndices: Set<number>, mode: TrainingMode }
 
 export const FormattedText: React.FC<MyProps> = (props: MyProps): JSX.Element => {
   const { cursor, trainingString, mistakeCharIndices } = props
@@ -62,7 +63,7 @@ export const FormattedText: React.FC<MyProps> = (props: MyProps): JSX.Element =>
   }
 
   return (
-    <p data-testid={testId} className={props.greyed ? "greyed" : ""}>
+    <p data-testid={testId} className={props.greyed ? "greyed" : ""} style={props.mode === TrainingMode.CODE ? {textAlign: "left"} : {}}>
       {before}
       {current}
       {after}

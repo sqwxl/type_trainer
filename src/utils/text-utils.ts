@@ -1,7 +1,6 @@
 const basicSanitize = (str: string): string => {
   let sanitized = str
   sanitized = sanitized.replace(/\r/g, "\n") // (unescaped) Carriage Return to Line Feed
-  sanitized = sanitized.replace(/(\n\s*){3,}/g, "\n\n") // Multi returns to double
   sanitized = sanitized.replace(/[’‚]/g, "'") // Curly single-quote to standard
   sanitized = sanitized.replace(/[“”„]/g, '"') // Curly double-quotes to standard
   sanitized = sanitized.replace(/…/g, "...") // Ellipsis to three periods
@@ -24,8 +23,8 @@ export function sanitizeStringForGlyphs(str: string | undefined, chars?: string[
   }
   
   let sanitized = basicSanitize(str)
-
   sanitized = sanitized.replace(/\t/g, " ") // Tabs
+  sanitized = sanitized.replace(/(\n\s*){3,}/g, "\n\n") // Multi returns to double
   sanitized = sanitized.replace(/  +/g, " ") // Multi space
   let resultStr = ""
   for (const ltr of sanitized) {

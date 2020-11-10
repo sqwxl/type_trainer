@@ -9,7 +9,7 @@ import MarkovChain from "./MarkovChain"
 import { CapsWordModifier, NumsWordModifier, PunctWordModifier, SpecialWordModifier } from "./WordModifiers"
 
 export interface TrainingStringGenerator {
-  generate(options: any): string
+  generate(options?: any): string
 }
 
 export class MockTrainingStringGenerator implements TrainingStringGenerator {
@@ -22,9 +22,10 @@ export class MockTrainingStringGenerator implements TrainingStringGenerator {
 export class GuidedModeStringGenerator implements TrainingStringGenerator {
   constructor(private _keyboard: Keyboard, private _language: Language, private _courseLevels: CourseLevel[]) {}
 
-  generate(options: any): string {
+  generate(options: any = {}): string {
+    let words = this.newUnmodifiedWords(options)
     const modifier = this.newWordModifier(options)
-    const words = modifier(this.newUnmodifiedWords(options))
+    words = modifier(words)
     return words.join(" ")
   }
 
@@ -240,7 +241,6 @@ export class CodeModeStringGenerator implements TrainingStringGenerator {
   }
   generate(options: any = { codeLines: 4 }): string {
     const lines: string[] = []
-    const newLineAt = (idx: number) => this._code[idx] === "\n"
 
     let cursor = this._cursor
     let start,

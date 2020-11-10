@@ -24,6 +24,35 @@ const defaultText = new TrainingText(state_and_revolution, English)
 const defaultMode = TrainingMode.PRACTICE
 const defaultGenerator = new PracticeModeStringGenerator(defaultLanguage, defaultText.text)
 const defaultCourse = Courses.guidedCourse
+const defaultCodeSourceText = `export class CodeModeStringGenerator implements TrainingStringGenerator {
+  private _cursor: number
+  private _code: string
+  constructor(_code: string) {
+    this._code = sanitizeCode(_code)
+    this._cursor = 0
+  }
+  generate(options: any = { codeLines: 4 }): string {
+    const lines: string[] = []
+    const newLineAt = (idx: number) => this._code[idx] === "\n"
+
+    let cursor = this._cursor
+    let start,
+      end = 0
+    for (let i = 0; i < options.codeLines; i++) {
+      start = cursor
+      end = this._code.indexOf("\n", start) + 1
+      if (end <= 0) end = this._code.length
+      const line = this._code.slice(start, end)
+      lines.push(line)
+      cursor = end
+      if (cursor >= this._code.length) break
+    }
+    this._cursor = cursor
+    return lines.join("")
+  }
+}`
+
+
 export enum CodeLanguage {
   "JS" = "JavaScript",
   "TS" = "TypeScript",
@@ -65,7 +94,7 @@ export interface State {
 
   practiceSourceText: string
 
-  codeLanguage: CodeLanguage
+  codeSourceText: string
   codeLines: number
 }
 
@@ -92,7 +121,7 @@ export const defaultState: State = {
   trainingStringFontSize: 1,
   
   guidedCourse: defaultCourse,
-  guidedLevelIndex: 32,
+  guidedLevelIndex: 3,
   guidedWordLength: {min:6, max: 6},
   guidedNumWords: 8,
   guidedHasCaps: false,
@@ -103,7 +132,7 @@ export const defaultState: State = {
 
   practiceSourceText: defaultText.text,
 
-  codeLanguage: CodeLanguage.JS,
+  codeSourceText: defaultCodeSourceText,
   codeLines: 4,
 }
 

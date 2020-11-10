@@ -57,6 +57,9 @@ describe("sanitizeCode", () => {
   it("should replace carriage returns with line feeds", () => {
     assertReplaces("\n", "\r")
   })
+  it("should preserve tabs", () => {
+    assertReplaces('\t', '\t')
+  })
   it("should preserver escape character", () => {
       assertReplaces("line\nline", "line\nline")
   })
