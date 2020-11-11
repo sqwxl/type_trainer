@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/type_trainer/static/css/main.54913a15.chunk.css",
+    "main.js": "/type_trainer/static/js/main.a6d43570.chunk.js",
+    "main.js.map": "/type_trainer/static/js/main.a6d43570.chunk.js.map",
+    "runtime-main.js": "/type_trainer/static/js/runtime-main.6cc117df.js",
+    "runtime-main.js.map": "/type_trainer/static/js/runtime-main.6cc117df.js.map",
+    "static/css/2.1a02f21c.chunk.css": "/type_trainer/static/css/2.1a02f21c.chunk.css",
+    "static/js/2.ff5cc26b.chunk.js": "/type_trainer/static/js/2.ff5cc26b.chunk.js",
+    "static/js/2.ff5cc26b.chunk.js.map": "/type_trainer/static/js/2.ff5cc26b.chunk.js.map",
+    "index.html": "/type_trainer/index.html",
+    "static/css/2.1a02f21c.chunk.css.map": "/type_trainer/static/css/2.1a02f21c.chunk.css.map",
+    "static/css/main.54913a15.chunk.css.map": "/type_trainer/static/css/main.54913a15.chunk.css.map",
+    "static/js/2.ff5cc26b.chunk.js.LICENSE.txt": "/type_trainer/static/js/2.ff5cc26b.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6cc117df.js",
+    "static/css/2.1a02f21c.chunk.css",
+    "static/js/2.ff5cc26b.chunk.js",
+    "static/css/main.54913a15.chunk.css",
+    "static/js/main.a6d43570.chunk.js"
+  ]
+}
