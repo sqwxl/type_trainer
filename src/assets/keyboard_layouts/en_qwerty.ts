@@ -64,8 +64,6 @@ const keyCapLabelMap: KeyCapLabelMap = {
   ControlRight: { main: "Ctrl" }
 }
 
-
-
 const EnglishQwertyLayout = new Keyboard(keyCapLabelMap)
 
 export default EnglishQwertyLayout

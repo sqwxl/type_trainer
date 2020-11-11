@@ -21,10 +21,10 @@ export enum TrainingMode {
 const defaultLayout = qwerty
 const defaultLanguage = English
 const defaultText = new TrainingText(state_and_revolution, English)
-const defaultMode = TrainingMode.PRACTICE
+const defaultMode = TrainingMode.GUIDED
 const defaultGenerator = new PracticeModeStringGenerator(defaultLanguage, defaultText.text)
 const defaultCourse = Courses.guidedCourse
-const defaultCodeSourceText = `export class CodeModeStringGenerator implements TrainingStringGenerator {
+const defaultCodeSourceText = String.raw`export class CodeModeStringGenerator implements TrainingStringGenerator {
   private _cursor: number
   private _code: string
   constructor(_code: string) {
@@ -75,6 +75,7 @@ export interface State {
   successRateAverage: number
   uiModeSelectShow: boolean
   uiSettingsModalShow: boolean
+  uiShowWhiteSpaceSymbols: boolean
   uiTheme: { [index: string]: CSSCustomProperties }
 
   language: Language
@@ -83,7 +84,7 @@ export interface State {
   trainingStringFontSize: number
 
   guidedCourse: Course
-  guidedLevelIndex: number | undefined
+  guidedLevelIndex: number
   guidedWordLength: {min: number, max: number}
   guidedNumWords: number
   guidedHasCaps: boolean
@@ -116,14 +117,15 @@ export const defaultState: State = {
   
   uiModeSelectShow: false,
   uiSettingsModalShow: false,
+  uiShowWhiteSpaceSymbols: true,
   
   uiTheme: themes.dark,
   trainingStringFontSize: 1,
   
   guidedCourse: defaultCourse,
-  guidedLevelIndex: 3,
-  guidedWordLength: {min:6, max: 6},
-  guidedNumWords: 8,
+  guidedLevelIndex: 0,
+  guidedWordLength: {min:5, max: 14},
+  guidedNumWords: 1,
   guidedHasCaps: false,
   guidedHasPunctuation: false,
   guidedHasNumbers: false,

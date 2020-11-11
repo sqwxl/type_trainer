@@ -235,17 +235,18 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
 export class CodeModeStringGenerator implements TrainingStringGenerator {
   private _cursor: number
   private _code: string
-  constructor(_code: string) {
+  codeLines: number
+  constructor(_code: string, codeLines: number = 4) {
     this._code = sanitizeCode(_code)
     this._cursor = 0
+    this.codeLines = codeLines
   }
-  generate(options: any = { codeLines: 4 }): string {
+  generate(options?: any): string {
     const lines: string[] = []
-
     let cursor = this._cursor
     let start,
       end = 0
-    for (let i = 0; i < options.codeLines; i++) {
+    for (let i = 0; i < this.codeLines; i++) {
       start = cursor
       end = this._code.indexOf("\n", start) + 1
       if (end <= 0) end = this._code.length
@@ -254,7 +255,7 @@ export class CodeModeStringGenerator implements TrainingStringGenerator {
       cursor = end
       if (cursor >= this._code.length) break
     }
-    this._cursor = cursor
+    this._cursor = cursor % this._code.length
     return lines.join("")
   }
 }

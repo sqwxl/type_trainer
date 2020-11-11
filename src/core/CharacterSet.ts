@@ -1,6 +1,6 @@
 import { KeyCode } from "./KeyCode"
 
-export type CharacterType = "NONE" | "LOWERCASE_LETTER" | "NUMBER" | "PUNCTUATION" | "SPECIAL" | "PROGRAMMING"
+export type CharacterType = "NONE" | "LOWERCASE_LETTER" | "NUMBER" | "PUNCTUATION" | "SPECIAL" | "PROGRAMMING" | "WHITESPACE"
 
 export type CharacterBehavior = "NONE" | "PREPEND" | "APPEND" | "PREPEND_OR_APPEND" | "SPLIT" | "BRACKET" | "OPERATOR"
 

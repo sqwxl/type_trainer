@@ -3,16 +3,23 @@ import { TrainingMode } from '../defaultState'
 import './FormattedText.css'
 
 const testId = "formattedString"
-interface MyProps { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndices: Set<number>, mode: TrainingMode }
+interface MyProps { greyed: boolean, cursor: number, trainingString: string, mistakeCharIndices: Set<number>, mode: TrainingMode, uiShowWhiteSpaceSymbols: boolean }
 
 export const FormattedText: React.FC<MyProps> = (props: MyProps): JSX.Element => {
   const { cursor, trainingString, mistakeCharIndices } = props
 
   let uniquekey = 0
-  function replaceSpaces(str: string): string {
+  function replaceWhiteSpacesWithSymbols(str: string): string {
+    const tab = `&emsp;&RightArrowBar;`
     const lineFeed = `&crarr;<br>`
     const blankAndInvisibleSpace = `&blank;&#8203;`
-    return str.replace(/\n/g, lineFeed).replace(/\s/g, blankAndInvisibleSpace)
+    return str.replace(/\t/g, tab).replace(/\n/g, lineFeed).replace(/\s/g, blankAndInvisibleSpace)
+  }
+  function replaceWhiteSpacesWithHTML(str: string): string {
+    const tab = `&emsp;&emsp;`
+    const lineFeed = `&emsp;<br>`
+    const space = `&emsp;`
+    return str.replace(/\t/g, tab).replace(/\n/g, lineFeed).replace(/\s/g, space)
   }
   function escapeHtml(unsafe: string): string {
     const text = document.createTextNode(unsafe);
@@ -23,9 +30,13 @@ export const FormattedText: React.FC<MyProps> = (props: MyProps): JSX.Element =>
     return safe
   }
   function format(str: string): string {
-    if (str != null)
-      return replaceSpaces(escapeHtml(str))
-    else
+    let newStr = str
+    if (newStr != null) {
+      newStr = props.uiShowWhiteSpaceSymbols
+        ? replaceWhiteSpacesWithSymbols(escapeHtml(newStr))
+        : replaceWhiteSpacesWithHTML(newStr)
+      return newStr
+    } else
       return ""
   }
   function tag(str: string, className: string): JSX.Element {
@@ -63,7 +74,7 @@ export const FormattedText: React.FC<MyProps> = (props: MyProps): JSX.Element =>
   }
 
   return (
-    <p data-testid={testId} className={props.greyed ? "greyed" : ""} style={props.mode === TrainingMode.CODE ? {textAlign: "left"} : {}}>
+    <p data-testid={testId} className={props.greyed ? "greyed" : ""} style={{textAlign: "left"}}>
       {before}
       {current}
       {after}

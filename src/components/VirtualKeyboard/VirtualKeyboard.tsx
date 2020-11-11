@@ -49,7 +49,6 @@ export default function VirtualKeyboard(props: React.PropsWithChildren<VKProps>)
         <FormCheck
           type="switch"
           id="kb-switch"
-          label="Keyboard"
           role="switch"
           onChange={() => setVisible(!visible)}
           checked={visible}

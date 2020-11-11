@@ -64,8 +64,28 @@ describe("sanitizeCode", () => {
       assertReplaces("line\nline", "line\nline")
   })
   it("should preserve literal line breaks", () => {
-    let literalLB = `line
-    line`
+    let literalLB = 
+`line
+line`
     assertReplaces(literalLB, literalLB)
+  })
+  it("should preserve literal line breaks and escaped line break characters", () => {
+    const mixed = 
+`line\nline
+line\nline`
+    assertReplaces(mixed, mixed)
+  })
+  it("should replace leading groups of 2 spaces with a corresponding number of tabs", () => {
+    const actual = 
+`foo():
+  line2:
+    line3  :
+      line4:`
+    const expected =
+`foo():
+\tline2:
+\t\tline3  :
+\t\t\tline4:`
+    assertReplaces(expected, actual)
   })
 })

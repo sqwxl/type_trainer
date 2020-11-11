@@ -88,6 +88,7 @@ export default class Keyboard {
     case "Period":
     case "Slash":
     case 'Enter':
+    case 'Tab':
       return true;
     default:
       return false;

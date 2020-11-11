@@ -1,5 +1,6 @@
 import React from "react"
 import styled from "styled-components"
+import { TrainingMode } from "../defaultState"
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,10 +31,13 @@ const Avg = styled.small`
 `
 
 interface MyProps {
+  mode: TrainingMode
   wordsPerMinute: number
   wordsPerMinuteAverage: number
   successRate: number
   successRateAverage: number
+  guidedLevelIndex: number
+  levelDescription: string
 }
 
 const QuickStats: React.FC<MyProps> = props => {
@@ -53,6 +57,9 @@ const QuickStats: React.FC<MyProps> = props => {
         <SmallStackLabel> % correct</SmallStackLabel>
         <Avg>avg: {props.successRateAverage}</Avg>
       </SmallStack>
+      {props.mode !== TrainingMode.GUIDED || <div><BigStat className="display-3" >level: {props.guidedLevelIndex}</BigStat>
+      <SmallStack>{props.levelDescription}</SmallStack>
+        </div>}
     </Wrapper>
   )
 }
