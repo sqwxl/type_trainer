@@ -4,24 +4,14 @@
 
 This project intends to emulate the functionality of touch typing training software (i.e. [keybr.com](https://www.keybr.com/)) with added focus on the special characters used in programming.
 
-## Training Method
-
-The training program will initially generate random combinations of words (or word-like combinations of syllables à la keybr.com) and will progressively adapt its output to match the users weaknesses.
-The end result will implement some version "[spaced repetition](https://en.wikipedia.org/wiki/Spaced_repetition)" :
-> Spaced repetition is an evidence-based learning technique that is usually performed with flashcards. Newly introduced and more difficult flashcards are shown more frequently, while older and less difficult flashcards are shown less frequently in order to exploit the psychological spacing effect. The use of spaced repetition has been proven to increase rate of learning.
-
-Essentially, more error prone characters (or character combination) will appear more frequently, while acquired skills will come up less and less as they are mastered.
-
 
 ## User stories (task list)
 
-### General functionalities
 - [x] I can train immediately from the home page
 - [ ] I can access statistics about my training progress
 - [ ] The website is compatible with assistive technologies
 - [ ] I can resize the window and the page is responsive
 - [ ] I can see all components on small screens (min 1024x768)
-### Trainer
 - [x] I can see a keyboard
 - [x] The keyboard highlights the keys I am currently pressing (linux)
 - [x] I see a toolbar above the text area which gives me access to UI and training settings
@@ -35,16 +25,14 @@ Essentially, more error prone characters (or character combination) will appear 
 - [ ] When I have inputed an incorrect character, but continue on to type a string of correct characters following it, the highlighted letter jumps ahead without me having to correct my error (the error is still recorded)
 - [x] I see a summary of relevant stats (WPM, errors, etc) that updates as I complete sessions
 - [x] My training sessions pauses automatically when I am inactive
-### Settings
 - [x] I can switch between light and dark global color themes from the toolbar
 - [x] I can switch between predefined font sizes from the toolbar
 - [x] I can choose what type of character set I want to practice (alphabet, lowercase, uppercase, punctuation, letters)+numbers, etc)
-- [ ] I can provide my own text to use as a training set
+- [x] I can provide my own text to use as a training set
 - [ ] I can choose from a selection of fonts for the training interface (i.e. monospace, comic sans for dyslexia, etc.)
-- [ ] I can choose a keyboard layout
-### Stats page
+- [ ] I can choose a keyboard layout and language
 - [ ] I can see a heat map of the keyboard highlighting error-prone keys
-- [ ] I can see my average and best WPM
+- [x] I can see my average and best WPM
 - [ ] I can see a graph of my progress over time
 - [ ] I can see how much time I've spent training
 
