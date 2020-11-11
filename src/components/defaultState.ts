@@ -124,8 +124,8 @@ export const defaultState: State = {
   
   guidedCourse: defaultCourse,
   guidedLevelIndex: 0,
-  guidedWordLength: {min:5, max: 14},
-  guidedNumWords: 1,
+  guidedWordLength: {min:5, max: 12},
+  guidedNumWords: 20,
   guidedHasCaps: false,
   guidedHasPunctuation: false,
   guidedHasNumbers: false,

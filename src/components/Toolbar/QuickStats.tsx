@@ -57,9 +57,7 @@ const QuickStats: React.FC<MyProps> = props => {
         <SmallStackLabel> % correct</SmallStackLabel>
         <Avg>avg: {props.successRateAverage}</Avg>
       </SmallStack>
-      {props.mode !== TrainingMode.GUIDED || <div><BigStat className="display-3" >level: {props.guidedLevelIndex}</BigStat>
-      <SmallStack>{props.levelDescription}</SmallStack>
-        </div>}
+      {props.mode !== TrainingMode.GUIDED || <BigStat className="display-3" >level: {props.guidedLevelIndex}</BigStat>}
     </Wrapper>
   )
 }
