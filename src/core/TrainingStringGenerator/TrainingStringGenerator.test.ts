@@ -71,11 +71,11 @@ describe("PracticeModeStringGenerator", () => {
     const str = `All the social-chauvinists are now "Marxists" (don't laugh!). ​And more and more`
     assertGenerates(str, [`All the social-chauvinists are now "Marxists" (don't laugh!).`, `​And more and more`])
   })
-  it(`shouldn't mind line feeds`, () => {
-    const str = `First line and \nsecond lines of a single sentence.\nThe following sentence.\n\nThe final sentence.`
+  it(`should treat line feeds as sentence terminators when following periods or brackets`, () => {
+    const str = `First line and \nsecond lines of a single sentence.\nThe following "sentence."\n\nThe final sentence.`
     assertGenerates(str, [
       `First line and \nsecond lines of a single sentence.`,
-      `The following sentence.`,
+      `The following "sentence."`,
       `The final sentence.`,
     ])
   })

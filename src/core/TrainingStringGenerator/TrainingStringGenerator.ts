@@ -169,6 +169,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
     // Move cursor to the end of sentence
     const isLetter = (ch: string) => this.language.alphaMap[ch] != null
     const isPeriodMark = (ch: string): boolean => ch === "." || ch === "!" || ch === "?"
+    const isNewLine = (ch: string): boolean => ch === '\n'
     const brackets = this.language.characterSet.punctSet.filter(({ behavior }) => behavior === "BRACKET")
     const isBracketMark = (ch: string): boolean => CharacterSet.uniqueGlyphs(brackets).includes(ch) // TODO: include parentheses, brackets...
     const wantedBrackets: string[] = []
@@ -178,6 +179,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
       const next = this.cursorAt(cursor.index + 1)
       if (!next.isValid) return true
       if (cursor.index - startIdx < minimalLength) return false
+      if ((isPeriodMark(cursor.ch) || isBracketMark(cursor.ch)) && isNewLine(next.ch)) return true
       if (wantedBrackets.length === 0) {
         if (isPeriodMark(cursor.ch) && !isPeriodMark(next.ch)) return true
         if (isBracketMark(cursor.ch) && sentenceHasOuterBracket) return true
