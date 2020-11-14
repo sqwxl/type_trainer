@@ -32,7 +32,6 @@ export class TypeTrainer extends React.Component<{}, State> {
     super(props)
     this.localStorage = undefined
     this.state = this.initWith(defaultState)
-    console.table(this.state.uiTheme === 'light', 'light', this.state.uiTheme)
     this.routeEvent = this.routeEvent.bind(this)
   }
 
@@ -123,7 +122,6 @@ export class TypeTrainer extends React.Component<{}, State> {
     if (delimiter === -1) throw new SyntaxError('Storage item is missing "$$$" type delimiter.')
     const type = item.slice(0, delimiter)
     const value = item.slice(delimiter + 3)
-    console.log(item, value, type)
     switch (type) {
       case "string":
         return value
@@ -156,7 +154,6 @@ export class TypeTrainer extends React.Component<{}, State> {
       return
     }
     state.currentUserPressedKeys.add(event.code)
-    // console.log("code: ", event.code, "key: ", event.key)
     // Validate
     if (Keyboard.keyCodeisCharKey(event.code)) {
       if (TypeTrainer.isCorrectCharPressed(state, event)) {
