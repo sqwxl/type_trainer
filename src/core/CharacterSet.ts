@@ -50,8 +50,8 @@ export default class CharacterSet {
     }, [])
   }
 
-  uniqueKeyCodes(): KeyCode[] {
-    return this._characters.reduce((arr: KeyCode[], character) => {
+  static uniqueKeyCodes(cs: Character[]): KeyCode[] {
+    return cs.reduce((arr: KeyCode[], character) => {
       for (const code of character.code) {
         if (!arr.includes(code)) {
           arr = arr.concat(code)
@@ -67,5 +67,11 @@ export default class CharacterSet {
     const character = this._characters.find(character => character.code.length === 1 && character.glyph === glyph)
     if (character != null) return character.code[0]
     return "NONE"
+  }
+
+  filterByCode(code: KeyCode): Character[] {
+    const arr = this._characters.filter(character => character.code.includes(code))
+    if (arr == null) return []
+    return arr
   }
 }

@@ -20,7 +20,7 @@ export class Language {
     this.vowels = vowels
     this.characters = this.characterSet.characters
     this.uniqueGlyphs = CharacterSet.uniqueGlyphs(this.characters)
-    this.uniqueKeyCodes = this.characterSet.uniqueKeyCodes()
+    this.uniqueKeyCodes = CharacterSet.uniqueKeyCodes(this.characters)
     this.alphabet = this.characterSet.letterSet.map(({glyph}) => glyph)
     this.numbers = this.characterSet.numberSet.map(({glyph}) => glyph)
     this.punctuation = this.characterSet.punctSet.map(({glyph}) => glyph)

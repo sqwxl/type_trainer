@@ -23,6 +23,7 @@ import FontSizeToggle from "./Toolbar/FontSizeToggle"
 import QuickStats from "./Toolbar/QuickStats"
 import Toolbar from "./Toolbar/Toolbar"
 import Keyboard from "../core/Keyboard"
+import CharacterSet, { CharacterType } from "../core/CharacterSet"
 
 export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
@@ -129,7 +130,7 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   setTrainingMode(mode: TrainingMode = this.state.trainingMode): void {
-    this.prepareNewSession({ trainingMode: mode, machineState: 'INIT' })
+    this.prepareNewSession({ trainingMode: mode, machineState: "INIT" })
   }
 
   private static isEOF(state: State): boolean {
@@ -183,7 +184,7 @@ export class TypeTrainer extends React.Component<{}, State> {
   prepareNewSession(newState: any = {}): void {
     const draftState = { ...this.state, ...newState }
     console.table(draftState)
-    if (draftState.machineState === "INIT" || draftState.machineState === 'SETTINGS') {
+    if (draftState.machineState === "INIT" || draftState.machineState === "SETTINGS") {
       draftState.trainingStringGenerator = this.newStringGenerator(draftState)
       draftState.trainingString = draftState.trainingStringGenerator.generate(draftState)
     } else {
@@ -192,7 +193,7 @@ export class TypeTrainer extends React.Component<{}, State> {
 
     draftState.cursor = 0
     draftState.mistakeCharIndices = new Set()
-
+    draftState.currentActiveKeyCodes = this.getCurrentActiveKeyCodes(draftState)
     this.setState(
       state => ({ ...state, ...draftState, machineState: "READY" }),
       () => this.logStatus()
@@ -214,14 +215,15 @@ export class TypeTrainer extends React.Component<{}, State> {
 
     const guidedLevelIndex = this.nextLevelIndex(successRate)
 
-    this.setState({ totalSessions, wordsPerMinute, wordsPerMinuteAverage, successRate, successRateAverage, guidedLevelIndex }, () =>
-      this.prepareNewSession()
+    this.setState(
+      { totalSessions, wordsPerMinute, wordsPerMinuteAverage, successRate, successRateAverage, guidedLevelIndex },
+      () => this.prepareNewSession()
     )
   }
 
   nextLevelIndex(successRate: number) {
     const currentLvl = this.state.guidedLevelIndex
-    if (successRate >= 97 && currentLvl < this.state.guidedCourse.levels.length - 1) {
+    if (successRate >= 97 && currentLvl < this.state.guidedCourseLevels.length - 1) {
       return currentLvl + 1
     } else if (successRate <= 50 && currentLvl > 0) {
       return currentLvl - 1
@@ -248,7 +250,7 @@ export class TypeTrainer extends React.Component<{}, State> {
         generator = new GuidedModeStringGenerator(
           this.state.keyboard,
           this.state.language,
-          this.state.guidedCourse.levels
+          this.state.guidedCourseLevels
         )
         break
       case TrainingMode.PRACTICE:
@@ -269,7 +271,7 @@ export class TypeTrainer extends React.Component<{}, State> {
 
   private getCurrentLevel(): CourseLevel {
     // return final level (full keyboard) if lvl is undefined
-    return this.state.guidedCourse.levels[this.state.guidedLevelIndex]
+    return this.state.guidedCourseLevels[this.state.guidedLevelIndex]
   }
 
   toggleTheme(): void {
@@ -284,25 +286,47 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ uiShowWhiteSpaceSymbols: !this.state.uiShowWhiteSpaceSymbols })
   }
 
-  currentActiveKeyCodes(): KeyCode[] {
-    const globalUsedKeyCodes = this.state.language.uniqueKeyCodes
-    if (this.state.trainingMode === TrainingMode.GUIDED) {
-      const keyboard = this.state.keyboard
+  getCurrentActiveKeyCodes(state: any = {}): KeyCode[] {
+    const draftState: State = { ...this.state, ...state }
+
+    const globalUsedKeyCodes = draftState.language.uniqueKeyCodes
+    const noKeyOnlyOfType = (type: CharacterType) => (code: KeyCode): boolean =>
+      draftState.language.characterSet.filterByCode(code).every(ch => ch.type !== type)
+
+    if (draftState.trainingMode === TrainingMode.GUIDED) {
+      const keyboard = draftState.keyboard
       const { keyBoardRows: rows, hand, fingers } = this.getCurrentLevel()
-      let active: KeyCode[] = []
-      const activeRows = rows.map(row => keyboard.layout[row])
-      activeRows.forEach(row => {
-        active = active.concat(
-          row
-            .filter(keyCap => {
-              const belongsToHand = hand === Hand.ANY || hand === keyCap.fingerHand.hand
-              const belongsToFingers = fingers[0] === Finger.ANY || fingers.includes(keyCap.fingerHand.finger)
-              const belongsToGlobalUsed = globalUsedKeyCodes.includes(keyCap.code)
-              return belongsToHand && belongsToFingers && belongsToGlobalUsed
-            })
-            .map(keyCap => keyCap.code)
-        )
-      })
+      let active: KeyCode[] = rows
+        .reduce((arr: KeyCode[], row) => arr.concat(keyboard.keyCodeLayout[row]), [])
+        .filter(code => globalUsedKeyCodes.includes(code))
+        .filter(code => hand === Hand.ANY || hand === keyboard.fingerMap[code].hand)
+        .filter(code => fingers[0] === Finger.ANY || fingers.includes(keyboard.fingerMap[code].finger))
+        .filter(noKeyOnlyOfType("WHITESPACE"))
+
+      if (!draftState.guidedHasPunctuation) {
+        active = active.filter(noKeyOnlyOfType("PUNCTUATION"))
+      } else {
+        const punct = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.punctSet)
+        for (let p of punct) {
+          if (!active.includes(p)) active.push(p)
+        }
+      }
+      if (!draftState.guidedHasNumbers) {
+        active = active.filter(noKeyOnlyOfType("NUMBER"))
+      } else {
+        const nums = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.numberSet)
+        for (let n of nums) {
+          if (!active.includes(n)) active.push(n)
+        }
+      }
+      if (!draftState.guidedHasSpecials) {
+        active = active.filter(noKeyOnlyOfType("SPECIAL"))
+      } else {
+        const spec = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.specialSet)
+        for (let s of spec) {
+          if (!active.includes(s)) active.push(s)
+        }
+      }
       return active
     } else {
       return globalUsedKeyCodes
@@ -326,7 +350,6 @@ export class TypeTrainer extends React.Component<{}, State> {
           onHide={() => this.setSettingsModalShow(false)}
           mode={this.state.trainingMode}
           language={this.state.language}
-          guidedCourse={this.state.guidedCourse}
           guidedLevelIndex={this.state.guidedLevelIndex}
           guidedWordLength={this.state.guidedWordLength}
           guidedNumWords={this.state.guidedNumWords}
@@ -342,7 +365,17 @@ export class TypeTrainer extends React.Component<{}, State> {
         ></SettingsModal>
         <Container fluid className="App" style={this.state.uiTheme}>
           <Toolbar
-            stats={<QuickStats key="quickStats" {...this.state} mode={this.state.trainingMode} levelDescription={this.getCurrentLevel().description} />}
+            stats={
+              <QuickStats
+                key="quickStats"
+                {...this.state}
+                mode={this.state.trainingMode}
+                levelDescription={this.getCurrentLevel().description}
+                changeLevel={(lvl: number) =>
+                  this.prepareNewSession({ guidedLevelIndex: lvl % this.state.guidedCourseLevels.length })
+                }
+              />
+            }
             buttons={
               <ButtonGroup aria-label="App settings">
                 <Button key="openModeSelectModalBtn" onClick={() => this.setModeModalShow(true)}>
@@ -380,7 +413,7 @@ export class TypeTrainer extends React.Component<{}, State> {
             <VirtualKeyboard
               layout={this.state.keyboard}
               pressed={this.state.currentUserPressedKeys}
-              active={this.currentActiveKeyCodes()}
+              active={this.state.currentActiveKeyCodes}
               currentKey={this.state.language.characterSet.mapGlyphToKeyCode(
                 this.state.trainingString[this.state.cursor]
               )}

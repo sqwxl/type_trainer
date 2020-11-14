@@ -4,6 +4,7 @@ import { TrainingMode } from "../defaultState"
 
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: row
 `
 const BigStat = styled.h1`
   color: ${props => props.color};
@@ -38,6 +39,7 @@ interface MyProps {
   successRateAverage: number
   guidedLevelIndex: number
   levelDescription: string
+  changeLevel: (lvl: number) => void
 }
 
 const QuickStats: React.FC<MyProps> = props => {
@@ -57,7 +59,15 @@ const QuickStats: React.FC<MyProps> = props => {
         <SmallStackLabel> % correct</SmallStackLabel>
         <Avg>avg: {props.successRateAverage}</Avg>
       </SmallStack>
-      {props.mode !== TrainingMode.GUIDED || <BigStat className="display-3" >level: {props.guidedLevelIndex}</BigStat>}
+      {props.mode !== TrainingMode.GUIDED || (
+        <div style={{display: 'flex', flexDirection: 'row', overflow: 'hidden'}}>
+          <BigStat className="display-3">level: {props.guidedLevelIndex}</BigStat>
+          <div style={{display: 'flex', flexDirection: 'column'}}>
+            <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex + 1)}>⬆️</div>
+            <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex - 1 || 0)}>⬇️</div>
+          </div>
+        </div>
+      )}
     </Wrapper>
   )
 }

@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import { Button, Modal } from "react-bootstrap"
-import { Course } from "../../../assets/courses/Courses"
 import { Language } from "../../../core/Language"
 import TrainingText from "../../../core/TrainingText"
 import { sanitizeCode } from "../../../utils/text-utils"
@@ -12,7 +11,6 @@ interface MyProps {
   show: boolean
   mode: TrainingMode
   language: Language
-  guidedCourse: Course
   guidedLevelIndex: number | undefined
   guidedWordLength: { min: number; max: number }
   guidedNumWords: number
@@ -31,7 +29,6 @@ interface MyProps {
 
 const SettingsModal: React.FC<MyProps> = (props: MyProps) => {
   let [draftSettings, setDraftSettings] = useState({
-    guidedCourse: props.guidedCourse,
     guidedLevelIndex: props.guidedLevelIndex,
     guidedWordLength: props.guidedWordLength,
     guidedNumWords: props.guidedNumWords,

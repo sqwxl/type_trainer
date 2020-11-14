@@ -180,14 +180,15 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
       if (!next.isValid) return true
       if (cursor.index - startIdx < minimalLength) return false
       if ((isPeriodMark(cursor.ch) || isBracketMark(cursor.ch)) && isNewLine(next.ch)) return true
-      if (wantedBrackets.length === 0) {
-        if (isPeriodMark(cursor.ch) && !isPeriodMark(next.ch)) return true
-        if (isBracketMark(cursor.ch) && sentenceHasOuterBracket) return true
+      if (wantedBrackets.length === 0 && !isPeriodMark(next.ch)) {
+        // Successive period marks
+        if (isPeriodMark(cursor.ch)) return true
+        if (isBracketMark(cursor.ch) && sentenceHasPeriod) return true
       }
       return false
     }
 
-    let sentenceHasOuterBracket = isBracketMark(cursor.ch)
+    let sentenceHasPeriod = false
     let endReached = false
     const isApostrophe = (ch: string) => {
       if (ch !== "'") return false
@@ -213,6 +214,7 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
             wantedBrackets.push(bracketPair != null ? bracketPair : glyph) // TODO: generalize
           }
         }
+        if (isPeriodMark(cursor.ch) && wantedBrackets.length !== 0) sentenceHasPeriod = true
         endReached = isEndOfSentence(cursor)
       }
       if (!endReached) cursor = this.cursorAt(cursor.index + 1)

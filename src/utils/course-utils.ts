@@ -15,10 +15,10 @@ export const codesAtCourseLevel = (charSet: CharacterSet, level: CourseLevel, ke
   const specifiesRows = level.keyBoardRows != null;
   const specifiesHand = level.hand != null;
   const specifiesFingers = level.fingers != null && level.fingers.length > 0;
-
-  if (!specifiesRows && !specifiesHand && !specifiesFingers) return charSet.uniqueKeyCodes();
+  const keyCodes = CharacterSet.uniqueKeyCodes(charSet.characters);
   
-  const keyCodes = charSet.uniqueKeyCodes()
+  if (!specifiesRows && !specifiesHand && !specifiesFingers) return keyCodes
+
   const rowCodes: KeyCode[] = []
   if (specifiesRows) {
     rowCodes.push(...level.keyBoardRows.reduce((codes: KeyCode[], row) => codes.concat(keyboard.keyCodeLayout[row]), []))

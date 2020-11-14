@@ -5,12 +5,13 @@ import TrainingText from "../core/TrainingText"
 import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
 import { themes } from "./Contexts/ThemeContext/ThemeContext"
 
-import Courses, { Course } from "../assets/courses/Courses"
+import Courses, { Course, CourseLevel } from "../assets/courses/Courses"
 import English from "../assets/languages/english/English"
 import qwerty from "../assets/keyboard_layouts/en_qwerty"
 import state_and_revolution from "../assets/texts/state_and_revolution"
+import { KeyCode } from "../core/KeyCode"
 
-export const FontSizes = ["1rem", "1.5rem", "3rem"]
+export const FontSizes = ["1rem", "1.5rem", "2.25rem"]
 export type MachineState = "INIT" | "LOADED" | "READY" | "PAUSED" | "TRAINING" | "SETTINGS"
 
 export enum TrainingMode {
@@ -63,6 +64,7 @@ export enum CodeLanguage {
 
 export interface State {
   machineState: MachineState
+  currentActiveKeyCodes: KeyCode[]
   currentUserPressedKeys: Set<string>
   trainingStringGenerator: TrainingStringGenerator
   trainingString: string
@@ -84,6 +86,7 @@ export interface State {
   trainingStringFontSize: number
 
   guidedCourse: Course
+  guidedCourseLevels: CourseLevel[]
   guidedLevelIndex: number
   guidedWordLength: {min: number, max: number}
   guidedNumWords: number
@@ -105,6 +108,7 @@ export const defaultState: State = {
   keyboard: defaultLayout,
   trainingMode: defaultMode,
   trainingStringGenerator: defaultGenerator,
+  currentActiveKeyCodes: [],
   currentUserPressedKeys: new Set(),
   trainingString: "",
   cursor: 0,
@@ -123,7 +127,8 @@ export const defaultState: State = {
   trainingStringFontSize: 1,
   
   guidedCourse: defaultCourse,
-  guidedLevelIndex: 0,
+  guidedCourseLevels: defaultCourse.levels,
+  guidedLevelIndex: 30,
   guidedWordLength: {min:5, max: 12},
   guidedNumWords: 20,
   guidedHasCaps: false,

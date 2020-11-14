@@ -54,7 +54,6 @@ const characterSet = new CharacterSet([
   { code: ["Slash"], glyph: "?", type: "PUNCTUATION", behavior: "APPEND" },
   { code: ["Semicolon"], glyph: ";", type: "PUNCTUATION", behavior: "APPEND" },
   { code: ["Semicolon"], glyph: ":", type: "PUNCTUATION", behavior: "APPEND" },
-  { code: ["Quote", "KeyS"], glyph: "'s", type: "PUNCTUATION", behavior: "APPEND" },
   { code: ["Quote"], glyph: "'", type: "PUNCTUATION", behavior: "SPLIT" },
   { code: ["Minus"], glyph: "-", type: "PUNCTUATION", behavior: "SPLIT" },
   {
