@@ -297,7 +297,7 @@ export class TypeTrainer extends React.Component<{}, State> {
     const currentLvl = this.state.guidedLevelIndex
     if (successRate >= 97 && currentLvl < this.state.guidedCourseLevels.length - 1) {
       return currentLvl + 1
-    } else if (successRate <= 50 && currentLvl > 0) {
+    } else if (successRate <= 75 && currentLvl > 0) {
       return currentLvl - 1
     } else {
       return currentLvl

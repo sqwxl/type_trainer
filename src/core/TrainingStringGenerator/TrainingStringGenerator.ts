@@ -86,7 +86,6 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     if (min <= 1) min = 2
     if (max <= 1) max = 2
     const l = Math.floor(Math.random() * Math.abs(max - min)) + Math.min(max, min)
-    console.log("generating a random word of length: ", l)
     let word = ""
     for (let i = 0; i < l; i++) {
       const letter = letters[Math.floor(Math.random() * letters.length)]

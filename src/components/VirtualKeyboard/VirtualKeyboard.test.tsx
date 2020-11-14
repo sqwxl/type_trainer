@@ -1,8 +1,8 @@
 import React from "react"
-import { render, screen } from "../../utils/test-utils"
 import { mockKeyCapLabelMap } from "../../utils/mockValues"
 import Keyboard from "../../core/Keyboard"
 import VirtualKeyboard from "./VirtualKeyboard"
+import { render, screen } from "@testing-library/react"
 
 const keyboard = new Keyboard(mockKeyCapLabelMap)
 
