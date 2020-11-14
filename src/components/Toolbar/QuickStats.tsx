@@ -60,11 +60,11 @@ const QuickStats: React.FC<MyProps> = props => {
         <Avg>avg: {props.successRateAverage}</Avg>
       </SmallStack>
       {props.mode !== TrainingMode.GUIDED || (
-        <div style={{display: 'flex', flexDirection: 'row', overflow: 'hidden'}}>
-          <BigStat className="display-3">level: {props.guidedLevelIndex + 1}</BigStat>
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex + 1)}>⬆️</div>
-            <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex - 1)}>⬇️</div>
+        <div style={{marginLeft: "1rem", display: 'flex', flexDirection: 'row', overflow: 'hidden'}}>
+          <BigStat style={{ width: "4.5rem", textAlign: "left"}} className="display-3">{props.guidedLevelIndex + 1}</BigStat>
+          <div style={{ marginRight: "0.5rem", display: 'flex', flexDirection: 'column'}}>
+            <div style={{fontSize: '1.5rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex + 1)}>↑</div>
+            <div style={{fontSize: '1.5rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex - 1)}>↓</div>
           </div>
         </div>
       )}
