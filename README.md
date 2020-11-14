@@ -1,4 +1,4 @@
-# Type trainer
+# [Type trainer](https://nilueps.github.io/type_trainer/)
 
 ## Description
 
@@ -13,6 +13,8 @@ Features:
 - adjustable text size
 - optional non-printing characters
 - optional interactive virtual keyboard
+
+[Click here](https://nilueps.github.io/type_trainer/) to try out the latest live version
 
 ## User stories (task list)
 
