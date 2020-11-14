@@ -289,48 +289,55 @@ export class TypeTrainer extends React.Component<{}, State> {
   getCurrentActiveKeyCodes(state: any = {}): KeyCode[] {
     const draftState: State = { ...this.state, ...state }
 
-    const globalUsedKeyCodes = draftState.language.uniqueKeyCodes
-    const noKeyOnlyOfType = (type: CharacterType) => (code: KeyCode): boolean =>
-      draftState.language.characterSet.filterByCode(code).every(ch => ch.type !== type)
+    // NEW APPROACH: base active keys on current training string
+    const keyCodes: KeyCode[] = draftState.trainingString
+    .split("")
+    .map(glyph => draftState.language.characterSet.mapGlyphToKeyCode(glyph))
+    .reduce((arr: KeyCode[], kc) => (arr.includes(kc) ? arr : arr.concat(kc)), [])
+    return keyCodes
 
-    if (draftState.trainingMode === TrainingMode.GUIDED) {
-      const keyboard = draftState.keyboard
-      const { keyBoardRows: rows, hand, fingers } = this.getCurrentLevel()
-      let active: KeyCode[] = rows
-        .reduce((arr: KeyCode[], row) => arr.concat(keyboard.keyCodeLayout[row]), [])
-        .filter(code => globalUsedKeyCodes.includes(code))
-        .filter(code => hand === Hand.ANY || hand === keyboard.fingerMap[code].hand)
-        .filter(code => fingers[0] === Finger.ANY || fingers.includes(keyboard.fingerMap[code].finger))
-        .filter(noKeyOnlyOfType("WHITESPACE"))
+    // const globalUsedKeyCodes = draftState.language.uniqueKeyCodes
+    // OLD APPROACH: inferring active keys from current level, was too complicated
+    // if (draftState.trainingMode === TrainingMode.GUIDED) {
+    // const noKeyOnlyOfType = (type: CharacterType) => (code: KeyCode): boolean =>
+    // draftState.language.characterSet.filterByCode(code).every(ch => ch.type !== type)
+    // const keyboard = draftState.keyboard
+    // const { keyBoardRows: rows, hand, fingers } = this.getCurrentLevel()
+    // let active: KeyCode[] = rows
+    //   .reduce((arr: KeyCode[], row) => arr.concat(keyboard.keyCodeLayout[row]), [])
+    //   .filter(code => globalUsedKeyCodes.includes(code))
+    //   .filter(code => hand === Hand.ANY || hand === keyboard.fingerMap[code].hand)
+    //   .filter(code => fingers[0] === Finger.ANY || fingers.includes(keyboard.fingerMap[code].finger))
+    //   .filter(noKeyOnlyOfType("WHITESPACE"))
 
-      if (!draftState.guidedHasPunctuation) {
-        active = active.filter(noKeyOnlyOfType("PUNCTUATION"))
-      } else {
-        const punct = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.punctSet)
-        for (let p of punct) {
-          if (!active.includes(p)) active.push(p)
-        }
-      }
-      if (!draftState.guidedHasNumbers) {
-        active = active.filter(noKeyOnlyOfType("NUMBER"))
-      } else {
-        const nums = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.numberSet)
-        for (let n of nums) {
-          if (!active.includes(n)) active.push(n)
-        }
-      }
-      if (!draftState.guidedHasSpecials) {
-        active = active.filter(noKeyOnlyOfType("SPECIAL"))
-      } else {
-        const spec = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.specialSet)
-        for (let s of spec) {
-          if (!active.includes(s)) active.push(s)
-        }
-      }
-      return active
-    } else {
-      return globalUsedKeyCodes
-    }
+    // if (!draftState.guidedHasPunctuation) {
+    //   active = active.filter(noKeyOnlyOfType("PUNCTUATION"))
+    // } else {
+    //   const punct = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.punctSet)
+    //   for (let p of punct) {
+    //     if (!active.includes(p)) active.push(p)
+    //   }
+    // }
+    // if (!draftState.guidedHasNumbers) {
+    //   active = active.filter(noKeyOnlyOfType("NUMBER"))
+    // } else {
+    //   const nums = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.numberSet)
+    //   for (let n of nums) {
+    //     if (!active.includes(n)) active.push(n)
+    //   }
+    // }
+    // if (!draftState.guidedHasSpecials) {
+    //   active = active.filter(noKeyOnlyOfType("SPECIAL"))
+    // } else {
+    //   const spec = CharacterSet.uniqueKeyCodes(draftState.language.characterSet.specialSet)
+    //   for (let s of spec) {
+    //     if (!active.includes(s)) active.push(s)
+    //   }
+    // }
+    // return active
+    // } else {
+    //   return globalUsedKeyCodes
+    // }
   }
 
   applyUserSettings(settings: any) {
@@ -350,7 +357,6 @@ export class TypeTrainer extends React.Component<{}, State> {
           onHide={() => this.setSettingsModalShow(false)}
           mode={this.state.trainingMode}
           language={this.state.language}
-          guidedLevelIndex={this.state.guidedLevelIndex}
           guidedWordLength={this.state.guidedWordLength}
           guidedNumWords={this.state.guidedNumWords}
           guidedHasCaps={this.state.guidedHasCaps}

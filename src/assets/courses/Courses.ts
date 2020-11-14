@@ -49,12 +49,6 @@ const GuidedCourse: Course = {
       hand: Hand.RIGHT,
       fingers: [Finger.INDEX, Finger.MIDDLE],
     },
-    {
-      description: "Home row; right hand; index, middle, ring",
-      keyBoardRows: [2],
-      hand: Hand.RIGHT,
-      fingers: [Finger.INDEX, Finger.MIDDLE, Finger.RING],
-    },
     { description: "Home row; right hand; any", keyBoardRows: [2], hand: Hand.RIGHT, fingers: [Finger.ANY] },
     { description: "Home row; full", keyBoardRows: [2], hand: Hand.ANY, fingers: [Finger.ANY] },
     { description: "Top row; left hand; index", keyBoardRows: [1], hand: Hand.LEFT, fingers: [Finger.INDEX] },

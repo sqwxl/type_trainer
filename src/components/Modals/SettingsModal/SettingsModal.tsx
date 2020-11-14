@@ -11,7 +11,6 @@ interface MyProps {
   show: boolean
   mode: TrainingMode
   language: Language
-  guidedLevelIndex: number | undefined
   guidedWordLength: { min: number; max: number }
   guidedNumWords: number
   guidedHasCaps: boolean
@@ -29,7 +28,6 @@ interface MyProps {
 
 const SettingsModal: React.FC<MyProps> = (props: MyProps) => {
   let [draftSettings, setDraftSettings] = useState({
-    guidedLevelIndex: props.guidedLevelIndex,
     guidedWordLength: props.guidedWordLength,
     guidedNumWords: props.guidedNumWords,
     guidedHasCaps: props.guidedHasCaps,

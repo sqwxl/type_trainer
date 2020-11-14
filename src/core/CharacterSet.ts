@@ -64,9 +64,11 @@ export default class CharacterSet {
   mapGlyphToKeyCode(glyph: string): KeyCode {
     if (glyph == null) return "NONE"
     glyph = glyph.toLowerCase()
-    const character = this._characters.find(character => character.code.length === 1 && character.glyph === glyph)
-    if (character != null) return character.code[0]
-    return "NONE"
+    for (const ch of this._characters) {
+      if (glyph === ch.glyph) return ch.code[0]
+      if (ch.bracketPair != null && glyph === ch.bracketPair) return ch.code[1]
+    }
+    return 'NONE'
   }
 
   filterByCode(code: KeyCode): Character[] {
