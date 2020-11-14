@@ -64,8 +64,8 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     const alphaMap = this.alphaMapAtLevel(guidedLevelIndex)
     const letters = this._language.alphabet.filter(ch => alphaMap[ch] != null)
     const vowels = this._language.vowels.filter(vowel => alphaMap[vowel] != null)
-    // hardcoded expeption for english word generation
-    const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => "iuoy".includes(letter))
+    // hardcoded expeptions for english word generation
+    const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => "piuoy".includes(letter))
     const wantsMarkovChain = hasEnoughVowels
     let newWord
     if (wantsMarkovChain) {

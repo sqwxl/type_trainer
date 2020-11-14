@@ -31,7 +31,7 @@ export const codesAtCourseLevel = (charSet: CharacterSet, level: CourseLevel, ke
     }
     if (specifiesHand) {
       // filter out hand
-      const codeIntersectsHand = level.hand === Hand.ANY || level.hand === keyboard.fingerMap[code].hand;
+      const codeIntersectsHand = level.hand === keyboard.fingerMap[code].hand || keyboard.fingerMap[code].hand === Hand.ANY || level.hand === Hand.ANY
       if (!codeIntersectsHand) return false;
     }
     // filter out finger
