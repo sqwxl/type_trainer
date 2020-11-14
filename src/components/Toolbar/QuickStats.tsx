@@ -64,7 +64,7 @@ const QuickStats: React.FC<MyProps> = props => {
           <BigStat className="display-3">level: {props.guidedLevelIndex + 1}</BigStat>
           <div style={{display: 'flex', flexDirection: 'column'}}>
             <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex + 1)}>⬆️</div>
-            <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex - 1 || 0)}>⬇️</div>
+            <div style={{fontSize: '1.4rem', userSelect: 'none', fontFamily: 'sans-serif'}} onClick={() => props.changeLevel(props.guidedLevelIndex - 1)}>⬇️</div>
           </div>
         </div>
       )}

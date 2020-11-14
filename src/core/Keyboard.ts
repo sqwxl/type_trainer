@@ -149,7 +149,7 @@ export default class Keyboard {
     KeyX: { hand: Hand.LEFT, finger: Finger.RING },
     KeyC: { hand: Hand.LEFT, finger: Finger.MIDDLE },
     KeyV: { hand: Hand.LEFT, finger: Finger.INDEX },
-    KeyB: { hand: Hand.ANY, finger: Finger.INDEX },
+    KeyB: { hand: Hand.LEFT, finger: Finger.INDEX },
     KeyN: { hand: Hand.RIGHT, finger: Finger.INDEX },
     KeyM: { hand: Hand.RIGHT, finger: Finger.INDEX },
     Comma: { hand: Hand.RIGHT, finger: Finger.MIDDLE },

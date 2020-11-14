@@ -95,7 +95,7 @@ const GuidedCourse: Course = {
     },
     { description: "Bottom row; left hand; any", keyBoardRows: [3], hand: Hand.LEFT, fingers: [Finger.ANY] },
     { description: "Bottom row; right hand; index", keyBoardRows: [3], hand: Hand.RIGHT, fingers: [Finger.INDEX] },
-    {
+    /* {
       description: "Bottom row; right hand; index, middle",
       keyBoardRows: [3],
       hand: Hand.RIGHT,
@@ -107,7 +107,7 @@ const GuidedCourse: Course = {
       hand: Hand.RIGHT,
       fingers: [Finger.INDEX, Finger.MIDDLE, Finger.RING],
     },
-    { description: "Bottom row; right hand; any", keyBoardRows: [3], hand: Hand.RIGHT, fingers: [Finger.ANY] },
+    { description: "Bottom row; right hand; any", keyBoardRows: [3], hand: Hand.RIGHT, fingers: [Finger.ANY] }, */
     { description: "Bottom row; full", keyBoardRows: [3], hand: Hand.ANY, fingers: [Finger.ANY] },
     { description: "Home row; full", keyBoardRows: [2], hand: Hand.ANY, fingers: [Finger.ANY] },
     { description: "Top row; full", keyBoardRows: [1], hand: Hand.ANY, fingers: [Finger.ANY] },

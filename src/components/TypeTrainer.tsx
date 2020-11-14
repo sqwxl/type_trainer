@@ -211,7 +211,7 @@ export class TypeTrainer extends React.Component<{}, State> {
       (this.state.successRate * this.state.totalSessions + successRate) / totalSessions
     )
 
-    const guidedLevelIndex = this.state.trainingMode === TrainingMode.GUIDED ? this.nextLevelIndex(successRate) : this.state.guidedLevelIndexWelc
+    const guidedLevelIndex = this.state.trainingMode === TrainingMode.GUIDED ? this.nextLevelIndex(successRate) : this.state.guidedLevelIndex
 
     this.setState(
       { totalSessions, wordsPerMinute, wordsPerMinuteAverage, successRate, successRateAverage, guidedLevelIndex },
@@ -342,6 +342,19 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.prepareNewSession({ ...settings })
   }
 
+  setNewLevel(lvl: number) {
+    let level: number
+    if (lvl < 0) {
+      level = this.state.guidedCourseLevels.length - 1
+    } else if (lvl > this.state.guidedCourseLevels.length -1) {
+      level = 0
+    } else {
+      level = lvl
+    }
+    
+    this.prepareNewSession({ guidedLevelIndex: level })
+  }
+
   render(): JSX.Element {
     return (
       <ThemeContext.Provider value={{ theme: this.state.uiTheme, toggleTheme: (): void => this.toggleTheme() }}>
@@ -375,9 +388,7 @@ export class TypeTrainer extends React.Component<{}, State> {
                 {...this.state}
                 mode={this.state.trainingMode}
                 levelDescription={this.getCurrentLevel().description}
-                changeLevel={(lvl: number) =>
-                  this.prepareNewSession({ guidedLevelIndex: lvl % this.state.guidedCourseLevels.length })
-                }
+                changeLevel={lvl => this.setNewLevel(lvl)}
               />
             }
             buttons={
