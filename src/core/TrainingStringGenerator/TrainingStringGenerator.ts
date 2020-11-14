@@ -59,7 +59,7 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
       guidedLevelIndex,
       guidedWordLength = { min: 3, max: 12 },
       guidedNumWords = 10,
-      guidedLikelihoodModified,
+      // guidedLikelihoodModified,
     } = options
     const alphaMap = this.alphaMapAtLevel(guidedLevelIndex)
     const letters = this._language.alphabet.filter(ch => alphaMap[ch] != null)
@@ -204,11 +204,15 @@ export class PracticeModeStringGenerator implements TrainingStringGenerator {
         if (isBracketMark(cursor.ch) && !isApostrophe(cursor.ch)) {
           if (isWantedBracket(cursor.ch)) {
             wantedBrackets.splice(
+              // TODO: investigate "Function declared in a loop contains unsafe references to variable(s)"
+              // eslint-disable-next-line no-loop-func
               wantedBrackets.findIndex(wanted => cursor.ch === wanted),
               1
             )
           } else {
             const { glyph, bracketPair } = brackets.find(
+              // TODO: same as above
+              // eslint-disable-next-line no-loop-func
               ({ glyph, bracketPair }) => cursor.ch === glyph || cursor.ch === bracketPair
             ) as { glyph: string; bracketPair: string }
             wantedBrackets.push(bracketPair != null ? bracketPair : glyph) // TODO: generalize

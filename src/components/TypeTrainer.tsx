@@ -1,6 +1,5 @@
 import React from "react"
 import { CourseLevel } from "../assets/courses/Courses"
-import { Hand, Finger } from "../core/Keyboard"
 import { KeyCode } from "../core/KeyCode"
 import {
   GuidedModeStringGenerator,
@@ -23,7 +22,6 @@ import FontSizeToggle from "./Toolbar/FontSizeToggle"
 import QuickStats from "./Toolbar/QuickStats"
 import Toolbar from "./Toolbar/Toolbar"
 import Keyboard from "../core/Keyboard"
-import CharacterSet, { CharacterType } from "../core/CharacterSet"
 
 export class TypeTrainer extends React.Component<{}, State> {
   static contextType = ThemeContext
