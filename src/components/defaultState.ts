@@ -2,8 +2,6 @@ import Keyboard from "../core/Keyboard"
 import { Language } from "../core/Language"
 import { PracticeModeStringGenerator, TrainingStringGenerator } from "../core/TrainingStringGenerator/TrainingStringGenerator"
 import TrainingText from "../core/TrainingText"
-import { CSSCustomProperties } from "./Contexts/ThemeContext/css"
-import { themes } from "./Contexts/ThemeContext/ThemeContext"
 
 import Courses, { Course, CourseLevel } from "../assets/courses/Courses"
 import English from "../assets/languages/english/English"
@@ -19,6 +17,7 @@ export enum TrainingMode {
   PRACTICE = "Practice",
   CODE = "Code",
 }
+const defaultTheme = 'light'
 const defaultLayout = qwerty
 const defaultLanguage = English
 const practiceWelcomeText = "Welcome to the touch typing trainer! Use the menu above to change training modes. You can also adjust settings for each mode. This is only a demo text, feel free to change it to whatever you like. \nEnjoy!"
@@ -64,6 +63,7 @@ export enum CodeLanguage {
 }
 
 export interface State {
+  [prop: string]: any
   machineState: MachineState
   currentActiveKeyCodes: KeyCode[]
   currentUserPressedKeys: Set<string>
@@ -79,7 +79,7 @@ export interface State {
   uiModeSelectShow: boolean
   uiSettingsModalShow: boolean
   uiShowWhiteSpaceSymbols: boolean
-  uiTheme: { [index: string]: CSSCustomProperties }
+  uiTheme: string//{ [index: string]: CSSCustomProperties }
 
   language: Language
   keyboard: Keyboard
@@ -89,7 +89,8 @@ export interface State {
   guidedCourse: Course
   guidedCourseLevels: CourseLevel[]
   guidedLevelIndex: number
-  guidedWordLength: {min: number, max: number}
+  guidedWordLengthMin: number
+  guidedWordLengthMax: number
   guidedNumWords: number
   guidedHasCaps: boolean
   guidedHasPunctuation: boolean
@@ -102,7 +103,6 @@ export interface State {
   codeSourceText: string
   codeLines: number
 }
-
 export const defaultState: State = {
   machineState: "INIT",
   language: defaultLanguage,
@@ -124,13 +124,15 @@ export const defaultState: State = {
   uiSettingsModalShow: false,
   uiShowWhiteSpaceSymbols: true,
   
-  uiTheme: themes.dark,
+  uiTheme: defaultTheme,
   trainingStringFontSize: 1,
   
   guidedCourse: defaultCourse,
   guidedCourseLevels: defaultCourse.levels,
   guidedLevelIndex: 0,
-  guidedWordLength: {min:5, max: 12},
+
+  guidedWordLengthMin: 5,
+  guidedWordLengthMax: 9,
   guidedNumWords: 12,
   guidedHasCaps: false,
   guidedHasPunctuation: false,

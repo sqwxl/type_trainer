@@ -3,7 +3,6 @@ import { Button, Modal } from "react-bootstrap"
 import { Language } from "../../../core/Language"
 import TrainingText from "../../../core/TrainingText"
 import { sanitizeCode } from "../../../utils/text-utils"
-import { setNestedProp } from "../../../utils/utils"
 import { TrainingMode } from "../../defaultState"
 
 interface MyProps {
@@ -11,8 +10,10 @@ interface MyProps {
   show: boolean
   mode: TrainingMode
   language: Language
-  guidedWordLength: { min: number; max: number }
-  guidedNumWords: number
+
+  guidedWordLengthMin: number
+  guidedWordLengthMax: number
+    guidedNumWords: number
   guidedHasCaps: boolean
   guidedHasPunctuation: boolean
   guidedHasNumbers: boolean
@@ -28,7 +29,8 @@ interface MyProps {
 
 const SettingsModal: React.FC<MyProps> = (props: MyProps) => {
   let [draftSettings, setDraftSettings] = useState({
-    guidedWordLength: props.guidedWordLength,
+    guidedWordLengthMin: props.guidedWordLengthMin,
+    guidedWordLengthMax: props.guidedWordLengthMax,
     guidedNumWords: props.guidedNumWords,
     guidedHasCaps: props.guidedHasCaps,
     guidedHasPunctuation: props.guidedHasPunctuation,
@@ -44,9 +46,8 @@ const SettingsModal: React.FC<MyProps> = (props: MyProps) => {
     return new TrainingText(raw, props.language).text
   }
 
-  const handleChange = (propPath: string, value: any) => {
-    const newSettings = setNestedProp(draftSettings, propPath.split("."), value)
-    setDraftSettings((prev: any) => ({ ...prev, ...newSettings }))
+  const handleChange = (prop: string, value: any) => {
+    setDraftSettings((prev: any) => ({ ...prev, [prop]: value }))
   }
 
   const handleSubmit = (settings: any) => {
@@ -64,8 +65,9 @@ const SettingsModal: React.FC<MyProps> = (props: MyProps) => {
             <input
               id="minlength"
               type="number"
-              value={draftSettings.guidedWordLength.min}
-              onChange={e => handleChange("guidedWordLength.min", e.target.value)}
+              value={draftSettings.guidedWordLengthMin}
+              min={1}
+              onChange={e => handleChange("guidedWordLengthMin", e.target.value)}
             />
             <label htmlFor="minlength">min</label>
           </div>
@@ -73,8 +75,9 @@ const SettingsModal: React.FC<MyProps> = (props: MyProps) => {
             <input
               id="maxlength"
               type="number"
-              value={draftSettings.guidedWordLength.max}
-              onChange={e => handleChange("guidedWordLength.max", e.target.value)}
+              value={draftSettings.guidedWordLengthMax}
+              min={1}
+              onChange={e => handleChange("guidedWordLengthMax", e.target.value)}
             />
             <label htmlFor="maxlength">max</label>
           </div>

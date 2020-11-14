@@ -8,7 +8,7 @@ import {
   TrainingStringGenerator,
 } from "../core/TrainingStringGenerator/TrainingStringGenerator"
 import { Timer } from "../utils/Timer"
-import { ThemeContext, themes } from "./Contexts/ThemeContext/ThemeContext"
+import { themes } from "../assets/themes"
 import defaultState, { inactivityDelay, TrainingMode, FontSizes, MachineState, State } from "./defaultState"
 
 // CHILDREN
@@ -22,15 +22,17 @@ import FontSizeToggle from "./Toolbar/FontSizeToggle"
 import QuickStats from "./Toolbar/QuickStats"
 import Toolbar from "./Toolbar/Toolbar"
 import Keyboard from "../core/Keyboard"
+import { localStorageAvailable } from "../utils/utils"
 
 export class TypeTrainer extends React.Component<{}, State> {
-  static contextType = ThemeContext
   sessionTimer = Timer()
   inactivityTimer = 0
-
+  localStorage: Storage | undefined
   constructor(props: any) {
     super(props)
-    this.state = defaultState
+    this.localStorage = undefined
+    this.state = this.initWith(defaultState)
+    console.table(this.state.uiTheme === 'light', 'light', this.state.uiTheme)
     this.routeEvent = this.routeEvent.bind(this)
   }
 
@@ -73,6 +75,67 @@ export class TypeTrainer extends React.Component<{}, State> {
         break
       default:
         break
+    }
+  }
+  initWith(state: State): State {
+    // localStorage values if they exist
+    let localState: { [prop: string]: any } = {}
+    if (localStorageAvailable()) {
+      this.localStorage = window.localStorage
+      for (const propName of Object.keys(state)) {
+        const storageItem = this.localStorage.getItem(propName)
+        if (storageItem != null) {
+          localState[propName] = this.decodeStorageItem(storageItem)
+        } else {
+          localState[propName] = state[propName]
+        }
+      }
+      return { ...state, ...localState }
+    } else {
+      return state
+    }
+    // then prepare session
+  }
+
+  setLocalStorage(state: { [prop: string]: any }) {
+    if (this.localStorage == null) return
+    for (const [prop, value] of Object.entries(state)) {
+      const encoded = this.encodeStorageItem(value)
+      this.localStorage.setItem(prop, encoded)
+    }
+  }
+
+  encodeStorageItem(value: any): string {
+    let str: string
+    switch(typeof value) {
+      case 'object':
+        str = JSON.stringify(value)
+        break
+      default:
+        str = String(value)
+    }
+    return typeof value + "$$$" + str
+
+  }
+
+  decodeStorageItem(item: string): any {
+    const delimiter = item.indexOf("$$$")
+    if (delimiter === -1) throw new SyntaxError('Storage item is missing "$$$" type delimiter.')
+    const type = item.slice(0, delimiter)
+    const value = item.slice(delimiter + 3)
+    console.log(item, value, type)
+    switch (type) {
+      case "string":
+        return value
+      case "number":
+        return value.indexOf(".") === -1 ? parseInt(value) : parseFloat(value)
+      case "boolean":
+        return value === 'true' ? true : false
+      case "undefined":
+        return undefined
+      case "object":
+      default:
+        return JSON.parse(value)
     }
   }
 
@@ -128,7 +191,9 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   setTrainingMode(mode: TrainingMode = this.state.trainingMode): void {
-    this.prepareNewSession({ trainingMode: mode, machineState: "INIT" })
+    this.prepareNewSession({ trainingMode: mode, machineState: "INIT" }, () =>
+      this.setLocalStorage({ trainingMode: mode })
+    )
   }
 
   private static isEOF(state: State): boolean {
@@ -157,31 +222,30 @@ export class TypeTrainer extends React.Component<{}, State> {
     this.setState({ currentUserPressedKeys: pressed })
   }
 
-  logStatus(): void {
-    console.info("Status: " + this.state.machineState)
+  logMachineState(): void {
+    console.info(this.state.machineState)
   }
 
   startSession(): void {
     this.sessionTimer.start()
-    this.setState({ machineState: "TRAINING" }, () => this.logStatus())
+    this.setState({ machineState: "TRAINING" }, () => this.logMachineState())
   }
 
   pauseSession(state: MachineState = "PAUSED"): void {
     if (this.sessionTimer != null) this.sessionTimer.pause()
-    this.setState({ currentUserPressedKeys: new Set(), machineState: state }, () => this.logStatus())
+    this.setState({ currentUserPressedKeys: new Set(), machineState: state }, () => this.logMachineState())
   }
 
   unPauseSession(event: Event): void {
     this.sessionTimer.unPause()
     this.setState({ machineState: "TRAINING" }, () => {
-      this.logStatus()
+      this.logMachineState()
       this.routeEvent(event)
     })
   }
 
-  prepareNewSession(newState: any = {}): void {
+  prepareNewSession(newState: any = {}, after?: () => void): void {
     const draftState = { ...this.state, ...newState }
-    console.table(draftState)
     if (draftState.machineState === "INIT" || draftState.machineState === "SETTINGS") {
       draftState.trainingStringGenerator = this.newStringGenerator(draftState)
       draftState.trainingString = draftState.trainingStringGenerator.generate(draftState)
@@ -194,7 +258,10 @@ export class TypeTrainer extends React.Component<{}, State> {
     draftState.currentActiveKeyCodes = this.getCurrentActiveKeyCodes(draftState)
     this.setState(
       state => ({ ...state, ...draftState, machineState: "READY" }),
-      () => this.logStatus()
+      () => {
+        if (after != null) after()
+        this.logMachineState()
+      }
     )
   }
 
@@ -211,11 +278,21 @@ export class TypeTrainer extends React.Component<{}, State> {
       (this.state.successRate * this.state.totalSessions + successRate) / totalSessions
     )
 
-    const guidedLevelIndex = this.state.trainingMode === TrainingMode.GUIDED ? this.nextLevelIndex(successRate) : this.state.guidedLevelIndex
+    const guidedLevelIndex =
+      this.state.trainingMode === TrainingMode.GUIDED ? this.nextLevelIndex(successRate) : this.state.guidedLevelIndex
 
-    this.setState(
-      { totalSessions, wordsPerMinute, wordsPerMinuteAverage, successRate, successRateAverage, guidedLevelIndex },
-      () => this.prepareNewSession()
+    const draftState = {
+      totalSessions,
+      wordsPerMinute,
+      wordsPerMinuteAverage,
+      successRate,
+      successRateAverage,
+      guidedLevelIndex,
+    }
+    this.setState({ ...draftState }, () =>
+      this.prepareNewSession({}, () =>
+        this.setLocalStorage({ totalSessions, wordsPerMinuteAverage, successRateAverage, guidedLevelIndex })
+      )
     )
   }
 
@@ -273,15 +350,18 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   toggleTheme(): void {
-    this.setState({ uiTheme: this.state.uiTheme === themes.light ? themes.dark : themes.light })
+    const uiTheme = this.state.uiTheme === "light" ? "dark" : "light"
+    this.setState({ uiTheme }, () => this.setLocalStorage({ uiTheme }))
   }
 
   toggleFontSize(): void {
-    this.setState({ trainingStringFontSize: (this.state.trainingStringFontSize + 1) % 3 }) // TODO: remove magic number
+    const trainingStringFontSize = (this.state.trainingStringFontSize + 1) % FontSizes.length
+    this.setState({ trainingStringFontSize }, () => this.setLocalStorage({ trainingStringFontSize }))
   }
 
   toggleWhiteSpaceSymbols(): void {
-    this.setState({ uiShowWhiteSpaceSymbols: !this.state.uiShowWhiteSpaceSymbols })
+    const uiShowWhiteSpaceSymbols = !this.state.uiShowWhiteSpaceSymbols
+    this.setState({ uiShowWhiteSpaceSymbols }, () => this.setLocalStorage({ uiShowWhiteSpaceSymbols }))
   }
 
   getCurrentActiveKeyCodes(state: any = {}): KeyCode[] {
@@ -289,9 +369,9 @@ export class TypeTrainer extends React.Component<{}, State> {
 
     // NEW APPROACH: base active keys on current training string
     const keyCodes: KeyCode[] = draftState.trainingString
-    .split("")
-    .map(glyph => draftState.language.characterSet.mapGlyphToKeyCode(glyph))
-    .reduce((arr: KeyCode[], kc) => (arr.includes(kc) ? arr : arr.concat(kc)), [])
+      .split("")
+      .map(glyph => draftState.language.characterSet.mapGlyphToKeyCode(glyph))
+      .reduce((arr: KeyCode[], kc) => (arr.includes(kc) ? arr : arr.concat(kc)), [])
     return keyCodes
 
     // OLD APPROACH: inferring active keys from current level, was too complicated
@@ -339,36 +419,51 @@ export class TypeTrainer extends React.Component<{}, State> {
   }
 
   applyUserSettings(settings: any) {
-    this.prepareNewSession({ ...settings })
+   /*  const { 
+      guidedWordLengthMin,
+      guidedWordLengthMax,
+      guidedNumWords,
+      guidedHasCaps,
+      guidedHasPunctuation,
+      guidedHasNumbers,
+      guidedHasSpecials,
+      guidedLikelihoodModified,
+      practiceSourceText,
+      codeSourceText,
+      codeLines
+    } = settings */
+    this.prepareNewSession({ ...settings }, () => this.setLocalStorage(settings))
   }
 
   setNewLevel(lvl: number) {
     let level: number
     if (lvl < 0) {
       level = this.state.guidedCourseLevels.length - 1
-    } else if (lvl > this.state.guidedCourseLevels.length -1) {
+    } else if (lvl > this.state.guidedCourseLevels.length - 1) {
       level = 0
     } else {
       level = lvl
     }
-    
-    this.prepareNewSession({ guidedLevelIndex: level })
+
+    this.prepareNewSession({ guidedLevelIndex: level }, () => this.setLocalStorage({ guidedLevelIndex: level }))
   }
 
   render(): JSX.Element {
+    const theme = this.state.uiTheme === "light" ? themes.light : themes.dark
     return (
-      <ThemeContext.Provider value={{ theme: this.state.uiTheme, toggleTheme: (): void => this.toggleTheme() }}>
+        <div>
         <ModeSelectorModal
           show={this.state.uiModeSelectShow}
           onHide={() => this.setModeModalShow(false)}
           settrainingmode={(mode: TrainingMode): void => this.setTrainingMode(mode)}
         ></ModeSelectorModal>
-        <SettingsModal
+        <SettingsModal 
           show={this.state.uiSettingsModalShow}
           onHide={() => this.setSettingsModalShow(false)}
           mode={this.state.trainingMode}
           language={this.state.language}
-          guidedWordLength={this.state.guidedWordLength}
+          guidedWordLengthMin={this.state.guidedWordLengthMin}
+          guidedWordLengthMax={this.state.guidedWordLengthMax}
           guidedNumWords={this.state.guidedNumWords}
           guidedHasCaps={this.state.guidedHasCaps}
           guidedHasPunctuation={this.state.guidedHasPunctuation}
@@ -380,7 +475,7 @@ export class TypeTrainer extends React.Component<{}, State> {
           codeLines={this.state.codeLines}
           onSubmitChanges={settings => this.applyUserSettings(settings)}
         ></SettingsModal>
-        <Container fluid className="App" style={this.state.uiTheme}>
+        <Container fluid className="App" style={theme}>
           <Toolbar
             stats={
               <QuickStats
@@ -408,7 +503,7 @@ export class TypeTrainer extends React.Component<{}, State> {
                   }
                 ></Button>
                 <Button key="toggleTheme" onClick={() => this.toggleTheme()}>
-                  {this.state.uiTheme === themes.dark ? "🌞" : "🌛"}
+                  {this.state.uiTheme === "dark" ? "🌞" : "🌛"}
                 </Button>
               </ButtonGroup>
             }
@@ -435,7 +530,7 @@ export class TypeTrainer extends React.Component<{}, State> {
             ></VirtualKeyboard>
           </Container>
         </Container>
-      </ThemeContext.Provider>
+        </div>
     )
   }
 }

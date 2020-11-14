@@ -1,7 +1,7 @@
 {
   "name": "type_trainer",
   "homepage": "https://nilueps.github.io/type_trainer",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",

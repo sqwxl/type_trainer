@@ -57,7 +57,8 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     // get markovchain based on restricted dictionary (based on fullcharset/traininglevel)
     const {
       guidedLevelIndex,
-      guidedWordLength = { min: 3, max: 12 },
+      guidedWordLengthMin = 3, 
+      guidedWordLengthMax = 12,
       guidedNumWords = 10,
       // guidedLikelihoodModified,
     } = options
@@ -66,13 +67,13 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     const vowels = this._language.vowels.filter(vowel => alphaMap[vowel] != null)
     // hardcoded expeptions for english word generation
     const hasEnoughVowels = vowels.length >= 2 && !letters.every(letter => "piuoy".includes(letter))
-    const wantsMarkovChain = hasEnoughVowels
+    const wantsMarkovChain = hasEnoughVowels// && Math.abs(guidedWordLengthMax - guidedWordLengthMin) > 4
     let newWord
     if (wantsMarkovChain) {
       const chain = this.newMarkovChain(alphaMap)
-      newWord = (): string => chain.generate(guidedWordLength)
+      newWord = (): string => chain.generate({min: guidedWordLengthMin, max: guidedWordLengthMax})
     } else {
-      newWord = (): string => this.randomWordFrom(guidedWordLength, letters)
+      newWord = (): string => this.randomWordFrom({min: guidedWordLengthMin, max: guidedWordLengthMax}, letters)
     }
     const words: Array<string> = []
     while (words.length < guidedNumWords) {
@@ -81,7 +82,11 @@ export class GuidedModeStringGenerator implements TrainingStringGenerator {
     return words
   }
   randomWordFrom(length: { min: number; max: number } = { min: 6, max: 6 }, letters: string[]): string {
-    const l = length.min + Math.floor(Math.random() * (length.max - length.min))
+    let {min, max} = length
+    if (min <= 1) min = 2
+    if (max <= 1) max = 2
+    const l = Math.floor(Math.random() * Math.abs(max - min)) + Math.min(max, min)
+    console.log("generating a random word of length: ", l)
     let word = ""
     for (let i = 0; i < l; i++) {
       const letter = letters[Math.floor(Math.random() * letters.length)]

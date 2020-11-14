@@ -1,7 +1,5 @@
-import React from 'react'
-import { CSSCustomProperties } from './css'
 
-const light: CSSCustomProperties = {
+const light = {
   "--color-primary": "#fff",
   "--color-secondary": "#eee",
   "--color-tertiary": "#ddd",
@@ -19,7 +17,7 @@ const light: CSSCustomProperties = {
   color: "var(--text-primary)"
 }
 
-const dark: CSSCustomProperties = {
+const dark = {
   "--color-primary": "#303030",
   "--color-secondary": "#777",
   "--color-tertiary": "#555",
@@ -36,12 +34,7 @@ const dark: CSSCustomProperties = {
   color: "var(--text-primary)"
 }
 
-export const themes: { [index: string]: CSSCustomProperties } = {
+export const themes = {
   light: light,
   dark: dark,
 }
-
-export const ThemeContext = React.createContext({
-  theme: themes.light,
-  toggleTheme: (): void => { /* toggleFn() */ }
-})

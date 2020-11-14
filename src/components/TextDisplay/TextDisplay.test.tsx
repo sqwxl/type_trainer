@@ -1,6 +1,6 @@
+import { render, screen } from "@testing-library/react"
 import React from "react"
 import TextDisplay from "./TextDisplay"
-import { render, screen } from "../../utils/test-utils"
 
 // 'should render'
 describe("TrainerDisplayArea", () => {
