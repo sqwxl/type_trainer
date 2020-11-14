@@ -8,7 +8,7 @@ import { themes } from "./Contexts/ThemeContext/ThemeContext"
 import Courses, { Course, CourseLevel } from "../assets/courses/Courses"
 import English from "../assets/languages/english/English"
 import qwerty from "../assets/keyboard_layouts/en_qwerty"
-import state_and_revolution from "../assets/texts/state_and_revolution"
+// import state_and_revolution from "../assets/texts/state_and_revolution"
 import { KeyCode } from "../core/KeyCode"
 
 export const FontSizes = ["1rem", "1.5rem", "2.25rem"]
@@ -21,8 +21,9 @@ export enum TrainingMode {
 }
 const defaultLayout = qwerty
 const defaultLanguage = English
-const defaultText = new TrainingText(state_and_revolution, English)
-const defaultMode = TrainingMode.GUIDED
+const practiceWelcomeText = "Welcome to the touch typing trainer! Use the menu above to change training modes. You can also adjust settings for each mode. This is only a demo text, feel free to change it to whatever you like. \nEnjoy!"
+const defaultText = new TrainingText(practiceWelcomeText, English)
+const defaultMode = TrainingMode.PRACTICE
 const defaultGenerator = new PracticeModeStringGenerator(defaultLanguage, defaultText.text)
 const defaultCourse = Courses.guidedCourse
 const defaultCodeSourceText = String.raw`export class CodeModeStringGenerator implements TrainingStringGenerator {
@@ -128,9 +129,9 @@ export const defaultState: State = {
   
   guidedCourse: defaultCourse,
   guidedCourseLevels: defaultCourse.levels,
-  guidedLevelIndex: 30,
+  guidedLevelIndex: 0,
   guidedWordLength: {min:5, max: 12},
-  guidedNumWords: 20,
+  guidedNumWords: 12,
   guidedHasCaps: false,
   guidedHasPunctuation: false,
   guidedHasNumbers: false,

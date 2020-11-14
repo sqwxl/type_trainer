@@ -211,7 +211,7 @@ export class TypeTrainer extends React.Component<{}, State> {
       (this.state.successRate * this.state.totalSessions + successRate) / totalSessions
     )
 
-    const guidedLevelIndex = this.nextLevelIndex(successRate)
+    const guidedLevelIndex = this.state.trainingMode === TrainingMode.GUIDED ? this.nextLevelIndex(successRate) : this.state.guidedLevelIndexWelc
 
     this.setState(
       { totalSessions, wordsPerMinute, wordsPerMinuteAverage, successRate, successRateAverage, guidedLevelIndex },
@@ -294,8 +294,8 @@ export class TypeTrainer extends React.Component<{}, State> {
     .reduce((arr: KeyCode[], kc) => (arr.includes(kc) ? arr : arr.concat(kc)), [])
     return keyCodes
 
-    // const globalUsedKeyCodes = draftState.language.uniqueKeyCodes
     // OLD APPROACH: inferring active keys from current level, was too complicated
+    // const globalUsedKeyCodes = draftState.language.uniqueKeyCodes
     // if (draftState.trainingMode === TrainingMode.GUIDED) {
     // const noKeyOnlyOfType = (type: CharacterType) => (code: KeyCode): boolean =>
     // draftState.language.characterSet.filterByCode(code).every(ch => ch.type !== type)
