@@ -1,4 +1,4 @@
-# [Type trainer](https://nilueps.github.io/type_trainer/)
+# [Type trainer](https://sqwxl.github.io/type_trainer/)
 
 ## Description
 
