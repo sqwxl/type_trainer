@@ -14,7 +14,7 @@ Features:
 - optional non-printing characters
 - optional interactive virtual keyboard
 
-[Click here](https://nilueps.github.io/type_trainer/) to try out the latest live version
+[Click here](https://sqwxl.github.io/type_trainer/) to try out the latest live version
 
 ## User stories (task list)
 
